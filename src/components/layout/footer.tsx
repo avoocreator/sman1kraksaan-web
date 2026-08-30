@@ -42,8 +42,8 @@ export default function Footer() {
       <div className="container-page grid grid-cols-2 gap-10 py-14 md:grid-cols-6">
         <div className="col-span-2 md:col-span-2">
           <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange text-white">
-              <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
+            <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
+              <img src="/logo-sman1kraksaan.png" alt="Logo SMAN 1 Kraksaan" className="h-full w-full object-contain" />
             </span>
             <span className="text-sm font-bold text-ink">SMAN 1 Kraksaan</span>
           </Link>

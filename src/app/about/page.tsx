@@ -5,8 +5,52 @@ import { AccreditationCertificateDownload } from "@/components/ui/accreditation-
 
 export const metadata: Metadata = { title: "Tentang Kami", description: "Sejarah, visi, misi, dan profil SMAN 1 Kraksaan." };
 
-const facilities = ["Laboratorium IPA", "Lab Inovasi Digital", "Perpustakaan Digital", "Studio Robotik", "GOR & Lapangan Olahraga", "Aula Serbaguna"];
-const extracurriculars = ["Robotik", "Teknologi Informasi", "Debat Bahasa Inggris", "Atletik", "Seni Lukis", "Paduan Suara", "Pramuka", "PMR"];
+const facilities = [
+  "Ruang Kelas",
+  "Lab Informatika",
+  "Lab Fisika",
+  "Lab Kimia",
+  "Lab Biologi",
+  "Lab Bahasa",
+  "Lab IPS",
+  "Perpustakaan",
+  "Lab MultiMedia",
+  "Ruang Tata Usaha",
+  "Ruang Pertemuan",
+  "Ruangan Organisasi & Ekstrakurikuler",
+  "Ruang Kepala Sekolah",
+  "Mushola Putra & Putri",
+  "Kantin",
+  "Koperasi Sekolah",
+  "Ruang Guru",
+];
+const extracurriculars = [
+  "Robotika (Matura Robot Tech)",
+  "Bahasa Jepang (Nihongo)",
+  "ECC (English Conversation Club)",
+  "Jurnalistik (WARTA MATURA)",
+  "KIR (Kelompok Ilmiah Remaja)",
+  "Olah Raga Basket (SHITTONG)",
+  "Olah Raga Bola Tangan (Handball)",
+  "Olah Raga Futsal",
+  "Olah Raga Sepak Takraw",
+  "Olah Raga Voli",
+  "Olah Raga Badminthon",
+  "OSIS (OSKAMATURA)",
+  "PASKIBRA (KOMPASMATURA)",
+  "Pecinta Alam (SMAKRAPALA)",
+  "Pencak Silat",
+  "PMR (Palang Merah Remaja)",
+  "Pramuka",
+  "Seni Drama (TEATER DEKIK)",
+  "Seni Hadrah",
+  "Seni Lukis (SPAMATURA)",
+  "Seni Musik (Band)",
+  "Seni Paduan Suara",
+  "Seni Tari (ARISAKRA)",
+  "Sinematografi & Broadcasting (SINEMATURA)",
+  "Tahfidz Quran",
+];
 
 export default function AboutPage() {
   return (
@@ -16,7 +60,7 @@ export default function AboutPage() {
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange">Tentang Kami</p>
           <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">Mengenal SMAN 1 Kraksaan</h1>
           <p className="mt-4 text-base leading-relaxed text-ink-soft">
-            Sejak 1965, kami membina generasi pelajar Probolinggo dengan pendekatan akademik yang kuat, karakter yang kokoh, dan keterhubungan nyata dengan dunia industri dan perguruan tinggi.
+            SMAN 1 Kraksaan merupakan sekolah menengah atas negeri yang berlokasi di Sidomukti, Kraksaan, Kabupaten Probolinggo, Jawa Timur. Berdiri pada tahun 1978, Sekolah ini berhasil mengukir ratusan prestasi akademik dan non-akademik. Sekolah ini menerapkan kurikulum merdeka yang sudah disesuaikan dengan standar Pendidikan Indonesia dan menyediakan program studi Saintek (Sains dan Teknologi) dan Soshum (Sosial Hukum). Selain itu, SMA Negeri 1 Kraksaan aktif dalam mengembangkan kegiatan ekstrakurikuler akademik dan non akademik (seni dan olahraga)
           </p>
         </div>
 
@@ -27,7 +71,7 @@ export default function AboutPage() {
           <div>
             <h2 className="text-2xl font-bold text-ink">Sejarah Singkat</h2>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-              SMAN 1 Kraksaan berdiri pada tahun 1965 sebagai salah satu sekolah menengah atas negeri tertua di Kabupaten Probolinggo. Selama lebih dari lima dekade, sekolah terus bertransformasi mengikuti perkembangan zaman — dari kurikulum konvensional hingga kini merintis ekosistem pembelajaran digital yang terhubung dengan industri.
+              Didirikan pada 1 April 1978, SMAN 1 Kraksaan telah melewati perjalanan panjang dalam membangun pendidikan di Kabupaten Probolinggo. Berawal dari kegiatan pembelajaran yang memanfaatkan gedung SMP Negeri 1 Kraksaan, sekolah ini kemudian berkembang menjadi institusi pendidikan yang terus beradaptasi dengan perubahan zaman dan mendorong peserta didik untuk berprestasi.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-ink-soft">
               Ribuan alumni telah lahir dari sekolah ini dan tersebar di berbagai bidang, menjadi bukti nyata komitmen sekolah dalam mencetak generasi unggul.
@@ -39,12 +83,20 @@ export default function AboutPage() {
           <div className="rounded-2xl border border-border bg-surface p-6">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-soft text-orange"><Compass className="h-5 w-5" /></span>
             <h3 className="mt-4 text-lg font-bold text-ink">Visi</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink-soft">Menjadi sekolah unggul yang menghasilkan lulusan berkarakter, kompetitif, dan siap menghadapi tantangan global.</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">Menghasilkan lulusan yang Beriman, Bertaqwa, Berakhlakmulia, Berbudaya lingkungan, Berwawasan global, dan Terdepan dalamp Prestasi (BELIA BERLIAN GLOBAL TERATASI)</p>
           </div>
           <div className="rounded-2xl border border-border bg-surface p-6">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-soft text-blue"><Target className="h-5 w-5" /></span>
             <h3 className="mt-4 text-lg font-bold text-ink">Misi</h3>
-            <p className="mt-2 text-sm leading-relaxed text-ink-soft">Menyelenggarakan pembelajaran bermutu, membina prestasi siswa, dan membangun jejaring dengan perguruan tinggi serta industri.</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+              <ol className="mt-2 space-y-1.5 text-sm leading-relaxed text-ink-soft list-decimal list-inside">
+                <li>Meningkatkan keimanan dan ketaqwaan pada Tuhan Yang Maha Esa.</li>
+                <li>Menguatkan pengembangan enam dimensi profil pelajar Pancasila.</li>
+                <li>Meningkatkan kepedulian terhadap kelestarian lingkungan yang sehat.</li>
+                <li>Meningkatkan kualitas lulusan untuk dapat bersaing di era global.</li>
+                <li>Menumbuhkan dan mendorong tumbuhnya semangat berkompetisi positif dan berprestasi.</li>
+              </ol>
+            </p>
           </div>
         </div>
 
@@ -70,13 +122,17 @@ export default function AboutPage() {
 
         <div className="mt-10 rounded-3xl border border-border bg-surface p-8 md:p-10">
           <div className="flex items-start gap-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange text-white"><Users className="h-5 w-5" /></span>
+            <img
+              src="/kepala-sekolah.jpg"
+              alt="Ahmad Sudiarto, S.Pd., M.M. — Kepala SMAN 1 Kraksaan"
+              className="h-28 w-28 shrink-0 rounded-xl object-cover sm:h-32 sm:w-32"
+            />
             <div>
               <h3 className="text-lg font-bold text-ink">Sambutan Kepala Sekolah</h3>
               <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-                "Pendidikan bukan sekadar transfer ilmu, melainkan proses membentuk karakter dan membuka jalan menuju peluang. Melalui platform digital ini, kami berharap seluruh warga sekolah, alumni, dan mitra industri dapat terhubung lebih erat demi masa depan siswa yang lebih cerah."
+                "Sungguh merupakan rahmat Allah yang indah hingga pengembangan website SMA Negeri 1 Kraksaan dapat terwujud. Berangkat dari keinginan untuk memberikan layanan pendidikan yang lebih baik bagi masyarakat Kabupaten Probolinggo, khususnya Kraksaan dan sekitarnya, website ini hadir sebagai media untuk menyampaikan berbagai rencana, kegiatan, dan capaian sekolah secara utuh. Terima kasih kami sampaikan kepada seluruh pihak yang senantiasa mendukung kemajuan pendidikan serta keluarga besar SMA Negeri 1 Kraksaan yang terus berkontribusi dalam membangun sekolah tercinta. Website ini menjadi langkah awal untuk terus berbenah dan berkembang, dengan saran serta masukan sebagai bagian penting dalam pengembangannya. Semoga website ini dapat memberikan manfaat dan mewujudkan ikhtiar terbaik SMA Negeri 1 Kraksaan. Aamiin."
               </p>
-              <p className="mt-3 text-sm font-semibold text-ink">Drs. H. Bambang Sutrisno, M.Pd.</p>
+              <p className="mt-3 text-sm font-semibold text-ink">Ahmad Sudiarto, S.Pd., M.M.</p>
               <p className="text-xs text-muted">Kepala SMAN 1 Kraksaan</p>
             </div>
           </div>

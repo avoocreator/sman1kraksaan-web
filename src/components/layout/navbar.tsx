@@ -53,8 +53,8 @@ export default function Navbar() {
     >
       <nav className="container-page flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange text-white">
-            <GraduationCap className="h-5 w-5" strokeWidth={2.2} />
+          <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
+            <img src="/logo-sman1kraksaan.png" alt="Logo SMAN 1 Kraksaan" className="h-full w-full object-contain" />
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-bold text-ink">SMAN 1 Kraksaan</span>

@@ -2,24 +2,21 @@
 
 :root {
   /* Base */
-  --color-bg: #FAF8F4;
+  --color-bg: #FFFDF5;
   --color-surface: #FFFFFF;
-  --color-surface-alt: #F3EFE7;
-  --color-ink: #1B2430;
-  --color-ink-soft: #4B5361;
-  --color-muted: #7A7F87;
-  --color-border: #E7E1D6;
+  --color-surface-alt: #FFF6DC;
+  --color-ink: #0F2A33;
+  --color-ink-soft: #2E4A54;
+  --color-muted: #5C7580;
+  --color-border: #D9CFA0;
 
   /* Brand */
-  --color-orange: #EB662B;
-  --color-orange-dark: #C64F1C;
-  --color-orange-soft: #FDE8DB;
-  --color-blue: #234C6E;
-  --color-blue-soft: #E7EEF3;
-  --color-blue-bright: #3E7CA6;
-
-  --font-display: var(--font-plus-jakarta);
-  --font-body: var(--font-plus-jakarta);
+  --color-orange: #F5B31A;
+  --color-orange-dark: #D89400;
+  --color-orange-soft: #FFF0C2;
+  --color-blue: #106485;
+  --color-blue-soft: #DCF0F7;
+  --color-blue-bright: #0EA5C4;
 }
 
 @theme inline {
@@ -75,7 +72,10 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

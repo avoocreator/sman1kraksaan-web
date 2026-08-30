@@ -22,7 +22,7 @@ export function Hero() {
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-ink-soft"
           >
             <Sparkles className="h-3.5 w-3.5 text-orange" />
-            One School. One Digital Ecosystem.
+            The Digital Home of SMAN 1 Kraksaan
           </motion.div>
 
           <motion.h1
@@ -31,9 +31,9 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.05 }}
             className="text-balance text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl"
           >
-            Where Education
+            SMAN 1 KRAKSAAN
             <br />
-            Meets <span className="text-orange">Opportunity.</span>
+            Sekolah Idaman <span className="text-orange">Sepanjang Zaman</span>
           </motion.h1>
 
           <motion.p
