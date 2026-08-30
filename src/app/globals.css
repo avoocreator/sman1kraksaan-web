@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+:root {
+  /* Base */
+  --color-bg: #FAF8F4;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F3EFE7;
+  --color-ink: #1B2430;
+  --color-ink-soft: #4B5361;
+  --color-muted: #7A7F87;
+  --color-border: #E7E1D6;
+
+  /* Brand */
+  --color-orange: #EB662B;
+  --color-orange-dark: #C64F1C;
+  --color-orange-soft: #FDE8DB;
+  --color-blue: #234C6E;
+  --color-blue-soft: #E7EEF3;
+  --color-blue-bright: #3E7CA6;
+
+  --font-display: var(--font-plus-jakarta);
+  --font-body: var(--font-plus-jakarta);
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-alt: var(--color-surface-alt);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-muted: var(--color-muted);
+  --color-border: var(--color-border);
+  --color-orange: var(--color-orange);
+  --color-orange-dark: var(--color-orange-dark);
+  --color-orange-soft: var(--color-orange-soft);
+  --color-blue: var(--color-blue);
+  --color-blue-soft: var(--color-blue-soft);
+  --color-blue-bright: var(--color-blue-bright);
+  --font-sans: var(--font-plus-jakarta);
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  background: var(--color-orange);
+  color: white;
+}
+
+.container-page {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container-page {
+    padding-inline: 2.5rem;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
