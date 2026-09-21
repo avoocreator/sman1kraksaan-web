@@ -89,3 +89,19 @@ export interface Statistics {
   alumniProfessional: number;
   alumniEntrepreneur: number;
 }
+
+export type RoomCategory = "kelas" | "lab" | "fasilitas" | "ekstrakurikuler" | "taman" | "toilet" | "kantin";
+
+export interface SchoolRoom {
+  id: string;
+  name: string;
+  category: RoomCategory;
+  description: string;
+  photo: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fontSize?: number;
+  vertical?: boolean;
+}
