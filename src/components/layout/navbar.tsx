@@ -21,7 +21,7 @@ const moreLinks = [
   { label: "Karier & PKL", href: "/career" },
   { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
-  { label: "PPDB", href: "/ppdb" },
+  { label: "PPDB", href: "/jelajahi" },
 ];
 
 export default function Navbar() {
@@ -117,7 +117,7 @@ export default function Navbar() {
           >
             <Search className="h-4.5 w-4.5" />
           </Link>
-          <LinkButton href="/ppdb" size="sm">
+          <LinkButton href="/jelajahi" size="sm">
             Jelajahi Sekolah
           </LinkButton>
         </div>

@@ -1,28 +1,27 @@
 "use client";
 
 import { SchoolRoom } from "@/types";
-import { MAP_VIEWBOX, MAP_CENTER } from "@/data/school-map";
+import { MAP_VIEWBOX } from "@/data/school-map";
 
 const categoryColors: Record<string, { fill: string; text: string }> = {
-  kelas: { fill: "#FCD34D", text: "#1B2430" },
-  lab: { fill: "#BFDCEF", text: "#1B2430" },
-  fasilitas: { fill: "#FCD34D", text: "#1B2430" },
-  ekstrakurikuler: { fill: "#F0A868", text: "#1B2430" },
-  taman: { fill: "#5EAB99", text: "#FFFFFF" },
-  toilet: { fill: "#7EC8E3", text: "#1B2430" },
-  kantin: { fill: "#F0A868", text: "#1B2430" },
+  kelas: { fill: "#FDE7B8", text: "#7A5B12" },
+  lab: { fill: "#CFEAF3", text: "#0E5A73" },
+  fasilitas: { fill: "#F2EDE1", text: "#5C5646" },
+  ekstrakurikuler: { fill: "#F6C9A0", text: "#8A4A12" },
+  taman: { fill: "#7FB8A4", text: "#FFFFFF" },
+  toilet: { fill: "#B9DCEA", text: "#1B4A5C" },
+  kantin: { fill: "#E8935C", text: "#FFFFFF" },
 };
 
 interface FloorPlanSVGProps {
   rooms: SchoolRoom[];
   overlayRooms?: SchoolRoom[];
-  rotation: number;
   hoveredId: string | null;
   onHover: (id: string | null) => void;
   onClick: (room: SchoolRoom) => void;
 }
 
-export function FloorPlanSVG({ rooms, overlayRooms, rotation, hoveredId, onHover, onClick }: FloorPlanSVGProps) {
+export function FloorPlanSVG({ rooms, overlayRooms, hoveredId, onHover, onClick }: FloorPlanSVGProps) {
   const renderRoom = (room: SchoolRoom, interactive: boolean) => {
     const cx = room.x + room.width / 2;
     const cy = room.y + room.height / 2;
@@ -43,12 +42,11 @@ export function FloorPlanSVG({ rooms, overlayRooms, rotation, hoveredId, onHover
           y={room.y}
           width={room.width}
           height={room.height}
-          rx={6}
+          rx={8}
           fill={interactive ? colors.fill : "#B9B9B9"}
-          stroke={isHovered ? "#EB662B" : "#00000022"}
-          strokeWidth={isHovered ? 3 : 1}
+          stroke={isHovered ? "#EB662B" : "#FFFFFF"}
+          strokeWidth={isHovered ? 3 : 2}
         />
-        <g transform={`rotate(${-rotation} ${cx} ${cy})`}>
           <text
             x={cx}
             y={cy}
@@ -61,17 +59,14 @@ export function FloorPlanSVG({ rooms, overlayRooms, rotation, hoveredId, onHover
           >
             {room.name}
           </text>
-        </g>
       </g>
     );
   };
 
-  return (
+    return (
     <svg viewBox={MAP_VIEWBOX} className="h-full w-full">
-      <g transform={`rotate(${rotation} ${MAP_CENTER.x} ${MAP_CENTER.y})`}>
-        {rooms.map((room) => renderRoom(room, !overlayRooms))}
-        {overlayRooms?.map((room) => renderRoom(room, true))}
-      </g>
+      {rooms.map((room) => renderRoom(room, !overlayRooms))}
+      {overlayRooms?.map((room) => renderRoom(room, true))}
     </svg>
   );
 }

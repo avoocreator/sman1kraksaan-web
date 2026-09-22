@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 export default function JelajahiPage() {
   const [floor, setFloor] = useState<1 | 2>(1);
-  const [rotation, setRotation] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState<SchoolRoom | null>(null);
 
@@ -26,8 +25,8 @@ export default function JelajahiPage() {
         </p>
       </div>
 
-      <div className="mt-8 flex flex-col gap-6 lg:flex-row">
-        <div className="flex-1">
+    <div className="mt-8">
+        <div>
           <div className="mb-4 flex items-center gap-2">
             {([1, 2] as const).map((f) => (
               <button
@@ -42,12 +41,10 @@ export default function JelajahiPage() {
               </button>
             ))}
           </div>
-
-          <div className="relative aspect-[3/2] w-full overflow-hidden rounded-3xl border border-border bg-surface">
+         <div className="relative aspect-[3/2] w-full overflow-hidden rounded-3xl border border-border bg-surface">
             <FloorPlanSVG
               rooms={floor1Rooms}
               overlayRooms={floor === 2 ? floor2Rooms : undefined}
-              rotation={rotation}
               hoveredId={hoveredId}
               onHover={setHoveredId}
               onClick={setSelectedRoom}
@@ -57,20 +54,15 @@ export default function JelajahiPage() {
                 {hoveredRoom.name}
               </div>
             )}
+            <div className="pointer-events-none absolute right-4 top-4">
+              <CompassControl />
+            </div>
           </div>
           {floor === 2 && (
             <p className="mt-3 text-xs text-muted">
               Lantai 2 hanya tersedia di satu bagian gedung (XI A &amp; XI B) — bagian lainnya ditampilkan pudar sebagai referensi lantai 1.
             </p>
           )}
-        </div>
-
-        <div className="lg:w-56">
-          <CompassControl
-            rotation={rotation}
-            onRotate={(delta) => setRotation((r) => r + delta)}
-            onReset={() => setRotation(0)}
-          />
         </div>
       </div>
 

@@ -1,47 +1,20 @@
-"use client";
-
-import { RotateCcw, RotateCw } from "lucide-react";
-
-export function CompassControl({
-  rotation,
-  onRotate,
-  onReset,
-}: {
-  rotation: number;
-  onRotate: (delta: number) => void;
-  onReset: () => void;
-}) {
+export function CompassControl() {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface p-4 shadow-lg">
-      <button
-        onClick={onReset}
-        aria-label="Reset arah ke Utara"
-        className="relative flex h-16 w-16 items-center justify-center rounded-full border-2 border-border bg-bg"
-      >
-        <div
-          className="absolute inset-0 flex items-start justify-center pt-1.5 transition-transform duration-300"
-          style={{ transform: `rotate(${rotation}deg)` }}
-        >
-          <span className="text-xs font-bold text-orange">N</span>
-        </div>
-        <div className="h-1.5 w-1.5 rounded-full bg-ink" />
-      </button>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => onRotate(-90)}
-          aria-label="Putar kiri"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg text-ink-soft hover:bg-surface-alt"
-        >
-          <RotateCcw className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => onRotate(90)}
-          aria-label="Putar kanan"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-bg text-ink-soft hover:bg-surface-alt"
-        >
-          <RotateCw className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
+    <svg viewBox="0 0 120 120" className="h-20 w-20 drop-shadow-sm">
+      <circle cx="60" cy="60" r="54" fill="#FFFDF5" stroke="#D9CFA0" strokeWidth="1.5" />
+      {[45, 135, 225, 315].map((a) => {
+        const rad = (a * Math.PI) / 180;
+        const x1 = 60 + 54 * Math.sin(rad);
+        const y1 = 60 - 54 * Math.cos(rad);
+        const x2 = 60 + 46 * Math.sin(rad);
+        const y2 = 60 - 46 * Math.cos(rad);
+        return <line key={a} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#D9CFA0" strokeWidth="2" />;
+      })}
+      {/* jarum */}
+      <polygon points="60,16 68,60 60,60 52,60" fill="#EB662B" />
+      <polygon points="60,104 68,60 60,60 52,60" fill="#2E4A54" />
+      <circle cx="60" cy="60" r="5" fill="#FFFDF5" stroke="#0F2A33" strokeWidth="2" />
+      <text x="60" y="12" textAnchor="middle" fontSize="11" fontWeight={700} fill="#EB662B">N</text>
+    </svg>
   );
 }
