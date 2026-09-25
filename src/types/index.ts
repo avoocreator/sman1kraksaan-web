@@ -37,17 +37,6 @@ export interface Partner {
   programs: string[];
 }
 
-export interface CareerOpportunity {
-  slug: string;
-  position: string;
-  company: string;
-  location: string;
-  type: "Magang" | "PKL" | "Penuh Waktu" | "Paruh Waktu";
-  deadline: string;
-  description: string;
-  requirements: string[];
-}
-
 export interface NewsArticle {
   slug: string;
   title: string;

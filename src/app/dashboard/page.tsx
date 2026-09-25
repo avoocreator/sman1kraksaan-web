@@ -11,7 +11,6 @@ export default async function DashboardOverviewPage() {
     { label: "Prestasi", value: statistics.achievements, icon: Trophy, tone: "orange" as const },
     { label: "Alumni", value: statistics.alumni.toLocaleString("id-ID"), icon: Users, tone: "blue" as const },
     { label: "Mitra Industri", value: statistics.partners, icon: Handshake, tone: "blue" as const },
-    { label: "Peluang Karier", value: 4, icon: Briefcase, tone: "orange" as const },
   ];
 
   return (

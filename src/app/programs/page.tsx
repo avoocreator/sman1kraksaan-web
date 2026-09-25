@@ -38,12 +38,6 @@ export default async function ProgramsPage() {
                     {p.facilities.map((s) => <li key={s}>{s}</li>)}
                   </ul>
                 </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted">Peluang Karier</p>
-                  <ul className="mt-2 space-y-1 text-sm text-ink-soft">
-                    {p.careers.map((s) => <li key={s}>{s}</li>)}
-                  </ul>
-                </div>
               </div>
             </div>
           </div>

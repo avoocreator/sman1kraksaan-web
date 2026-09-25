@@ -14,7 +14,6 @@ const items = [
   { label: "Prestasi", href: "/dashboard/achievements", icon: Trophy },
   { label: "Alumni", href: "/dashboard/alumni", icon: Users },
   { label: "Mitra", href: "/dashboard/partners", icon: Handshake },
-  { label: "Karier", href: "/dashboard/career", icon: Briefcase },
   { label: "Berita", href: "/dashboard/news", icon: Newspaper },
   { label: "Agenda", href: "/dashboard/events", icon: CalendarDays },
   { label: "PPDB", href: "/dashboard/ppdb", icon: ClipboardList },

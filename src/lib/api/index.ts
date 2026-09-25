@@ -18,7 +18,6 @@
 import { getAllAchievements, getAchievementBySlug } from "@/data/achievements";
 import { getAllAlumni, getAlumnusBySlug } from "@/data/alumni";
 import { getAllPartners, getPartnerBySlug } from "@/data/partners";
-import { getAllCareerOpportunities, getCareerOpportunityBySlug } from "@/data/career";
 import { getAllNews, getNewsBySlug } from "@/data/news";
 import { getAllEvents, getEventBySlug } from "@/data/events";
 import { getAllPrograms, getProgramBySlug } from "@/data/programs";
@@ -43,13 +42,6 @@ export async function getPartners() {
 }
 export async function getPartner(slug: string) {
   return getPartnerBySlug(slug);
-}
-
-export async function getCareerOpportunities() {
-  return getAllCareerOpportunities();
-}
-export async function getCareerOpportunity(slug: string) {
-  return getCareerOpportunityBySlug(slug);
 }
 
 export async function getNews() {

@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils";
 
 interface SearchItem {
   title: string;
-  category: "Prestasi" | "Alumni" | "Berita" | "Agenda" | "Karier" | "Program";
+  category: "Prestasi" | "Alumni" | "Berita" | "Agenda" | "Program";
   href: string;
   description: string;
 }
 
-const categories = ["Semua", "Prestasi", "Alumni", "Berita", "Agenda", "Karier", "Program"] as const;
+const categories = ["Semua", "Prestasi", "Alumni", "Berita", "Agenda", "Program"] as const;
 
 export function SearchExplorer({ items }: { items: SearchItem[] }) {
   const [query, setQuery] = useState("");

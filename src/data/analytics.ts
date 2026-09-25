@@ -11,7 +11,6 @@ export const engagementByContent = [
   { name: "Prestasi", value: 420 },
   { name: "Alumni", value: 310 },
   { name: "Berita", value: 380 },
-  { name: "Karier", value: 260 },
   { name: "Agenda", value: 190 },
 ];
 
@@ -38,5 +37,4 @@ export const popularPages = [
   { page: "/alumni", views: 4120 },
   { page: "/ppdb", views: 3870 },
   { page: "/news", views: 3210 },
-  { page: "/career", views: 2650 },
 ];

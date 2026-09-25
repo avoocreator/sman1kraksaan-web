@@ -18,7 +18,6 @@ const navLinks = [
 
 const moreLinks = [
   { label: "Mitra Industri", href: "/partners" },
-  { label: "Karier & PKL", href: "/career" },
   { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
   { label: "PPDB", href: "/jelajahi" },

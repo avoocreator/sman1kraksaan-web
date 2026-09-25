@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     template: "%s | SMAN 1 Kraksaan",
   },
   description:
-    "Satu sekolah, satu ekosistem digital. Jelajahi prestasi, alumni, mitra industri, dan peluang karier SMAN 1 Kraksaan.",
+    "Satu sekolah, satu ekosistem digital. Jelajahi prestasi, dan alumni, SMAN 1 Kraksaan.",
   openGraph: {
     title: "SMAN 1 Kraksaan — School Digital Hub",
     description:
-      "Satu sekolah, satu ekosistem digital. Jelajahi prestasi, alumni, mitra industri, dan peluang karier SMAN 1 Kraksaan.",
+      "Satu sekolah, satu ekosistem digital. Jelajahi prestasi, dan alumni, SMAN 1 Kraksaan.",
     type: "website",
     locale: "id_ID",
   },

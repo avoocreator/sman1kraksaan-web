@@ -15,7 +15,7 @@ export default async function PartnersPage() {
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange">Kolaborasi</p>
         <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">School × Industry</h1>
         <p className="mt-3 text-base leading-relaxed text-ink-soft">
-          {partners.length}+ mitra dari berbagai sektor mendukung pembelajaran dan pengembangan karier siswa.
+          {partners.length}+ mitra dari berbagai sektor mendukung pembelajaran, pengembangan akademik, kunjungan edukatif, beasiswa, dan kolaborasi.
         </p>
       </div>
 

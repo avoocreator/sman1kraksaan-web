@@ -33,11 +33,6 @@ const mockAnswers: { keywords: string[]; reply: string }[] = [
     reply:
       "Alumni SMAN 1 Kraksaan tersebar di berbagai bidang — pendidikan tinggi, karier profesional, hingga wirausaha. Jelajahi kisah mereka di halaman Alumni.",
   },
-  {
-    keywords: ["magang", "pkl", "karier", "kerja"],
-    reply:
-      "Ada beberapa peluang magang dan PKL bersama mitra industri seperti Telkom, Bank Jatim, dan Astra Honda Motor. Lihat semua lowongan di halaman Karier.",
-  },
 ];
 
 const fallback =

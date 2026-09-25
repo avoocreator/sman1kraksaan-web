@@ -21,12 +21,12 @@ const columns = [
       { label: "Mitra Industri", href: "/partners" },
       { label: "Berita", href: "/news" },
       { label: "Agenda", href: "/events" },
+      { label: "Jelajahi Sekolah", href: "/jelajahi" },
     ],
   },
   {
-    title: "Peluang",
+    title: "Lainnya",
     links: [
-      { label: "Karier & PKL", href: "/career" },
       { label: "Pencarian", href: "/search" },
       { label: "Masuk Admin", href: "/login" },
     ],
