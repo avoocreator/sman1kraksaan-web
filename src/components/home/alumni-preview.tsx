@@ -14,6 +14,10 @@ export function AlumniPreview({ alumni, statistics }: { alumni: Alumnus[]; stati
     { label: "Wirausaha", value: `${statistics.alumniEntrepreneur}%` },
   ];
 
+  // Digandakan biar looping-nya mulus tanpa jeda
+  const loopAlumni = [...alumni, ...alumni];
+  const duration = alumni.length * 4;
+
   return (
     <section className="bg-surface py-20 md:py-28">
       <div className="container-page">
@@ -37,31 +41,44 @@ export function AlumniPreview({ alumni, statistics }: { alumni: Alumnus[]; stati
             </LinkButton>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {alumni.map((a, i) => (
-              <motion.a
-                key={a.slug}
-                href={`/alumni/${a.slug}`}
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="group overflow-hidden rounded-2xl border border-border bg-bg transition-shadow hover:shadow-lg hover:shadow-ink/5"
-              >
-                <div className="aspect-[3/4] overflow-hidden">
-                  <img
-                    src={a.photo}
-                    alt={a.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-semibold leading-snug text-ink">{a.name}</p>
-                  <p className="mt-0.5 text-xs text-muted">Angkatan {a.graduationYear}</p>
-                  <p className="mt-1 text-xs leading-snug text-ink-soft">{a.role}</p>
-                </div>
-              </motion.a>
-            ))}
+          <div className="relative overflow-hidden">
+            {/* fade di tepi kiri & kanan */}
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-surface to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-surface to-transparent" />
+
+            <motion.div
+              className="flex gap-4"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{ duration, ease: "linear", repeat: Infinity }}
+            >
+              {loopAlumni.map((a, i) => (
+                <a
+                  key={`${a.slug}-${i}`}
+                  href={`/alumni/${a.slug}`}
+                  className="group w-40 shrink-0 overflow-hidden rounded-2xl border border-border bg-bg transition-shadow hover:shadow-lg hover:shadow-ink/5 sm:w-48"
+                >
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img
+                      src={a.photo}
+                      alt={a.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+
+                  <div className="p-3">
+                    <p className="truncate text-sm font-semibold leading-snug text-ink">
+                      {a.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      Angkatan {a.graduationYear}
+                    </p>
+                    <p className="mt-1 truncate text-xs leading-snug text-ink-soft">
+                      {a.role}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </motion.div>
           </div>
         </div>
       </div>

@@ -1,22 +1,22 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Briefcase, Building2, Handshake, Presentation, Users2 } from "lucide-react";
+import { ArrowRight, Building2, GraduationCap, Handshake, HeartHandshake, Presentation } from "lucide-react";
 import { Partner } from "@/types";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { LinkButton } from "@/components/ui/button";
 
 const typeIcons: Record<string, React.ElementType> = {
-  Magang: Briefcase,
-  "Kunjungan Industri": Building2,
   "Kuliah Tamu": Presentation,
-  Rekrutmen: Users2,
-  Kolaborasi: Handshake,
+  "Kunjungan Edukatif": Building2,
+  "Beasiswa & Jalur Masuk": GraduationCap,
+  "Kolaborasi Riset": Handshake,
+  "Kegiatan Sosial": HeartHandshake,
 };
 
-export function PartnersPreview({ partners }: { partners: Partner[] }) {
-  const types = ["Magang", "Kunjungan Industri", "Kuliah Tamu", "Rekrutmen", "Kolaborasi"];
+const types = ["Kuliah Tamu", "Kunjungan Edukatif", "Beasiswa & Jalur Masuk", "Kolaborasi Riset", "Kegiatan Sosial"];
 
+export function PartnersPreview({ partners }: { partners: Partner[] }) {
   return (
     <section className="container-page py-20 md:py-28">
       <SectionHeading eyebrow="Kolaborasi" title="School × Industry" align="center" className="mx-auto" />
@@ -30,9 +30,13 @@ export function PartnersPreview({ partners }: { partners: Partner[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, delay: i * 0.05 }}
-            className="flex h-24 items-center justify-center rounded-2xl border border-border bg-surface px-4 text-center text-sm font-semibold text-ink-soft transition-colors hover:border-orange hover:text-orange-dark"
+            className="group flex h-24 items-center justify-center rounded-2xl border border-border bg-surface px-6 transition-colors hover:border-orange"
           >
-            {p.logo}
+            <img
+              src={p.logoImage}
+              alt={p.name}
+              className="max-h-10 w-full object-contain grayscale opacity-70 transition-all duration-300 group-hover:grayscale-0 group-hover:opacity-100"
+            />
           </motion.a>
         ))}
       </div>

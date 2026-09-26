@@ -30,7 +30,8 @@ export interface Partner {
   slug: string;
   name: string;
   logo: string;
-  type: "Magang" | "Kunjungan Industri" | "Kuliah Tamu" | "Rekrutmen" | "Kolaborasi";
+  logoImage: string;
+  type: "Kuliah Tamu" | "Kunjungan Edukatif" | "Beasiswa & Jalur Masuk" | "Kolaborasi Riset" | "Kegiatan Sosial";
   description: string;
   since: number;
   website?: string;
