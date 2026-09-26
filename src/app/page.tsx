@@ -1,4 +1,5 @@
 import { Hero } from "@/components/home/hero";
+import { SupportedBy } from "@/components/home/supported-by";
 import { StatsStrip } from "@/components/home/stats-strip";
 import { SchoolIntro } from "@/components/home/school-intro";
 import { AchievementsPreview } from "@/components/home/achievements-preview";
@@ -31,6 +32,7 @@ export default async function Home() {
   return (
     <>
       <Hero />
+      <SupportedBy />
       <StatsStrip statistics={statistics} />
       <SchoolIntro />
       <AchievementsPreview achievements={achievements} />
