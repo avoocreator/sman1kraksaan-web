@@ -120,5 +120,16 @@ export const floor2Rooms: SchoolRoom[] = [
   },
 ];
 
+// export const floors = [
+//   {
+//     name: "Lantai 1",
+//     rooms: floor1Rooms
+//   },
+//   {
+//     name: "Lantai 2",
+//     rooms: floor2Rooms
+//   },
+// ]
+
 export const MAP_VIEWBOX = "0 0 2050 1420";
 export const MAP_CENTER = { x: 1025, y: 710 };
