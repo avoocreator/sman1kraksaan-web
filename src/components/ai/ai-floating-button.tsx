@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Sparkles, X, Send } from "lucide-react";
+import { Maximize2, Minimize2, Sparkles, X } from "lucide-react";
 import { AiChatThread } from "@/components/ai/ai-chat-thread";
 
 export default function AiFloatingButton() {
   const [open, setOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
   const pathname = usePathname();
   if (pathname?.startsWith("/dashboard")) return null;
 
@@ -31,16 +32,28 @@ export default function AiFloatingButton() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="fixed bottom-24 right-5 z-50 flex h-[28rem] w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl shadow-ink/10 sm:bottom-28 sm:right-8"
+            className={
+              fullscreen
+                ? "fixed inset-0 z-50 flex h-screen w-screen flex-col overflow-hidden border border-border bg-surface shadow-2xl shadow-ink/10"
+                : "fixed bottom-24 right-5 z-50 flex h-[28rem] w-[calc(100vw-2.5rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl shadow-ink/10 sm:bottom-28 sm:right-8"
+            }
           >
             <div className="flex items-center gap-2.5 border-b border-border bg-blue px-4 py-3.5 text-white">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15">
                 <Sparkles className="h-4 w-4" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-semibold">Asisten Sekolah</p>
                 <p className="text-[11px] text-white/70">Biasanya membalas dalam hitungan detik</p>
               </div>
+              <button
+                type="button"
+                onClick={() => setFullscreen((value) => !value)}
+                aria-label={fullscreen ? "Keluar dari layar penuh" : "Buka layar penuh"}
+                className="ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                {fullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
             </div>
             <AiChatThread compact />
           </motion.div>

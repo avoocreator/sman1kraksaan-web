@@ -1,47 +1,124 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
-import { Send, Sparkles } from "lucide-react";
+import { RotateCcw, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getMockAiResponse } from "@/lib/ai";
+import { getAiResponse } from "@/lib/ai";
 
 interface Message {
   role: "user" | "assistant";
   text: string;
 }
 
-const initialMessages: Message[] = [
-  {
-    role: "user",
-    text: "Apa saja ekstrakurikuler yang tersedia?",
-  },
-  {
-    role: "assistant",
-    text: "SMAN 1 Kraksaan menawarkan berbagai ekstrakurikuler mulai dari Robotik, Teknologi Informasi, Debat Bahasa Inggris, hingga Atletik dan Seni Lukis...",
-  },
-];
+const STORAGE_KEY = "sman1kraksaan-ai-chat";
+const MAX_MESSAGES_TO_AI = 8;
+const MAX_MESSAGES_TO_STORE = 20;
+
+function renderAssistantText(text: string): ReactNode {
+  return text.split("\n").map((line, lineIndex, lines) => {
+    const content = line.startsWith("- ") ? `• ${line.slice(2)}` : line;
+    const parts = content.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+
+    return (
+      <span key={`${line}-${lineIndex}`}>
+        {parts.map((part, partIndex) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            return <strong key={partIndex}>{part.slice(2, -2)}</strong>;
+          }
+          if (part.startsWith("`") && part.endsWith("`")) {
+            return <code key={partIndex} className="rounded bg-bg px-1 py-0.5 text-xs">{part.slice(1, -1)}</code>;
+          }
+          return part;
+        })}
+        {lineIndex < lines.length - 1 && <br />}
+      </span>
+    );
+  });
+}
 
 export function AiChatThread({ compact = false }: { compact?: boolean }) {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [storageReady, setStorageReady] = useState(false);
+  const threadRef = useRef<HTMLDivElement>(null);
 
-  function handleSend() {
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setMessages(parsed.slice(-MAX_MESSAGES_TO_STORE));
+      }
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } finally {
+      setStorageReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady) return;
+    if (messages.length === 0) window.localStorage.removeItem(STORAGE_KEY);
+    else window.localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-MAX_MESSAGES_TO_STORE)));
+  }, [messages, storageReady]);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (thread) thread.scrollTo({ top: thread.scrollHeight, behavior: "smooth" });
+  }, [messages, thinking]);
+
+  function clearChat() {
+    setMessages([]);
+    setInput("");
+    window.localStorage.removeItem(STORAGE_KEY);
+  }
+
+  async function handleSend() {
     const text = input.trim();
-    if (!text) return;
+    if (!text || thinking) return;
+    const history = messages.slice(-(MAX_MESSAGES_TO_AI - 1)).map((message) => ({
+      role: message.role,
+      content: message.text,
+    }));
     setMessages((prev) => [...prev, { role: "user", text }]);
     setInput("");
     setThinking(true);
-    setTimeout(() => {
-      setMessages((prev) => [...prev, { role: "assistant", text: getMockAiResponse(text) }]);
+    try {
+      const answer = await getAiResponse(text, history);
+      setMessages((prev) => [...prev, { role: "assistant", text: answer }]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: error instanceof Error ? error.message : "Asisten sedang tidak tersedia.",
+        },
+      ]);
+    } finally {
       setThinking(false);
-    }, 650);
+    }
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className={cn("flex-1 space-y-3 overflow-y-auto px-4 py-4", compact ? "text-sm" : "text-sm")}>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex justify-end border-b border-border px-4 py-2">
+        <button
+          type="button"
+          onClick={clearChat}
+          disabled={!messages.length && !input}
+          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:bg-surface-alt hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+        >
+          <RotateCcw className="h-3 w-3" />
+          Bersihkan
+        </button>
+      </div>
+      <div ref={threadRef} className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4", compact ? "text-sm" : "text-sm")}>
+        {!messages.length && !thinking && (
+          <p className="py-10 text-center text-xs text-muted">Belum ada percakapan. Tanyakan sesuatu tentang sekolah.</p>
+        )}
         {messages.map((m, i) => (
           <motion.div
             key={i}
@@ -58,7 +135,7 @@ export function AiChatThread({ compact = false }: { compact?: boolean }) {
                   : "rounded-bl-sm bg-surface-alt text-ink"
               )}
             >
-              {m.text}
+              {m.role === "assistant" ? renderAssistantText(m.text) : m.text}
             </div>
           </motion.div>
         ))}
