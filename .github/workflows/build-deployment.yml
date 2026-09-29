@@ -6,6 +6,13 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
+concurrency:
+  group: deployment-artifact
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,11 +38,33 @@ jobs:
           mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/
           tar -czf deployment.tar.gz -C .next/standalone .
+          sha256sum deployment.tar.gz > deployment.tar.gz.sha256
 
       - name: Upload deployment artifact
         uses: actions/upload-artifact@v4
         with:
           name: sman1kraksaan-deployment
-          path: deployment.tar.gz
+          path: |
+            deployment.tar.gz
+            deployment.tar.gz.sha256
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish latest deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view deployment-latest >/dev/null 2>&1; then
+            gh release edit deployment-latest \
+              --title "Latest deployment" \
+              --notes "Standalone build from ${GITHUB_SHA}."
+          else
+            gh release create deployment-latest \
+              --target "${GITHUB_SHA}" \
+              --title "Latest deployment" \
+              --notes "Standalone build from ${GITHUB_SHA}."
+          fi
+          gh release upload deployment-latest \
+            deployment.tar.gz \
+            deployment.tar.gz.sha256 \
+            --clobber
