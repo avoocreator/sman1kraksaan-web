@@ -4,6 +4,7 @@ import { AchievementsPreview } from "@/components/home/achievements-preview";
 import { EventsPreview } from "@/components/home/events-preview";
 import { AiPreview } from "@/components/home/ai-preview";
 import { FinalCta } from "@/components/home/final-cta";
+import ScheduleWidget from "@/components/home/ScheduleWidget";
 import {
   getAchievements,
   getNews,
@@ -27,6 +28,9 @@ export default async function Home() {
 
       {/* Tetap berada setelah bagian prestasi */}
       <SupportedBy />
+
+      {/* Jadwal pelajaran per kelas */}
+      <ScheduleWidget />
 
       {/* Pembatas visual sebelum agenda */}
       <div className="bg-surface-alt/40 py-3">
