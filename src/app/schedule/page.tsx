@@ -8,14 +8,14 @@ export const metadata: Metadata = {
 
 export default function SchedulePage() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:py-14">
-      <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Jadwal pelajaran</h1>
-      <p className="mt-2 max-w-prose text-slate-600">
-        Pilih kelasmu untuk lihat pelajaran, jam, dan gurunya. Guru bisa cek jadwal mengajarnya lewat Per guru.
-      </p>
-      <div className="mt-8">
-        <ScheduleExplorer />
-      </div>
+    <main className="container-page py-10 sm:py-14">
+      <header className="mb-10 max-w-2xl">
+        <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">Jadwal pelajaran</h1>
+        <p className="mt-3 text-lg text-ink-soft">
+          Cari jadwal kelasmu, atau cek guru mana yang sedang mengajar di kelas mana.
+        </p>
+      </header>
+      <ScheduleExplorer />
     </main>
   );
 }
