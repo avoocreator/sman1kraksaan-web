@@ -11,16 +11,27 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 const filters = ["Semua", "Akademik", "Teknologi", "Olahraga", "Seni"] as const;
 
-export function AchievementsPreview({ achievements }: { achievements: Achievement[] }) {
-  const [active, setActive] = useState<(typeof filters)[number]>("Semua");
+export function AchievementsPreview({
+  achievements,
+}: {
+  achievements: Achievement[];
+}) {
+  const [active, setActive] =
+    useState<(typeof filters)[number]>("Semua");
 
   const filtered =
-    active === "Semua" ? achievements : achievements.filter((a) => a.category === active);
+    active === "Semua"
+      ? achievements
+      : achievements.filter((a) => a.category === active);
 
   return (
-    <section className="container-page py-20 md:py-28">
+    <section className="container-page pt-8 pb-10 md:pt-10 md:pb-12">
       <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
-        <SectionHeading eyebrow="Prestasi" title="Excellence, in Action." />
+        <SectionHeading
+          eyebrow="Prestasi"
+          title="Excellence, in Action."
+        />
+
         <div className="flex flex-wrap gap-2">
           {filters.map((f) => (
             <button
@@ -39,21 +50,26 @@ export function AchievementsPreview({ achievements }: { achievements: Achievemen
         </div>
       </div>
 
-      <div className="mt-10">
+      <div className="mt-8">
         {filtered.length === 0 ? (
           <EmptyState title="Belum ada prestasi pada kategori ini." />
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {filtered.slice(0, 4).map((a, i) => (
-              <AchievementCard achievement={a} key={a.slug} index={i} />
+              <AchievementCard
+                achievement={a}
+                key={a.slug}
+                index={i}
+              />
             ))}
           </div>
         )}
       </div>
 
-      <div className="mt-10 flex justify-center">
+      <div className="mt-8 flex justify-center">
         <LinkButton href="/achievements" variant="outline">
-          Lihat Semua Prestasi <ArrowRight className="h-4 w-4" />
+          Lihat Semua Prestasi{" "}
+          <ArrowRight className="h-4 w-4" />
         </LinkButton>
       </div>
     </section>
