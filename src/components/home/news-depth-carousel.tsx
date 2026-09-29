@@ -30,7 +30,7 @@ export function NewsDepthCarousel({
 
   if (!items.length) {
     return (
-      <div className="flex aspect-[4/5] w-full items-center justify-center rounded-[28px] border border-border bg-surface-alt text-sm text-muted">
+      <div className="mx-auto flex aspect-[4/5] w-full max-w-[420px] items-center justify-center rounded-[28px] border border-border bg-surface-alt text-sm text-muted">
         Belum ada berita terbaru.
       </div>
     );
@@ -51,10 +51,9 @@ export function NewsDepthCarousel({
   };
 
   return (
-    <div className="relative mx-auto h-[500px] w-full max-w-[420px] sm:h-[540px] lg:max-w-[500px]">
+    <div className="relative mx-auto h-[500px] w-full max-w-[420px] sm:h-[540px] sm:max-w-[500px]">
       {items.map((article, index) => {
         const offset = getOffset(index);
-
         const isActive = offset === 0;
         const isVisible = Math.abs(offset) <= 2;
 
@@ -140,20 +139,32 @@ export function NewsDepthCarousel({
         );
       })}
 
-      <div className="absolute -bottom-2 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1.5">
-        {items.map((article, index) => (
-          <button
-            key={article.slug}
-            type="button"
-            aria-label={`Tampilkan berita ${index + 1}`}
-            onClick={() => setActiveIndex(index)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              index === activeIndex
-                ? "w-6 bg-orange"
-                : "w-1.5 bg-border hover:bg-muted"
-            }`}
-          />
-        ))}
+      {/* Indicator + Lihat semua */}
+      <div className="absolute inset-x-0 -bottom-10 z-30 h-5">
+        {/* Dots tetap tepat di tengah carousel */}
+        <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5">
+          {items.map((article, index) => (
+            <button
+              key={article.slug}
+              type="button"
+              aria-label={`Tampilkan berita ${index + 1}`}
+              onClick={() => setActiveIndex(index)}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                index === activeIndex
+                  ? "w-6 bg-orange"
+                  : "w-1.5 bg-border hover:bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Lihat semua tetap di sisi kanan carousel */}
+        <a
+          href="/news"
+          className="absolute right-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-semibold text-orange transition-colors hover:text-orange-dark"
+        >
+          Lihat semua →
+        </a>
       </div>
     </div>
   );
