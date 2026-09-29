@@ -17,30 +17,29 @@ interface HeroProps {
 export function Hero({ articles }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-bg">
-      {/* Ambient background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -right-32 top-0 h-96 w-96 rounded-full bg-orange/10 blur-3xl" />
         <div className="absolute -left-32 bottom-0 h-96 w-96 rounded-full bg-blue/10 blur-3xl" />
       </div>
 
-      <div className="container-page grid items-center gap-12 py-14 md:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-20">
-        {/* Left: School Digital Hub introduction */}
+      <div className="container-page grid items-center gap-10 py-10 md:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-14">
+        {/* Left */}
         <div>
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs font-medium text-ink-soft"
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange/20 bg-orange/5 px-3 py-1.5 text-xs font-semibold text-orange"
           >
-            <Sparkles className="h-3.5 w-3.5 text-orange" />
+            <Sparkles className="h-3.5 w-3.5" />
             The Digital Home of SMAN 1 Kraksaan
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl"
+            className="text-4xl font-black leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl"
           >
             SMAN 1 KRAKSAAN
             <br />
@@ -50,8 +49,8 @@ export function Hero({ articles }: HeroProps) {
           <motion.p
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.12 }}
-            className="mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg"
+            transition={{ duration: 0.5, delay: 0.12 }}
+            className="mt-5 max-w-xl text-base leading-7 text-ink-soft sm:text-lg"
           >
             Pusat informasi digital SMAN 1 Kraksaan untuk mengikuti berita,
             prestasi, agenda, kegiatan, dan berbagai informasi terbaru sekolah
@@ -59,13 +58,14 @@ export function Hero({ articles }: HeroProps) {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18 }}
-            className="mt-7 flex flex-wrap items-center gap-3"
+            transition={{ duration: 0.5, delay: 0.18 }}
+            className="mt-7 flex flex-wrap gap-3"
           >
             <LinkButton href="/jelajahi" size="lg">
-              Jelajahi Sekolah <ArrowRight className="h-4 w-4" />
+              Jelajahi Sekolah
+              <ArrowRight className="h-4 w-4" />
             </LinkButton>
 
             <LinkButton href="/news" variant="outline" size="lg">
@@ -74,41 +74,23 @@ export function Hero({ articles }: HeroProps) {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.24 }}
-            className="mt-6 flex flex-wrap items-center gap-3"
+            transition={{ duration: 0.5, delay: 0.24 }}
+            className="mt-7 flex flex-wrap items-center gap-4"
           >
             <AccreditationBadge />
             <AccreditationCertificateDownload />
           </motion.div>
         </div>
 
-        {/* Right: Automatic news depth carousel */}
+        {/* Right: News Carousel */}
         <motion.div
-          initial={{ opacity: 0, x: 30, scale: 0.96 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="relative"
+          initial={{ opacity: 0, x: 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="min-w-0"
         >
-          <div className="mb-3 flex items-center justify-between px-2">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">
-                Berita Terbaru
-              </p>
-              <p className="mt-1 text-sm text-ink-soft">
-                Informasi terbaru dari sekolah
-              </p>
-            </div>
-
-            <a
-              href="/news"
-              className="text-xs font-semibold text-orange transition-colors hover:text-orange-dark"
-            >
-              Lihat semua
-            </a>
-          </div>
-
           <NewsDepthCarousel articles={articles} />
         </motion.div>
       </div>
