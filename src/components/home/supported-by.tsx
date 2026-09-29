@@ -27,20 +27,20 @@ const supporters = [
 
 export function SupportedBy() {
   return (
-    <section className="bg-bg py-8 md:py-10">
+    <section className="bg-bg py-4 md:py-6">
       <div className="container-page">
         <div className="text-center">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">
             Supported by
           </p>
 
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
+          <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-ink-soft">
             Didukung oleh ekosistem teknologi dan komunitas yang berkolaborasi
             dalam pengembangan talenta digital.
           </p>
         </div>
 
-        <div className="mt-7 grid grid-cols-2 items-center gap-6 sm:grid-cols-3 md:grid-cols-5 md:gap-8">
+        <div className="mt-5 grid grid-cols-2 items-center gap-5 sm:grid-cols-3 md:grid-cols-5 md:gap-7">
           {supporters.map((supporter, index) => (
             <motion.div
               key={supporter.name}
@@ -51,9 +51,9 @@ export function SupportedBy() {
                 duration: 0.4,
                 delay: index * 0.06,
               }}
-              className="group flex min-h-20 items-center justify-center"
+              className="group flex min-h-16 items-center justify-center"
             >
-              <div className="flex h-20 w-full items-center justify-center px-4">
+              <div className="flex h-16 w-full items-center justify-center px-4">
                 <img
                   src={supporter.logo}
                   alt={supporter.name}
