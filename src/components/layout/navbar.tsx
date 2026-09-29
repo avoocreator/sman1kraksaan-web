@@ -17,6 +17,7 @@ const navLinks = [
 ];
 
 const moreLinks = [
+  { label: "Jadwal Pelajaran", href: "/schedule" },
   { label: "Mitra Industri", href: "/partners" },
   { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
