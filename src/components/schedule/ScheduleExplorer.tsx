@@ -1,106 +1,153 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Search } from "lucide-react";
 import DayList from "./DayList";
+import NowPanel from "./NowPanel";
 import { useNow, usePersisted } from "./hooks";
+import { chipClass, DAYS_SHORT, dayStats } from "./shared";
 import {
-  classes, dayEntries, DAYS, scheduleDay, teacherHours, teachers,
+  classes, dayEntries, DAYS, fmt, scheduleDay, teacherHours, teachers,
 } from "@/lib/schedule";
 
 const LEVELS = ["X", "XI", "XII"] as const;
 
-const chip = (on: boolean) =>
-  `rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 ${
-    on
-      ? "border-slate-900 bg-slate-900 text-white"
-      : "border-slate-300 text-slate-700 hover:border-slate-500"
-  }`;
-
 export default function ScheduleExplorer() {
   const now = useNow();
+  const reduce = useReducedMotion();
   const [mode, setMode] = usePersisted<"kelas" | "guru">("sch:mode", "kelas");
   const [classIdx, setClassIdx] = usePersisted("sch:class", 0);
   const [teacher, setTeacher] = usePersisted("sch:teacher", teachers[0].code);
   const [pickedDay, setPickedDay] = useState<number | null>(null);
+  const [q, setQ] = useState("");
 
   const cls = classes[classIdx] ?? classes[0];
-  const today = scheduleDay(now);
+  const tch = teachers.find((t) => t.code === teacher) ?? teachers[0];
   const weekend = now !== null && (now.day === 0 || now.day === 6);
-  const day = pickedDay ?? today;
+  const day = pickedDay ?? scheduleDay(now);
   const nowMin = now && now.day === day ? now.min : null;
+  const show = mode === "kelas" ? "class" : "teacher";
 
-  const entries =
-    mode === "kelas"
-      ? dayEntries({ classIdx: cls.idx }, day)
-      : dayEntries({ teacher }, day);
+  const entries = useMemo(
+    () => (mode === "kelas" ? dayEntries({ classIdx: cls.idx }, day) : dayEntries({ teacher: tch.code }, day)),
+    [mode, cls.idx, tch.code, day],
+  );
+  const stats = dayStats(entries);
+  const filtered = useMemo(
+    () => teachers.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase())),
+    [q],
+  );
 
   return (
-    <div>
-      <div role="group" aria-label="Lihat jadwal berdasarkan" className="flex gap-2">
-        <button className={chip(mode === "kelas")} aria-pressed={mode === "kelas"} onClick={() => setMode("kelas")}>
-          Per kelas
-        </button>
-        <button className={chip(mode === "guru")} aria-pressed={mode === "guru"} onClick={() => setMode("guru")}>
-          Per guru
-        </button>
-      </div>
+    <div className="grid gap-8 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-12">
+      {/* Pemilih */}
+      <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+        <div
+          role="group"
+          aria-label="Lihat jadwal berdasarkan"
+          className="inline-flex rounded-full border border-border bg-surface-alt p-1"
+        >
+          {(["kelas", "guru"] as const).map((m) => (
+            <button
+              key={m}
+              aria-pressed={mode === m}
+              onClick={() => setMode(m)}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                mode === m ? "bg-ink text-bg" : "text-ink-soft hover:text-ink"
+              }`}
+            >
+              {m === "kelas" ? "Per kelas" : "Per guru"}
+            </button>
+          ))}
+        </div>
 
-      {mode === "kelas" ? (
-        <div className="mt-5 space-y-3">
-          <div role="group" aria-label="Tingkat" className="flex flex-wrap gap-2">
-            {LEVELS.map((lv) => (
-              <button
-                key={lv}
-                className={chip(cls.level === lv)}
-                aria-pressed={cls.level === lv}
-                onClick={() => setClassIdx(classes.find((c) => c.level === lv)!.idx)}
-              >
-                Kelas {lv}
-              </button>
-            ))}
-          </div>
-          <div role="group" aria-label="Kelas" className="flex flex-wrap gap-2">
-            {classes
-              .filter((c) => c.level === cls.level)
-              .map((c) => (
+        {mode === "kelas" ? (
+          <div className="space-y-4">
+            <div role="group" aria-label="Tingkat" className="flex gap-2">
+              {LEVELS.map((lv) => (
                 <button
-                  key={c.idx}
-                  className={chip(c.idx === cls.idx)}
-                  aria-pressed={c.idx === cls.idx}
-                  onClick={() => setClassIdx(c.idx)}
+                  key={lv}
+                  aria-pressed={cls.level === lv}
+                  className={chipClass(cls.level === lv)}
+                  onClick={() => setClassIdx(classes.find((c) => c.level === lv)!.idx)}
                 >
-                  {c.short}
+                  Kelas {lv}
                 </button>
               ))}
+            </div>
+            <div role="group" aria-label="Kelas" className="flex flex-wrap gap-2">
+              {classes
+                .filter((c) => c.level === cls.level)
+                .map((c) => (
+                  <button
+                    key={c.idx}
+                    aria-pressed={c.idx === cls.idx}
+                    className={chipClass(c.idx === cls.idx)}
+                    onClick={() => setClassIdx(c.idx)}
+                  >
+                    {c.short}
+                  </button>
+                ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="mt-5">
-          <label htmlFor="sch-guru" className="block text-sm font-medium text-slate-700">
-            Pilih guru
-          </label>
-          <select
-            id="sch-guru"
-            value={teacher}
-            onChange={(e) => setTeacher(e.target.value)}
-            className="mt-1.5 w-full max-w-xs rounded-md border border-slate-300 bg-white px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-          >
-            {teachers.map((t) => (
-              <option key={t.code} value={t.code}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-          <p className="mt-2 text-sm text-slate-600">Mengajar {teacherHours(teacher)} jam per minggu.</p>
-        </div>
-      )}
+        ) : (
+          <div>
+            <label htmlFor="sch-cari-guru" className="sr-only">
+              Cari nama guru
+            </label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
+              <input
+                id="sch-cari-guru"
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Cari nama guru"
+                className="w-full rounded-full border border-border bg-surface py-2 pl-9 pr-4 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+              />
+            </div>
+            <ul className="mt-3 max-h-72 divide-y divide-border overflow-y-auto rounded-xl border border-border bg-surface">
+              {filtered.length === 0 && <li className="px-3 py-3 text-sm text-ink-soft">Guru tidak ditemukan.</li>}
+              {filtered.map((t) => (
+                <li key={t.code}>
+                  <button
+                    aria-pressed={t.code === tch.code}
+                    onClick={() => setTeacher(t.code)}
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink ${
+                      t.code === tch.code ? "bg-ink text-bg" : "text-ink-soft hover:bg-surface-alt hover:text-ink"
+                    }`}
+                  >
+                    {t.name}
+                    <span className={`text-xs tabular-nums ${t.code === tch.code ? "text-bg/70" : "text-muted"}`}>
+                      {teacherHours(t.code)} jam
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </aside>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-bold text-slate-900">
-          {mode === "kelas" ? `Kelas ${cls.label}` : teachers.find((t) => t.code === teacher)?.name}
+      {/* Jadwal */}
+      <section aria-live="polite" className="min-w-0">
+        <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+          {mode === "kelas" ? cls.label : tch.name}
         </h2>
+        <p className="mt-1 text-ink-soft">
+          {mode === "kelas"
+            ? `Kelas ${cls.level}, jam pelajaran dan guru pengajar.`
+            : `Mengajar ${teacherHours(tch.code)} jam pelajaran per minggu.`}
+        </p>
 
-        <div role="tablist" aria-label="Hari" className="mt-3 flex border-b border-slate-200">
+        {nowMin !== null && (
+          <div className="mt-6">
+            <NowPanel entries={entries} nowMin={nowMin} show={show} />
+          </div>
+        )}
+
+        <div role="tablist" aria-label="Hari" className="relative mt-8 flex border-b border-border">
           {DAYS.map((name, i) => {
             const d = i + 1;
             const on = d === day;
@@ -110,27 +157,55 @@ export default function ScheduleExplorer() {
                 role="tab"
                 aria-selected={on}
                 onClick={() => setPickedDay(d)}
-                className={`-mb-px flex-1 border-b-2 px-2 py-2.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-slate-900 sm:flex-none sm:px-5 ${
-                  on ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500 hover:text-slate-800"
+                className={`relative flex-1 px-1 py-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink sm:flex-none sm:px-6 ${
+                  on ? "text-ink" : "text-ink-soft hover:text-ink"
                 }`}
               >
-                {name}
-                {now && now.day === d && <span className="ml-1 text-emerald-700">*<span className="sr-only"> hari ini</span></span>}
+                <span className="hidden sm:inline">{name}</span>
+                <span className="sm:hidden">{DAYS_SHORT[i]}</span>
+                {now && now.day === d && (
+                  <span
+                    className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[hsl(152_60%_38%)] align-middle"
+                    title="Hari ini"
+                  >
+                    <span className="sr-only">hari ini</span>
+                  </span>
+                )}
+                {on && (
+                  <motion.span
+                    layoutId="hari-aktif"
+                    transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 40 }}
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-ink"
+                  />
+                )}
               </button>
             );
           })}
         </div>
 
-        {weekend && pickedDay === null && (
-          <p className="mt-3 text-sm text-slate-600">Hari ini akhir pekan, jadi yang tampil jadwal Senin.</p>
-        )}
+        <p className="mt-3 text-sm text-ink-soft">
+          {weekend && pickedDay === null && "Hari ini akhir pekan, jadi yang tampil jadwal Senin. "}
+          {stats
+            ? `${DAYS[day - 1]}: ${stats.hours} jam pelajaran, ${fmt(stats.from)}-${fmt(stats.to)}.`
+            : `${DAYS[day - 1]}: tidak ada pelajaran.`}
+        </p>
 
-        <div className="mt-2">
-          <DayList entries={entries} show={mode === "kelas" ? "class" : "teacher"} nowMin={nowMin} />
+        <div className="mt-4">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={`${mode}-${mode === "kelas" ? cls.idx : tch.code}-${day}`}
+              initial={reduce ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+            >
+              <DayList entries={entries} show={show} nowMin={nowMin} />
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </div>
 
-      <p className="mt-6 text-sm text-slate-500">Sumber data: jadwal KBM per 9 Juli 2026.</p>
+        <p className="mt-8 text-sm text-muted">Sumber: jadwal KBM per 9 Juli 2026. Waktu mengikuti WIB.</p>
+      </section>
     </div>
   );
 }

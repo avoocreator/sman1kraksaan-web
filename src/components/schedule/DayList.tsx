@@ -1,51 +1,53 @@
-import type { CSSProperties } from "react";
+import { Clock, User, Users } from "lucide-react";
 import type { Entry } from "@/types/schedule";
 import { classes, fmt, subjectInfo, teacherName } from "@/lib/schedule";
 
 type Props = {
   entries: Entry[];
-  show: "class" | "teacher"; // info kedua di tiap blok: nama guru atau nama kelas
+  show: "class" | "teacher"; // info kedua di tiap blok
   nowMin: number | null; // null = bukan hari ini
 };
 
 export default function DayList({ entries, show, nowMin }: Props) {
   if (entries.length === 0) {
-    return <p className="py-10 text-slate-600">Tidak ada pelajaran di hari ini.</p>;
+    return (
+      <div className="rounded-2xl border border-dashed border-border px-4 py-14 text-center text-ink-soft">
+        Tidak ada pelajaran di hari ini.
+      </div>
+    );
   }
 
   return (
-    <ol className="border-y border-slate-200">
+    <ol className="space-y-2.5">
       {entries.map((e, i) => {
         const active = nowMin !== null && nowMin >= e.from && nowMin < e.to;
         const done = nowMin !== null && nowMin >= e.to;
-        const time = (
-          <div className="py-3 text-sm tabular-nums text-slate-500">
-            {fmt(e.from)}
-            <br />
-            {fmt(e.to)}
-          </div>
-        );
 
         if (e.kind === "break") {
           return (
             <li
               key={i}
-              className={`grid grid-cols-[4.5rem_1fr] gap-x-4 border-t border-dashed border-slate-300 bg-slate-50 ${done ? "opacity-50" : ""}`}
+              className={`flex items-center gap-3 py-0.5 pl-[4.25rem] text-xs ${
+                active ? "font-semibold text-ink" : "text-muted"
+              } ${done ? "opacity-60" : ""}`}
             >
-              {time}
-              <p className={`self-center text-sm ${active ? "font-semibold text-slate-900" : "text-slate-600"}`}>
-                {e.label}
-                {active ? " sedang berlangsung" : ""}
-              </p>
+              <span className="h-px flex-1 bg-border" />
+              <span>
+                {e.label} {fmt(e.from)}-{fmt(e.to)}
+                {active ? ", sedang berlangsung" : ""}
+              </span>
+              <span className="h-px flex-1 bg-border" />
             </li>
           );
         }
 
         if (e.kind === "gap") {
           return (
-            <li key={i} className="grid grid-cols-[4.5rem_1fr] gap-x-4 border-t border-slate-100">
-              {time}
-              <p className="self-center text-sm text-slate-400">Kosong {e.count} jam</p>
+            <li key={i} className="grid grid-cols-[3.25rem_1fr] gap-3">
+              <time className="pt-2 text-sm tabular-nums text-muted">{fmt(e.from)}</time>
+              <p className="rounded-xl border border-dashed border-border px-4 py-2 text-sm text-muted">
+                Kosong {e.count} jam
+              </p>
             </li>
           );
         }
@@ -53,38 +55,50 @@ export default function DayList({ entries, show, nowMin }: Props) {
         const l = e.lesson;
         const info = subjectInfo(l.subject);
         const second = show === "teacher" ? classes[l.classIdx].label : teacherName(l.teacher);
-        const pct = active ? Math.round(((nowMin! - e.from) / (e.to - e.from)) * 100) : 0;
+        const accent = info.neutral ? "hsl(220 10% 55%)" : `hsl(${info.hue} 55% 48%)`;
+        const tint = info.neutral ? "hsl(220 14% 96%)" : `hsl(${info.hue} 70% 96%)`;
+        const pct = active ? ((nowMin! - e.from) / (e.to - e.from)) * 100 : 0;
 
         return (
-          <li
-            key={i}
-            aria-current={active ? "time" : undefined}
-            className={`grid grid-cols-[4.5rem_1fr] gap-x-4 border-t border-slate-200 first:border-t-0 ${done ? "opacity-50" : ""}`}
-            style={{ minHeight: `${l.span * 3.5}rem` }}
-          >
-            {time}
+          <li key={i} className="grid grid-cols-[3.25rem_1fr] gap-3" aria-current={active ? "time" : undefined}>
+            <time className={`pt-3.5 text-sm tabular-nums ${active ? "font-bold text-ink" : "text-ink-soft"}`}>
+              {fmt(e.from)}
+            </time>
             <div
-              style={{ "--h": info.hue } as CSSProperties}
-              className={`relative my-2 border-l-4 py-2 pl-4 pr-2 ${
-                info.neutral ? "border-slate-400" : "border-[hsl(var(--h)_55%_45%)]"
-              } ${active ? (info.neutral ? "bg-slate-100" : "bg-[hsl(var(--h)_70%_95%)]") : ""}`}
+              className={`relative overflow-hidden rounded-xl border border-border border-l-4 bg-surface px-4 py-3 ${
+                active ? "ring-2 ring-ink" : ""
+              } ${done ? "opacity-55" : ""}`}
+              style={{ borderLeftColor: accent, minHeight: `${l.span * 3.75}rem` }}
             >
-              <p className="text-base font-semibold text-slate-900">{info.name}</p>
-              {second && <p className="text-sm text-slate-600">{second}</p>}
-              {l.span > 1 && <p className="text-sm text-slate-500">{l.span} jam pelajaran</p>}
               {active && (
-                <>
-                  <p className="mt-1 text-sm font-medium text-slate-900">
-                    Sedang berlangsung, sisa {e.to - nowMin!} menit
-                  </p>
-                  <span
-                    aria-hidden
-                    className={`absolute bottom-0 left-0 h-0.5 motion-safe:transition-[width] ${
-                      info.neutral ? "bg-slate-500" : "bg-[hsl(var(--h)_55%_45%)]"
-                    }`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </>
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 left-0 transition-[width] duration-700"
+                  style={{ width: `${pct}%`, background: tint }}
+                />
+              )}
+              <div className="relative flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                <p className="text-base font-semibold text-ink sm:text-lg">{info.name}</p>
+                <p className="flex items-center gap-1.5 text-sm tabular-nums text-ink-soft">
+                  <Clock className="h-3.5 w-3.5" aria-hidden />
+                  {fmt(e.from)}-{fmt(e.to)}
+                  {l.span > 1 && (
+                    <span className="rounded-full bg-surface-alt px-2 py-0.5 text-xs font-medium text-ink-soft">
+                      {l.span} jam
+                    </span>
+                  )}
+                </p>
+              </div>
+              {second && (
+                <p className="relative mt-1 flex items-center gap-1.5 text-sm text-ink-soft">
+                  {show === "teacher" ? <Users className="h-3.5 w-3.5" aria-hidden /> : <User className="h-3.5 w-3.5" aria-hidden />}
+                  {second}
+                </p>
+              )}
+              {active && (
+                <p className="relative mt-2 text-sm font-medium text-ink">
+                  Sedang berlangsung, sisa {e.to - nowMin!} menit
+                </p>
               )}
             </div>
           </li>
