@@ -7,10 +7,10 @@ export type AlumniItem = {
   university: string;
   major: string;
   path: string; // jalur masuk, misal SNBP / SNBT / Mandiri / Beasiswa
+  photo?: string; // URL foto (opsional)
 };
 
-// CONTOH. Ganti dengan alumni asli (minta izin dan datanya ke sekolah)
-// atau kirim dari getAlumni() lewat prop `items`.
+// CONTOH, dipakai kalau Strapi belum terisi. Isi data asli di Strapi.
 const sample: AlumniItem[] = [
   { name: "Nama Alumni 1", year: "2025", university: "Nama Universitas", major: "Program Studi", path: "SNBP" },
   { name: "Nama Alumni 2", year: "2025", university: "Nama Universitas", major: "Program Studi", path: "SNBT" },
@@ -54,15 +54,24 @@ export function AlumniPreview({ items = sample }: { items?: AlumniItem[] }) {
           {items.slice(0, 3).map((a) => (
             <li key={a.name} className="rounded-2xl border border-border bg-surface p-6">
               <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-sm font-bold text-bg"
-                >
-                  {initials(a.name)}
-                </span>
+                {a.photo ? (
+                  <img
+                    src={a.photo}
+                    alt={a.name}
+                    loading="lazy"
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <span
+                    aria-hidden
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-sm font-bold text-bg"
+                  >
+                    {initials(a.name)}
+                  </span>
+                )}
                 <div>
                   <p className="font-semibold text-ink">{a.name}</p>
-                  <p className="text-sm text-muted">Lulus {a.year}</p>
+                  {a.year && <p className="text-sm text-muted">Lulus {a.year}</p>}
                 </div>
               </div>
               <p className="mt-5 flex items-start gap-2 text-ink">
@@ -72,9 +81,11 @@ export function AlumniPreview({ items = sample }: { items?: AlumniItem[] }) {
                   <span className="block text-sm text-ink-soft">{a.major}</span>
                 </span>
               </p>
-              <p className="mt-4 inline-block rounded-full bg-surface-alt px-3 py-1 text-xs font-semibold text-ink-soft">
-                Jalur {a.path}
-              </p>
+              {a.path && (
+                <p className="mt-4 inline-block rounded-full bg-surface-alt px-3 py-1 text-xs font-semibold text-ink-soft">
+                  Jalur {a.path}
+                </p>
+              )}
             </li>
           ))}
         </ul>

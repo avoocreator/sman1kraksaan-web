@@ -9,13 +9,18 @@ import { EventsPreview } from "@/components/home/events-preview";
 import { AiPreview } from "@/components/home/ai-preview";
 import { FinalCta } from "@/components/home/final-cta";
 import ScheduleWidget from "@/components/home/ScheduleWidget";
+import { Reveal } from "@/components/ui/reveal";
 import { getAchievements, getNews, getEvents } from "@/lib/api";
+import { getHomeAlumni, getHomePartners, getHomePrograms } from "@/lib/home-data";
 
 export default async function Home() {
-  const [achievements, news, events] = await Promise.all([
+  const [achievements, news, events, programs, alumni, partners] = await Promise.all([
     getAchievements(),
     getNews(),
     getEvents(),
+    getHomePrograms(),
+    getHomeAlumni(),
+    getHomePartners(),
   ]);
 
   return (
@@ -27,21 +32,23 @@ export default async function Home() {
 
       <AchievementsPreview achievements={achievements} />
 
-      <ProgramsPreview />
+      <ProgramsPreview items={programs} />
 
-      <AlumniPreview />
+      <Reveal>
+        <AlumniPreview items={alumni} />
+      </Reveal>
 
-      <PartnersPreview />
+      <Reveal>
+        <PartnersPreview items={partners} />
+      </Reveal>
 
-      <MapTeaser />
+      <Reveal>
+        <MapTeaser />
+      </Reveal>
 
-      <ScheduleWidget />
-
-      <div className="bg-surface-alt/40 py-3">
-        <div className="container-page">
-          <div className="h-px bg-border/70" />
-        </div>
-      </div>
+      <Reveal>
+        <ScheduleWidget />
+      </Reveal>
 
       <EventsPreview events={events} />
 
