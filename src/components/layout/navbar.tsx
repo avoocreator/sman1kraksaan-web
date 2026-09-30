@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { FocusEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, GraduationCap, ChevronDown } from "lucide-react";
+import { Menu, X, Search, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkButton } from "@/components/ui/button";
 import { AccreditationBadge } from "@/components/ui/accreditation-badge";
@@ -18,10 +19,10 @@ const navLinks = [
 
 const moreLinks = [
   { label: "Jadwal Pelajaran", href: "/schedule" },
-  { label: "Mitra Industri", href: "/partners" },
+  { label: "Mitra & Kolaborasi", href: "/partners" },
   { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
-  { label: "PPDB", href: "/jelajahi" },
+  { label: "PPDB", href: "/ppdb" },
 ];
 
 export default function Navbar() {
@@ -37,10 +38,17 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    setOpen(false);
+    setMoreOpen(false);
+  }, [pathname]);
 
   const isDashboard = pathname?.startsWith("/dashboard");
   if (isDashboard) return null;
+
+  const onMoreBlur = (e: FocusEvent<HTMLDivElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setMoreOpen(false);
+  };
 
   return (
     <header
@@ -54,11 +62,17 @@ export default function Navbar() {
       <nav className="container-page flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
-            <img src="/logo-sman1kraksaan.png" alt="Logo SMAN 1 Kraksaan" className="h-full w-full object-contain" />
+            <img
+              src="/logo-sman1kraksaan.png"
+              alt="Logo SMAN 1 Kraksaan"
+              className="h-full w-full object-contain"
+            />
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-bold text-ink">SMAN 1 Kraksaan</span>
-            <span className="block text-[11px] font-medium tracking-wide text-muted">School Digital Hub</span>
+            <span className="block text-[11px] font-medium tracking-wide text-muted">
+              School Digital Hub
+            </span>
           </span>
         </Link>
 
@@ -81,8 +95,14 @@ export default function Navbar() {
             className="relative"
             onMouseEnter={() => setMoreOpen(true)}
             onMouseLeave={() => setMoreOpen(false)}
+            onFocus={() => setMoreOpen(true)}
+            onBlur={onMoreBlur}
           >
-            <button className="flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink">
+            <button
+              aria-haspopup="menu"
+              aria-expanded={moreOpen}
+              className="flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+            >
               Lainnya <ChevronDown className="h-3.5 w-3.5" />
             </button>
             <AnimatePresence>
@@ -126,6 +146,7 @@ export default function Navbar() {
           onClick={() => setOpen((v) => !v)}
           className="flex h-9 w-9 items-center justify-center rounded-full text-ink lg:hidden"
           aria-label={open ? "Tutup menu" : "Buka menu"}
+          aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -151,10 +172,13 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="mt-2 flex items-center gap-2">
-                <Link href="/search" className="flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-border text-sm text-ink-soft">
+                <Link
+                  href="/search"
+                  className="flex h-10 flex-1 items-center justify-center gap-2 rounded-full border border-border text-sm text-ink-soft"
+                >
                   <Search className="h-4 w-4" /> Cari
                 </Link>
-                <LinkButton href="/ppdb" size="md" className="flex-1">
+                <LinkButton href="/jelajahi" size="md" className="flex-1">
                   Jelajahi Sekolah
                 </LinkButton>
               </div>

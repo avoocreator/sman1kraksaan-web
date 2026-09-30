@@ -1,86 +1,83 @@
-"use client";
+import Link from "next/link";
+import { ArrowRight, GraduationCap } from "lucide-react";
 
-import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { Alumnus, Statistics } from "@/types";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { LinkButton } from "@/components/ui/button";
+export type AlumniItem = {
+  name: string;
+  year: string; // tahun lulus
+  university: string;
+  major: string;
+  path: string; // jalur masuk, misal SNBP / SNBT / Mandiri / Beasiswa
+};
 
-export function AlumniPreview({ alumni, statistics }: { alumni: Alumnus[]; statistics: Statistics }) {
-  const stats = [
-    { label: "Alumni", value: `${(statistics.alumni / 1000).toFixed(1)}rb+` },
-    { label: "Pendidikan Tinggi", value: `${statistics.alumniHigherEd}%` },
-    { label: "Karier Profesional", value: `${statistics.alumniProfessional}%` },
-    { label: "Wirausaha", value: `${statistics.alumniEntrepreneur}%` },
-  ];
+// CONTOH. Ganti dengan alumni asli (minta izin dan datanya ke sekolah)
+// atau kirim dari getAlumni() lewat prop `items`.
+const sample: AlumniItem[] = [
+  { name: "Nama Alumni 1", year: "2025", university: "Nama Universitas", major: "Program Studi", path: "SNBP" },
+  { name: "Nama Alumni 2", year: "2025", university: "Nama Universitas", major: "Program Studi", path: "SNBT" },
+  { name: "Nama Alumni 3", year: "2024", university: "Nama Universitas", major: "Program Studi", path: "Beasiswa" },
+];
 
-  // Digandakan biar looping-nya mulus tanpa jeda
-  const loopAlumni = [...alumni, ...alumni];
-  const duration = alumni.length * 4;
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("");
 
+export function AlumniPreview({ items = sample }: { items?: AlumniItem[] }) {
   return (
-    <section className="bg-surface py-20 md:py-28">
+    <section aria-labelledby="lulusan-beranda" className="bg-surface-alt/40 py-16 sm:py-20">
       <div className="container-page">
-        <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <SectionHeading
-              eyebrow="Alumni"
-              title="From Here, To Everywhere."
-              description="Lulusan SMAN 1 Kraksaan tersebar di berbagai kampus, perusahaan, dan usaha rintisan — membawa nilai yang sama ke mana pun mereka pergi."
-            />
-            <dl className="mt-8 grid grid-cols-2 gap-5">
-              {stats.map((s) => (
-                <div key={s.label}>
-                  <dt className="text-2xl font-extrabold text-ink">{s.value}</dt>
-                  <dd className="mt-1 text-xs text-ink-soft">{s.label}</dd>
-                </div>
-              ))}
-            </dl>
-            <LinkButton href="/alumni" variant="outline" className="mt-8">
-              Temui Alumni Kami <ArrowRight className="h-4 w-4" />
-            </LinkButton>
-          </div>
-
-          <div className="relative overflow-hidden">
-            {/* fade di tepi kiri & kanan */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-surface to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-surface to-transparent" />
-
-            <motion.div
-              className="flex gap-4"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ duration, ease: "linear", repeat: Infinity }}
+            <p className="text-sm font-semibold uppercase tracking-wider text-muted">Lulusan</p>
+            <h2
+              id="lulusan-beranda"
+              className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              {loopAlumni.map((a, i) => (
-                <a
-                  key={`${a.slug}-${i}`}
-                  href={`/alumni/${a.slug}`}
-                  className="group w-40 shrink-0 overflow-hidden rounded-2xl border border-border bg-bg transition-shadow hover:shadow-lg hover:shadow-ink/5 sm:w-48"
-                >
-                  <div className="aspect-[3/4] overflow-hidden">
-                    <img
-                      src={a.photo}
-                      alt={a.name}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-
-                  <div className="p-3">
-                    <p className="truncate text-sm font-semibold leading-snug text-ink">
-                      {a.name}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted">
-                      Angkatan {a.graduationYear}
-                    </p>
-                    <p className="mt-1 truncate text-xs leading-snug text-ink-soft">
-                      {a.role}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </motion.div>
+              Setelah lulus, mereka ke mana
+            </h2>
+            <p className="mt-3 max-w-xl text-ink-soft">
+              Kampus dan jalur yang ditempuh lulusan terbaik kami.
+            </p>
           </div>
+          <Link
+            href="/alumni"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
+          >
+            Lihat semua alumni <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
+
+        <ul className="mt-10 grid gap-4 md:grid-cols-3">
+          {items.slice(0, 3).map((a) => (
+            <li key={a.name} className="rounded-2xl border border-border bg-surface p-6">
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-12 w-12 items-center justify-center rounded-full bg-ink text-sm font-bold text-bg"
+                >
+                  {initials(a.name)}
+                </span>
+                <div>
+                  <p className="font-semibold text-ink">{a.name}</p>
+                  <p className="text-sm text-muted">Lulus {a.year}</p>
+                </div>
+              </div>
+              <p className="mt-5 flex items-start gap-2 text-ink">
+                <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-muted" aria-hidden />
+                <span>
+                  <span className="font-semibold">{a.university}</span>
+                  <span className="block text-sm text-ink-soft">{a.major}</span>
+                </span>
+              </p>
+              <p className="mt-4 inline-block rounded-full bg-surface-alt px-3 py-1 text-xs font-semibold text-ink-soft">
+                Jalur {a.path}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

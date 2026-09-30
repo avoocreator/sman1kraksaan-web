@@ -1,64 +1,69 @@
-"use client";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-import { motion } from "framer-motion";
-import { ArrowRight, Building2, GraduationCap, Handshake, HeartHandshake, Presentation } from "lucide-react";
-import { Partner } from "@/types";
-import { SectionHeading } from "@/components/ui/section-heading";
-import { LinkButton } from "@/components/ui/button";
-
-const typeIcons: Record<string, React.ElementType> = {
-  "Kuliah Tamu": Presentation,
-  "Kunjungan Edukatif": Building2,
-  "Beasiswa & Jalur Masuk": GraduationCap,
-  "Kolaborasi Riset": Handshake,
-  "Kegiatan Sosial": HeartHandshake,
+export type PartnerItem = {
+  name: string;
+  type: string; // Universitas, Lembaga, Komunitas, Instansi, dst
+  note: string; // bentuk kerja samanya
 };
 
-const types = ["Kuliah Tamu", "Kunjungan Edukatif", "Beasiswa & Jalur Masuk", "Kolaborasi Riset", "Kegiatan Sosial"];
+// CONTOH. Ganti dengan mitra asli sekolah, atau kirim data dari halaman
+// /partners lewat prop `items`. Jangan pakai nama yang belum dikonfirmasi.
+const sample: PartnerItem[] = [
+  { name: "Nama Universitas", type: "Universitas", note: "Kuliah tamu dan sosialisasi jalur masuk" },
+  { name: "Nama Lembaga", type: "Lembaga", note: "Pelatihan untuk siswa dan guru" },
+  { name: "Nama Komunitas", type: "Komunitas", note: "Kegiatan bersama di luar kelas" },
+  { name: "Nama Instansi", type: "Instansi", note: "Kunjungan dan kegiatan bersama" },
+];
 
-export function PartnersPreview({ partners }: { partners: Partner[] }) {
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("");
+
+export function PartnersPreview({ items = sample }: { items?: PartnerItem[] }) {
   return (
-    <section className="container-page py-20 md:py-28">
-      <SectionHeading eyebrow="Kolaborasi" title="School × Industry" align="center" className="mx-auto" />
-
-      <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
-        {partners.map((p, i) => (
-          <motion.a
-            key={p.slug}
-            href={`/partners/${p.slug}`}
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, delay: i * 0.05 }}
-            className="group flex h-24 items-center justify-center rounded-2xl border border-border bg-surface px-6 transition-colors hover:border-orange"
-          >
-            <img
-              src={p.logoImage}
-              alt={p.name}
-              className="max-h-10 w-full object-contain grayscale opacity-70 transition-all duration-300 group-hover:grayscale-0 group-hover:opacity-100"
-            />
-          </motion.a>
-        ))}
-      </div>
-
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-        {types.map((t) => {
-          const Icon = typeIcons[t];
-          return (
-            <span
-              key={t}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-alt px-3.5 py-1.5 text-xs font-medium text-ink-soft"
+    <section aria-labelledby="mitra-beranda" className="py-16 sm:py-20">
+      <div className="container-page">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wider text-muted">Mitra</p>
+            <h2
+              id="mitra-beranda"
+              className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              <Icon className="h-3.5 w-3.5" /> {t}
-            </span>
-          );
-        })}
-      </div>
+              Bekerja sama dengan siapa saja
+            </h2>
+            <p className="mt-3 max-w-xl text-ink-soft">
+              Kampus, lembaga, dan komunitas yang ikut membuka wawasan siswa di luar kelas.
+            </p>
+          </div>
+          <Link
+            href="/partners"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
+          >
+            Lihat semua mitra <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+        </div>
 
-      <div className="mt-10 flex justify-center">
-        <LinkButton href="/partners" variant="outline">
-          Jelajahi Mitra Sekolah <ArrowRight className="h-4 w-4" />
-        </LinkButton>
+        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {items.slice(0, 4).map((p) => (
+            <li key={p.name} className="rounded-2xl border border-border bg-surface p-5">
+              <span
+                aria-hidden
+                className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-alt text-sm font-bold text-ink"
+              >
+                {initials(p.name)}
+              </span>
+              <p className="mt-4 font-semibold text-ink">{p.name}</p>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">{p.type}</p>
+              <p className="mt-3 text-sm text-ink-soft">{p.note}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
