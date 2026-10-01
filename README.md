@@ -53,6 +53,71 @@ Strapi (CMS) ──▶ src/lib/strapi.ts (transport + util)
 - Field Strapi dibaca fleksibel (beberapa alias per field) — daftar lengkap
   di `docs/STRAPI-INTEGRASI.md`.
 
+## Stress Test dengan k6
+
+Stress test mencakup seluruh halaman publik, detail konten, login, dan dashboard. Setiap run menghasilkan dashboard HTML mandiri, ringkasan JSON, dan log diagnostik di `reports/k6/`.
+
+Pasang [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) terlebih dahulu. Di macOS:
+
+```bash
+brew install k6
+```
+
+Jalankan aplikasi dalam mode produksi agar hasilnya representatif:
+
+```bash
+npm run build
+npm start
+```
+
+Di terminal lain, jalankan:
+
+```bash
+npm run test:load
+```
+
+Profil default menaikkan beban dari 5 hingga 100 virtual users selama sekitar 4 menit. Konfigurasi dapat dioverride melalui environment variable:
+
+```bash
+BASE_URL=https://staging.example.com \
+STAGES="30s:10,1m:50,2m:200,30s:0" \
+MAX_P95_MS=1500 \
+MAX_P99_MS=2000 \
+MAX_ERROR_RATE=0.01 \
+THINK_TIME=0.5 \
+npm run test:load
+```
+
+`STAGES` menggunakan format `durasi:virtual-users` yang dipisahkan koma. Tes dianggap gagal jika lebih dari 1% request error atau p95/p99 response time melampaui 2 detik, termasuk pemeriksaan per halaman. Setiap run menyimpan dashboard HTML, ringkasan JSON, dan log terminal bertimestamp; log mencatat URL, status, error code, dan durasi request yang gagal. k6 pada skenario ini mengukur respons HTTP dokumen halaman; gunakan Lighthouse atau browser performance test secara terpisah untuk Core Web Vitals dan waktu pemuatan aset di browser.
+
+### Breakpoint test
+
+Breakpoint test mencari batas kapasitas dalam request per detik (RPS), bukan jumlah virtual user. Profil default menaikkan target dari 50 hingga 1.200 RPS. Tes berhenti otomatis jika error rate mencapai 5% atau p95 melampaui 2 detik selama 20 detik.
+
+Jalankan hanya pada maintenance window. Perintah memerlukan konfirmasi eksplisit karena dapat membuat target tidak tersedia dan menimbulkan biaya trafik:
+
+```bash
+BASE_URL=https://staging.example.com \
+CONFIRM_PRODUCTION_BREAKPOINT=I_UNDERSTAND_THIS_CAN_CAUSE_AN_OUTAGE \
+npm run test:breakpoint
+```
+
+Profil dan pengaman dapat dioverride:
+
+```bash
+BASE_URL=https://staging.example.com \
+RATE_STAGES="30s:100,1m:100,30s:200,1m:200,30s:400,1m:400" \
+MAX_P95_MS=2000 \
+MAX_ERROR_RATE=0.05 \
+ABORT_DELAY=20s \
+PREALLOCATED_VUS=200 \
+MAX_VUS=3000 \
+CONFIRM_PRODUCTION_BREAKPOINT=I_UNDERSTAND_THIS_CAN_CAUSE_AN_OUTAGE \
+npm run test:breakpoint
+```
+
+`RATE_STAGES` menggunakan format `durasi:target-RPS`. Batas operasional yang aman sebaiknya maksimal 60-70% dari tingkat tertinggi yang tetap memenuhi p95 dan error rate. Jika `dropped_iterations` lebih dari nol, generator beban gagal mencapai target sehingga hasil tersebut belum membuktikan batas server.
+
 ## Struktur Folder
 
 ```
