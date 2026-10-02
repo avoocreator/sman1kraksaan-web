@@ -25,8 +25,6 @@ const initials = (name: string) =>
     .map((w) => w[0]?.toUpperCase())
     .join("");
 
-// Lebar kartu 280px + jarak antar kartu 16px (pr-4) = 296px per langkah.
-const STEP = 296;
 const THRESHOLD = 60; // geser sekian px baru dianggap pindah slide
 
 /**
@@ -46,9 +44,25 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [anim, setAnim] = useState(true);
+  const [step, setStep] = useState(296); // fallback: kartu 280px + jarak 16px (sm+)
 
+  const trackRef = useRef<HTMLUListElement>(null);
   const drag = useRef({ startX: 0, active: false, captured: false });
   const draggedRef = useRef(false); // true kalau sudah melewati ambang → klik dibatalkan
+
+  // Jarak antar kartu diukur langsung dari DOM (260px di ponsel, 280px di sm+)
+  // supaya tiap geseran jatuh tepat di kartu berikutnya. Dulu dipatok 296px dan
+  // posisi kartu jadi melenceng di layar ponsel.
+  useEffect(() => {
+    const measure = () => {
+      const first = trackRef.current?.children[0] as HTMLElement | undefined;
+      const second = trackRef.current?.children[1] as HTMLElement | undefined;
+      if (first && second) setStep(second.offsetLeft - first.offsetLeft);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [total]);
 
   // Salinan track: konten pendek perlu 3 salinan supaya area kanan tak kosong.
   const copies = total > 0 && total < 5 ? 3 : 2;
@@ -185,15 +199,25 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
             Lihat semua alumni <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         </div>
-      </div>
 
-      <div
-        className="relative mt-10 touch-pan-y select-none overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]"
-      >
-        <ul
-          className={`flex w-max ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+        {/* Carousel dikunci ke lebar container — tidak lagi meluber sampai tepi
+            layar. Fade tepi (mask) hidup di area padding: kartu pertama saat
+            halaman dibuka tetap utuh sejajar teks di atas, kartu yang keluar
+            ke samping memudar halus di tepi kolom konten. */}
+        <div
+          className="relative -mx-5 mt-10 touch-pan-y select-none overflow-hidden md:-mx-10"
           style={{
-            transform: `translate3d(calc(${-index * STEP}px + ${dragX}px), 0, 0)`,
+            maskImage:
+              "linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent)",
+          }}
+        >
+        <ul
+          ref={trackRef}
+          className={`flex w-max px-5 md:px-10 ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
+          style={{
+            transform: `translate3d(calc(${-index * step}px + ${dragX}px), 0, 0)`,
             transition: anim && !dragging ? "transform 620ms cubic-bezier(0.22, 1, 0.36, 1)" : "none",
           }}
           onPointerDown={onPointerDown}
@@ -210,8 +234,8 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
             }
           }}
         >
+          {/* pr-4 seragam agar -step jatuh tepat di kartu berikutnya (loop mulus) */}
           {loop.map((a, i) => (
-            // pr-4 seragam agar -STEP jatuh tepat di kartu berikutnya (loop mulus)
             <li key={`${a.name}-${i}`} className="shrink-0 pr-4">
               <button
                 type="button"
@@ -252,6 +276,7 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
             </li>
           ))}
         </ul>
+        </div>
       </div>
 
       {/* Pop-up info singkat */}
