@@ -8,24 +8,29 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LinkButton } from "@/components/ui/button";
-import { AccreditationBadge } from "@/components/ui/accreditation-badge";
 
 const navLinks = [
   { label: "Tentang", href: "/about" },
   { label: "Program", href: "/programs" },
   { label: "Prestasi", href: "/achievements" },
   { label: "Alumni", href: "/alumni" },
+  { label: "Berita", href: "/news" },
 ];
 
 const moreLinks = [
   { label: "Jadwal Pelajaran", href: "/schedule" },
   { label: "Mitra & Kolaborasi", href: "/partners" },
-  { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
   { label: "Fasilitas", href: "/fasilitas" },
   { label: "Jelajahi Sekolah", href: "/jelajahi" },
   { label: "PPDB", href: "/ppdb" },
 ];
+
+/** Halaman aktif = path sama persis atau di dalam section-nya (mis. /news/slug → Berita). */
+function isActive(pathname: string | null, href: string): boolean {
+  if (!pathname) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -57,6 +62,9 @@ export default function Navbar() {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setMoreOpen(false);
   };
 
+  // Kalau salah satu isi dropdown yang aktif, tombol "Lainnya" ikut ditandai.
+  const moreActive = moreLinks.some((link) => isActive(pathname, link.href));
+
   return (
     <header
       className={cn(
@@ -83,16 +91,14 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <AccreditationBadge variant="compact" className="hidden md:inline-flex" />
-
         <div className="hidden items-center gap-1 lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "rounded-full px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink",
-                pathname === link.href && "text-ink"
+                "rounded-full px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-alt hover:text-ink",
+                isActive(pathname, link.href) && "bg-surface-alt font-semibold text-ink"
               )}
             >
               {link.label}
@@ -108,7 +114,10 @@ export default function Navbar() {
             <button
               aria-haspopup="menu"
               aria-expanded={moreOpen}
-              className="flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors hover:text-ink"
+              className={cn(
+                "flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-alt hover:text-ink",
+                moreActive && "bg-surface-alt font-semibold text-ink"
+              )}
             >
               Lainnya <ChevronDown className="h-3.5 w-3.5" />
             </button>
@@ -125,7 +134,10 @@ export default function Navbar() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="block rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-surface-alt hover:text-ink"
+                      className={cn(
+                        "block rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-surface-alt hover:text-ink",
+                        isActive(pathname, link.href) && "bg-surface-alt font-medium text-ink"
+                      )}
                     >
                       {link.label}
                     </Link>
@@ -178,7 +190,10 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="rounded-lg px-2 py-2.5 text-sm font-medium text-ink-soft hover:bg-surface-alt hover:text-ink"
+                  className={cn(
+                    "rounded-lg px-2 py-2.5 text-sm font-medium text-ink-soft hover:bg-surface-alt hover:text-ink",
+                    isActive(pathname, link.href) && "bg-surface-alt text-ink"
+                  )}
                 >
                   {link.label}
                 </Link>

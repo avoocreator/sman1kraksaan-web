@@ -1,12 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { LinkButton } from "@/components/ui/button";
-import {
-  AccreditationBadge,
-  AccreditationCertificateDownload,
-} from "@/components/ui/accreditation-badge";
+import { AccreditationDownloadCard } from "@/components/ui/accreditation-badge";
 import { NewsArticle } from "@/types";
 import type { SearchItem } from "@/types/search";
 import { NewsDepthCarousel } from "@/components/home/news-depth-carousel";
@@ -29,16 +26,6 @@ export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps
       <div className="container-page grid items-center gap-10 py-10 md:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-14">
         {/* Left */}
         <div>
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange/20 bg-orange/5 px-3 py-1.5 text-xs font-semibold text-orange"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
-            The Digital Home of SMAN 1 Kraksaan
-          </motion.div>
-
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
@@ -85,8 +72,8 @@ export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps
             transition={{ duration: 0.5, delay: 0.24 }}
             className="mt-7 flex flex-wrap items-center gap-4"
           >
-            <AccreditationBadge />
-            <AccreditationCertificateDownload href={accreditationPdf} />
+            {/* Box akreditasi = tombol unduh: sekali klik langsung mengunduh PDF. */}
+            <AccreditationDownloadCard href={accreditationPdf} />
           </motion.div>
         </div>
 

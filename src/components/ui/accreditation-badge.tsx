@@ -74,3 +74,46 @@ export function AccreditationCertificateDownload({
     </a>
   );
 }
+
+/**
+ * Kartu akreditasi yang sekaligus jadi tombol unduh (dipakai di Hero).
+ * Satu klik di mana pun pada kartu → langsung mengunduh PDF sertifikat.
+ * Ikon unduh di kanan sebagai penanda, tanpa tombol terpisah.
+ */
+export function AccreditationDownloadCard({
+  className,
+  href,
+}: {
+  className?: string;
+  /** URL PDF dari Strapi (single type `acreditation`). Kosong → fallback file statis. */
+  href?: string;
+}) {
+  return (
+    <motion.a
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      href={href || accreditation.certificatePdf}
+      download
+      title="Klik untuk mengunduh sertifikat akreditasi (PDF)"
+      className={cn(
+        "group flex items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 shadow-sm transition-all hover:border-orange/40 hover:shadow-md hover:shadow-orange/10",
+        className
+      )}
+    >
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange text-lg font-extrabold text-white">
+        {accreditation.rank}
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-bold leading-none text-ink">Terakreditasi {accreditation.rank}</p>
+        <p className="mt-1 text-[11px] leading-snug text-muted">{accreditation.issuedBy}</p>
+      </div>
+      <span
+        className="ml-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue/10 text-blue transition-colors group-hover:bg-blue group-hover:text-white"
+        aria-hidden
+      >
+        <Download className="h-4 w-4" />
+      </span>
+    </motion.a>
+  );
+}

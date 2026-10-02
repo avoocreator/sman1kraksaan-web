@@ -20,6 +20,7 @@ import { getAllPartners, getPartnerBySlug } from "@/data/partners";
 import { getAllNews, getNewsBySlug } from "@/data/news";
 import { getAllEvents, getEventBySlug } from "@/data/events";
 import { getAllPrograms, getProgramBySlug } from "@/data/programs";
+import { announcements, type Announcement } from "@/data/announcements";
 import { statistics } from "@/data/statistics";
 import type {
   Achievement, AchievementCategory, AchievementLevel,
@@ -49,6 +50,7 @@ const CT = {
   program: ["programs", "program"],
   jadwal: ["schedules", "schedule", "jadwals"],
   akreditasi: ["acreditation", "accreditations", "acreditation"],
+  pengumuman: ["pengumumans", "announcements", "pengumuman"],
 };
 
 const REVALIDATE = 60; // detik sebelum cache Strapi di-refresh
@@ -441,6 +443,39 @@ export async function getAccreditationPdf(): Promise<string | undefined> {
   const row = await strapiSingle<StrapiRow>(CT.akreditasi, 300);
   if (!row) return undefined;
   return mediaUrl(pick(row, "media", "file", "certificate", "sertifikat"));
+}
+
+/* ------------------------------------------------------------------ */
+/* PENGUMUMAN (Portal Siswa /siswa)                                    */
+/* ------------------------------------------------------------------ */
+
+const ANNOUNCEMENT_CATEGORIES: Announcement["category"][] = [
+  "Akademik", "PPDB", "Kegiatan", "Umum",
+];
+
+function mapAnnouncement(r: StrapiRow): Announcement {
+  // Field isi bisa Text biasa atau Rich text (blocks) — dua-duanya ditangani.
+  const bodyRaw = pick(r, "body", "isi", "description", "deskripsi", "keterangan");
+  return {
+    id: rowSlug(r) || `ann-${txt(r.id) || "x"}`,
+    title: txt(pick(r, "title", "judul")) || "Pengumuman",
+    date: dateOnly(pick(r, "date", "tanggal", "publishedAt"), todayJakarta()),
+    category: normEnum(pick(r, "category", "kategori"), ANNOUNCEMENT_CATEGORIES, "Umum"),
+    important: Boolean(pick(r, "important", "penting")),
+    body: typeof bodyRaw === "string" ? bodyRaw : blocksToText(bodyRaw, 500),
+  };
+}
+
+/**
+ * Pengumuman Portal Siswa. Strapi dulu (content type `Pengumuman`, endpoint
+ * /api/pengumumans) — kalau Strapi tidak terjangkau atau content type-nya
+ * belum dibuat, jatuh ke data contoh di src/data/announcements.ts.
+ * Collection ada tapi masih kosong → array kosong (empty state jujur).
+ */
+export async function getAnnouncements(): Promise<Announcement[]> {
+  const rows = await strapiList<StrapiRow>(CT.pengumuman, REVALIDATE);
+  if (!rows) return announcements.map((a) => ({ ...a }));
+  return rows.map(mapAnnouncement);
 }
 
 /* ------------------------------------------------------------------ */

@@ -15,10 +15,10 @@ import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/button";
 import { ScheduleProvider } from "@/components/schedule/context";
 import ScheduleWidget from "@/components/home/ScheduleWidget";
-import { getScheduleRaw } from "@/lib/api";
+import { getAnnouncements, getScheduleRaw } from "@/lib/api";
 import { getFacilities } from "@/lib/api/fasilitas";
 import { todayJakarta } from "@/lib/utils";
-import { announcements, dateParts, formatTanggal } from "@/data/announcements";
+import { dateParts, formatTanggal } from "@/data/announcements";
 
 export const revalidate = 60; // segarkan data Strapi dengan pola halaman lain
 
@@ -48,10 +48,14 @@ const langkah = [
 ];
 
 export default async function SiswaPortalPage() {
-  const [schedule, facilities] = await Promise.all([getScheduleRaw(), getFacilities()]);
+  const [schedule, facilities, announcementList] = await Promise.all([
+    getScheduleRaw(),
+    getFacilities(),
+    getAnnouncements(),
+  ]);
 
   // Terbaru dulu; pengumuman penting naik ke paling atas.
-  const sorted = [...announcements].sort((a, b) => {
+  const sorted = [...announcementList].sort((a, b) => {
     if (Boolean(a.important) !== Boolean(b.important))
       return Number(Boolean(b.important)) - Number(Boolean(a.important));
     return b.date.localeCompare(a.date);
@@ -107,6 +111,15 @@ export default async function SiswaPortalPage() {
           </div>
 
           <ul className="mt-10 grid gap-4 lg:grid-cols-2">
+            {sorted.length === 0 && (
+              <li className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center lg:col-span-2">
+                <p className="text-sm font-bold text-ink">Belum ada pengumuman.</p>
+                <p className="mt-1 text-sm text-ink-soft">
+                  Pengumuman baru otomatis muncul di sini begitu ditambahkan di Strapi
+                  (collection Pengumuman).
+                </p>
+              </li>
+            )}
             {sorted.map((a) => {
               const { day, month } = dateParts(a.date);
               return (

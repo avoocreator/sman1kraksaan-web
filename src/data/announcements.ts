@@ -1,13 +1,14 @@
 /**
- * Pengumuman untuk Portal Siswa (/siswa).
+ * Data contoh (fallback) untuk Pengumuman Portal Siswa (/siswa).
  *
- * Sementara ini datanya statis di sini — kalau nanti content type
- * `pengumumans` dibuat di Strapi, pindahkan sumber datanya ke lapisan API
- * (src/lib/api) dengan pola yang sama seperti konten lain (Strapi dulu,
- * fallback data contoh ini).
+ * Sumber utama kini Strapi — content type `Pengumuman` (endpoint
+ * /api/pengumumans, ditarik lewat getAnnouncements() di src/lib/api).
+ * Kalau Strapi tidak terjangkau atau content type-nya belum dibuat,
+ * data di file ini yang tampil. Urutan tampil: yang penting dulu,
+ * lalu terbaru.
  *
  * Tanggal pakai format ISO (yyyy-mm-dd) dan ditampilkan dalam bahasa
- * Indonesia lewat helper di bawah. Urutan tampil: terbaru dulu.
+ * Indonesia lewat helper di bawah.
  */
 export type Announcement = {
   id: string;
