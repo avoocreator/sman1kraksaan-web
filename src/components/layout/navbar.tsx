@@ -22,6 +22,7 @@ const moreLinks = [
   { label: "Mitra & Kolaborasi", href: "/partners" },
   { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
+  { label: "Fasilitas", href: "/fasilitas" },
   { label: "PPDB", href: "/ppdb" },
 ];
 

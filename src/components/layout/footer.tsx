@@ -10,6 +10,7 @@ const columns = [
     links: [
       { label: "Tentang Kami", href: "/about" },
       { label: "Program Pendidikan", href: "/programs" },
+      { label: "Pesan Fasilitas", href: "/fasilitas" },
       { label: "PPDB", href: "/ppdb" },
     ],
   },

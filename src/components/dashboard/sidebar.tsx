@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, FileText, Trophy, Users, Handshake, Briefcase,
-  Newspaper, CalendarDays, ClipboardList, BarChart3, Settings, GraduationCap, LogOut,
+  Newspaper, CalendarDays, ClipboardList, Building2, BarChart3, Settings, GraduationCap, LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,7 @@ const items = [
   { label: "Berita", href: "/dashboard/news", icon: Newspaper },
   { label: "Agenda", href: "/dashboard/events", icon: CalendarDays },
   { label: "PPDB", href: "/dashboard/ppdb", icon: ClipboardList },
+  { label: "Fasilitas", href: "/dashboard/fasilitas", icon: Building2 },
   { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
