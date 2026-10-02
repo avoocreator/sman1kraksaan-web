@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, GraduationCap, X } from "lucide-react";
 import Link from "next/link";
@@ -35,20 +35,40 @@ const THRESHOLD = 60; // geser sekian px baru dianggap pindah slide
  * Teknik: track = konten terduplikasi (2-3 salinan), index berjalan 0..total.
  * Sampai di salinan kedua (posisi visual == awal) → lompat senyap ke 0
  * tanpa animasi, sehingga loop terasa tak berujung ke kanan maupun ke kiri.
+ *
+ * Kelancaran (fix "kadang macet saat digeser"):
+ * - Posisi geseran (dragX) dan lebar langkah (step) disimpan sebagai REF,
+ *   bukan state. Dulu setiap pointermove memicu setState → seluruh track
+ *   (kartu + foto) di-re-render React di tiap frame → karatan.
+ * - Sekarang transform ditulis LANGSUNG ke style track lewat rAF; React
+ *   hanya re-render saat drag mulai/berakhir (ganti kursor).
+ * - Auto-play maju terus dan berputar lewat lompatan senyap — dulu pakai
+ *   modulo sehingga sesekali mundur cepat sejauh seluruh track (terasa macet).
  */
 export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
   const [selected, setSelected] = useState<AlumniItem | null>(null);
   const total = items.length;
 
   const [index, setIndex] = useState(0);
-  const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [anim, setAnim] = useState(true);
-  const [step, setStep] = useState(296); // fallback: kartu 280px + jarak 16px (sm+)
 
   const trackRef = useRef<HTMLUListElement>(null);
   const drag = useRef({ startX: 0, active: false, captured: false });
   const draggedRef = useRef(false); // true kalau sudah melewati ambang → klik dibatalkan
+
+  const dragXRef = useRef(0);
+  const stepRef = useRef(296); // fallback: kartu 280px + jarak 16px (sm+)
+  const rafRef = useRef(0);
+
+  // Tulis transform langsung ke DOM. animate=false untuk mengikuti jari/mouse
+  // (tanpa transisi), true untuk snap antar kartu.
+  const apply = useCallback((target: number, animate: boolean) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.style.transition = animate ? "transform 620ms cubic-bezier(0.22, 1, 0.36, 1)" : "none";
+    el.style.transform = `translate3d(calc(${-target * stepRef.current}px + ${dragXRef.current}px), 0, 0)`;
+  }, []);
 
   // Jarak antar kartu diukur langsung dari DOM (260px di ponsel, 280px di sm+)
   // supaya tiap geseran jatuh tepat di kartu berikutnya. Dulu dipatok 296px dan
@@ -57,12 +77,18 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     const measure = () => {
       const first = trackRef.current?.children[0] as HTMLElement | undefined;
       const second = trackRef.current?.children[1] as HTMLElement | undefined;
-      if (first && second) setStep(second.offsetLeft - first.offsetLeft);
+      if (first && second) {
+        stepRef.current = second.offsetLeft - first.offsetLeft;
+        apply(index, false);
+      }
     };
     measure();
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [total]);
+    return () => {
+      window.removeEventListener("resize", measure);
+      if (rafRef.current) window.cancelAnimationFrame(rafRef.current);
+    };
+  }, [total, index, apply]);
 
   // Salinan track: konten pendek perlu 3 salinan supaya area kanan tak kosong.
   const copies = total > 0 && total < 5 ? 3 : 2;
@@ -89,10 +115,17 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     return () => cancelAnimationFrame(id);
   }, [anim]);
 
+  // Terapkan posisi track setiap index/anim berubah (autoplay, panah, lompatan senyap).
+  useEffect(() => {
+    apply(index, anim);
+  }, [index, anim, apply]);
+
   // Geser sendiri setiap ±4,5 detik; berhenti saat diseret atau pop-up terbuka.
+  // Maju terus (tanpa modulo) — putaran ditangani lompatan senyap di atas,
+  // jadi tidak ada lagi animasi mundur sejauh seluruh track.
   useEffect(() => {
     if (total <= 1 || dragging || selected) return;
-    const t = window.setInterval(() => setIndex((i) => (i + 1) % total), 4500);
+    const t = window.setInterval(() => setIndex((i) => i + 1), 4500);
     return () => window.clearInterval(t);
   }, [total, dragging, selected]);
 
@@ -159,19 +192,31 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     }
     if (drag.current.captured) {
       if (Math.abs(dx) > 8) draggedRef.current = true;
-      setDragX(dx);
+      dragXRef.current = dx;
+      // Tulis transform langsung via rAF — tanpa setState, tanpa re-render.
+      if (!rafRef.current) {
+        rafRef.current = window.requestAnimationFrame(() => {
+          rafRef.current = 0;
+          apply(index, false);
+        });
+      }
     }
   };
 
   const endDrag = () => {
     if (!drag.current.active) return;
     drag.current.active = false;
-    const dx = dragX;
+    const dx = dragXRef.current;
+    dragXRef.current = 0;
+    if (rafRef.current) {
+      window.cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
     setDragging(false);
-    setDragX(0);
     if (drag.current.captured) {
       if (dx <= -THRESHOLD) next();
       else if (dx >= THRESHOLD) prev();
+      else apply(index, true); // tidak melewati ambang → kembali ke kartu semula
     }
     drag.current.captured = false;
   };
@@ -216,10 +261,7 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
         <ul
           ref={trackRef}
           className={`flex w-max px-5 md:px-10 ${dragging ? "cursor-grabbing" : "cursor-grab"}`}
-          style={{
-            transform: `translate3d(calc(${-index * step}px + ${dragX}px), 0, 0)`,
-            transition: anim && !dragging ? "transform 620ms cubic-bezier(0.22, 1, 0.36, 1)" : "none",
-          }}
+          style={{ willChange: "transform" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endDrag}
@@ -249,6 +291,7 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
                       src={a.photo}
                       alt={a.name}
                       loading="lazy"
+                      decoding="async"
                       draggable={false}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />

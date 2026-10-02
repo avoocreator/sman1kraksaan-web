@@ -47,12 +47,15 @@ const rise: Variants = {
 };
 
 /**
- * Preview program di beranda — GRID SERAGAM.
+ * Section "kenapa sekolah di sini" di beranda — GRID SERAGAM.
  *
- * Dulu kartu pertama sengaja dibuat besar (layout bento), sehingga bentuknya
- * berubah-ubah tergantung jumlah program dari CMS (3 program → kartu ketiga
- * jadi sempit sendirian). Sekarang semua kartu ukurannya sama: 3 per baris
- * di desktop, 2 di tablet, 1 di HP — konsisten berapa pun jumlah programnya.
+ * Framing-nya bukan "daftar program" melainkan alasan memilih sekolah ini:
+ * kartu tetap diisi data program (CMS dulu, fallback contoh), tapi judul
+ * & pembuka section menjawab pertanyaan ortu/siswa sebelum mendaftar.
+ * Bahasanya sengaja dibuat wajar seperti bicara, bukan gaya brosur AI.
+ *
+ * Layout: semua kartu ukurannya sama — 3 per baris di desktop, 2 di tablet,
+ * 1 di HP — konsisten berapa pun jumlah programnya.
  */
 export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
   const reduce = useReducedMotion();
@@ -68,15 +71,17 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
       >
         <motion.div variants={rise} className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-muted">Program</p>
+            <p className="text-sm font-semibold uppercase tracking-wider text-muted">Kenapa di sini</p>
             <h2
               id="program-beranda"
               className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              Belajar apa saja di sini
+              Kenapa sekolah di sini?
             </h2>
             <p className="mt-3 max-w-xl text-ink-soft">
-              Selain mata pelajaran wajib, ada program yang bisa kamu ikuti sesuai tingkat kelas.
+              Ini alasan yang paling sering disebut siswa dan orang tua kami —
+              dari program unggulan sampai pembiasaan yang memang jalan tiap
+              minggu, bukan cuma tulisan di brosur.
             </p>
           </div>
           <Link
@@ -131,8 +136,8 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
               className="group flex items-center justify-between gap-4 rounded-3xl bg-blue px-6 py-5 text-bg transition-opacity hover:opacity-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue sm:px-8"
             >
               <span>
-                <span className="block text-lg font-semibold">Program lengkap dan kurikulum</span>
-                <span className="block text-sm text-bg/70">Baca penjelasan tiap program di halaman khusus.</span>
+                <span className="block text-lg font-semibold">Masih ragu pilih yang mana?</span>
+                <span className="block text-sm text-bg/70">Cek program lengkap, mapelnya, dan peluang lanjutannya di halaman program.</span>
               </span>
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-bg text-ink transition-transform duration-300 group-hover:translate-x-1">
                 <ArrowRight className="h-5 w-5" aria-hidden />

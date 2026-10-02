@@ -23,6 +23,7 @@ const moreLinks = [
   { label: "Berita", href: "/news" },
   { label: "Agenda", href: "/events" },
   { label: "Fasilitas", href: "/fasilitas" },
+  { label: "Jelajahi Sekolah", href: "/jelajahi" },
   { label: "PPDB", href: "/ppdb" },
 ];
 
@@ -46,6 +47,10 @@ export default function Navbar() {
   }, [pathname]);
 
   const isDashboard = pathname?.startsWith("/dashboard");
+  // Mode portal siswa: saat berada di /siswa, tombol berubah jadi pintu keluar.
+  const inPortal = pathname === "/siswa";
+  const portalHref = inPortal ? "/" : "/siswa";
+  const portalLabel = inPortal ? "Keluar Portal" : "Portal Siswa";
   if (isDashboard) return null;
 
   const onMoreBlur = (e: FocusEvent<HTMLDivElement>) => {
@@ -139,7 +144,12 @@ export default function Navbar() {
           >
             <Search className="h-4.5 w-4.5" />
           </Link>
-          <LinkButton href="/jelajahi" size="sm">
+          {/* Tombol mode: biru (warna PPDB) biar beda dari aksen oranye lainnya.
+              Jelajahi Sekolah tetap tersedia via menu Lainnya di layar sempit. */}
+          <LinkButton href={portalHref} size="sm" variant={inPortal ? "outline" : "secondary"}>
+            {portalLabel}
+          </LinkButton>
+          <LinkButton href="/jelajahi" size="sm" variant="outline" className="hidden xl:inline-flex">
             Jelajahi Sekolah
           </LinkButton>
         </div>
@@ -180,8 +190,13 @@ export default function Navbar() {
                 >
                   <Search className="h-4 w-4" /> Cari
                 </Link>
-                <LinkButton href="/jelajahi" size="md" className="flex-1">
-                  Jelajahi Sekolah
+                <LinkButton
+                  href={portalHref}
+                  size="md"
+                  variant={inPortal ? "outline" : "secondary"}
+                  className="flex-1"
+                >
+                  {portalLabel}
                 </LinkButton>
               </div>
             </div>
