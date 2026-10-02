@@ -22,7 +22,7 @@ export const floor1Rooms: SchoolRoom[] = [
 
   // Kolom 2
   { id: "satpam", name: "Pos Satpam", category: "fasilitas", description: "Pos keamanan sekolah, pusat pemantauan keluar-masuk area sekolah.", photo: "/jelajah/photos/satpam.jpg", x: 367, y: 367, width: 100, height: 45, fontSize: 11 },
-  { id: "lab-fisika", name: "Lab. Fisika", category: "lab", description: "Laboratorium praktikum Fisika dengan peralatan eksperimen dasar hingga lanjutan.", photo: "/jelajah/photos/lab-fisika.jpg", x: 235, y: 415, width: 130, height: 150 },
+  { id: "lab-fisika", name: "Lab. Fisika", category: "lab", description: "Laboratorium praktikum Fisika dengan peralatan eksperimen dasar hingga lanjutan.", photo: "/jelajah/photos/lab-fisika.jpg", panorama: "/jelajah/panorama/lab-fisika-360.jpg", x: 235, y: 415, width: 130, height: 150 },
   { id: "ruang-pertemuan", name: "Ruang Pertemuan", category: "fasilitas", description: "Ruang serbaguna untuk rapat guru, orang tua, dan tamu sekolah.", photo: "/jelajah/photos/ruang-pertemuan.jpg", x: 235, y: 567, width: 130, height: 150 },
   kelas("xj", "X J", 368, 415, 95, 72),
   kelas("xi-kelas", "X I", 368, 488, 95, 72),
@@ -70,7 +70,7 @@ export const floor1Rooms: SchoolRoom[] = [
   { id: "taman-kecil", name: "Taman", category: "taman", description: "Area hijau kecil di sisi timur kompleks kelas.", photo: "/jelajah/photos/taman.jpg", x: 1600, y: 790, width: 215, height: 75, fontSize: 16 },
 
   // Perpustakaan & ekskul
-  { id: "perpustakaan", name: "Perpustakaan", category: "lab", description: "Perpustakaan sekolah — koleksi buku pelajaran, fiksi, dan ruang baca digital.", photo: "/jelajah/photos/perpustakaan.jpg", x: 1660, y: 80, width: 140, height: 180, fontSize: 13 },
+  { id: "perpustakaan", name: "Perpustakaan", category: "lab", description: "Perpustakaan sekolah — koleksi buku pelajaran, fiksi, dan ruang baca digital.", photo: "/jelajah/photos/perpustakaan.jpg", panorama: "/jelajah/panorama/perpustakaan-360.jpg", x: 1660, y: 80, width: 140, height: 180, fontSize: 13 },
   { id: "r-pecinta-alam", name: "R. Pecinta Alam", category: "ekstrakurikuler", description: "Sekretariat ekstrakurikuler SMAKRAPALA (Pecinta Alam).", photo: "/jelajah/photos/r-pecinta-alam.jpg", x: 1545, y: 300, width: 85, height: 95, fontSize: 9 },
   { id: "r-pramuka", name: "R. Pramuka", category: "ekstrakurikuler", description: "Sekretariat ekstrakurikuler Pramuka.", photo: "/jelajah/photos/r-pramuka.jpg", x: 1630, y: 300, width: 85, height: 95, fontSize: 10 },
   { id: "r-silat", name: "R. Silat", category: "ekstrakurikuler", description: "Ruang latihan ekstrakurikuler Pencak Silat.", photo: "/jelajah/photos/r-silat.jpg", x: 1715, y: 300, width: 85, height: 95, fontSize: 10 },
@@ -89,7 +89,7 @@ export const floor1Rooms: SchoolRoom[] = [
   { id: "adiwiyata", name: "Adiwiyata", category: "ekstrakurikuler", description: "Ruang koordinasi program Adiwiyata (sekolah peduli lingkungan).", photo: "/jelajah/photos/adiwiyata.jpg", x: 1900, y: 1218, width: 40, height: 95, fontSize: 8, vertical: true },
   { id: "kantin", name: "Kantin", category: "kantin", description: "Kantin sekolah menyediakan makanan dan minuman bagi siswa dan guru.", photo: "/jelajah/photos/kantin.jpg", x: 1830, y: 1180, width: 170, height: 215, fontSize: 18 },
 
-  { id: "lapangan", name: "Lapangan", category: "taman", description: "Lapangan utama untuk upacara bendera, olahraga, dan kegiatan luar ruangan.", photo: "/jelajah/photos/lapangan.jpg", x: 905, y: 970, width: 595, height: 245, fontSize: 26 },
+  { id: "lapangan", name: "Lapangan", category: "taman", description: "Lapangan utama untuk upacara bendera, olahraga, dan kegiatan luar ruangan.", photo: "/jelajah/photos/lapangan.jpg", panorama: "/jelajah/panorama/lapangan-360.jpg", x: 905, y: 970, width: 595, height: 245, fontSize: 26 },
 
   { id: "mushola-putri-bawah", name: "Mushola Putri", category: "taman", description: "Tempat ibadah utama bagi siswi SMAN 1 Kraksaan.", photo: "/jelajah/photos/mushola-putri.jpg", x: 280, y: 1030, width: 295, height: 300, fontSize: 18 },
   { id: "toilet-putra-bawah", name: "Toilet Putra", category: "toilet", description: "Toilet siswa area selatan sekolah.", photo: "/jelajah/photos/toilet.jpg", x: 580, y: 1120, width: 80, height: 210, fontSize: 11, vertical: true },

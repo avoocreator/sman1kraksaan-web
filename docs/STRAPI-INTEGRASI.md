@@ -34,7 +34,7 @@ Komponen tidak perlu diubah — shape data selalu sama dengan interface di
 | `/alumni`       | `alumni-profiles`     | `name`, `media`, `description`     | carousel lulusan (loop)      |
 | `/partners`     | `partners`            | `title`, `media`, `decption`       | 4 mitra (dengan logo)        |
 | `/programs`     | `programs`            | `title`, `decption`                | 5 program (layout bento)     |
-| `/jelajahi`     | `school-places`       | `name`, `media`, `description`     | teaser peta ikon             |
+| `/jelajahi`     | `school-places`       | `name`, `media`, `description`, `panorama` (opsional, foto 360°) | teaser peta ikon |
 | `/schedule`     | `schedules`           | `Class`, `Subject`, `Teacher`      | widget "Pelajaran hari ini"  |
 | `/ppdb`         | `ppdb-infos`          | (belum ada field)                  | —                            |
 | Tentang/Akreditasi | `acreditation` (single type) | `media` (PDF sertifikat)  | tombol "Unduh Sertifikat"    |
@@ -81,6 +81,21 @@ Komponen tidak perlu diubah — shape data selalu sama dengan interface di
   `name` (mis. "LAB FISIKA" → ruang "Lab. Fisika", "RUANG TU DAN KEPSEK" →
   "Ruang TU & Kepsek"). 20 entri CMS kamu semuanya sudah terpetakan.
 - Pop-up klik ruangan menampilkan foto, nama, dan deskripsi dari CMS.
+- **Foto panorama 360°** — tambahkan field baru bertipe **Media (tunggal/satu
+  gambar)** bernama `Panorama` pada content type `School Place`, lalu unggah
+  foto equirectangular (rasio **2:1**, disarankan ≥ 4096×2048 px, format JPG).
+  Setelah itu pop-up ruangan menampilkan tombol **"Lihat Foto 360°"** yang
+  membuka penampil photo sphere (putar 360°, zoom, fullscreen).
+  - Nama field bebas: `panorama`, `panorama360`, `photo360`, `foto360`,
+    `photosphere` semuanya otomatis terbaca (lihat alias di
+    `getSchoolRooms()`).
+  - Ruangan tanpa foto 360° tidak menampilkan tombol (bukan tombol mati).
+  - Sumber foto 360: mode panorama HP (Google Street View / kamera 360° HP),
+    aplikasi Google Street View, atau kamera 360 (Insta360, Ricoh Theta) —
+    ekspor hasilnya sebagai JPG equirectangular.
+  - Sementara 3 ruangan bawaan (Lab. Fisika, Perpustakaan, Lapangan) memakai
+    foto demo di `public/jelajah/panorama/` — begitu field Panorama diisi di
+    Strapi, foto CMS otomatis menimpa demo.
 
 ### Jadwal — `schedules`
 - Schema CMS kamu saat ini: `Class`, `Subject`, `Teacher` (enumeration) —

@@ -420,10 +420,15 @@ export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: 
     const roomId = matchRoomId(name, [...floor1, ...floor2]);
     const room = roomId ? byId.get(roomId) : undefined;
     const photo = mediaUrl(pick(r, "photo", "foto", "gambar", "image", "media"));
+    // Foto panorama 360° (equirectangular) — field Media "Panorama" di School Place.
+    const panorama = mediaUrl(
+      pick(r, "panorama", "panorama360", "panorama_360", "photo360", "foto360", "photosphere", "photo_sphere", "foto_panorama"),
+    );
     const desc = blocksToText(pick(r, "description", "deskripsi", "keterangan"), 300);
     if (room) {
       // Konten dari CMS menimpa bawaan; posisi (x/y/w/h) tetap dari denah.
       if (photo) room.photo = photo;
+      if (panorama) room.panorama = panorama;
       if (desc) room.description = desc;
     } else if (photo) {
       // Ruangan CMS tanpa padanan di denah: tampilkan sebagai kartu ekstra

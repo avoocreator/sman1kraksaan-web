@@ -88,6 +88,8 @@ export interface SchoolRoom {
   category: RoomCategory;
   description: string;
   photo: string;
+  /** URL foto panorama 360° (equirectangular 2:1); undefined = ruangan belum punya. */
+  panorama?: string;
   x: number;
   y: number;
   width: number;
