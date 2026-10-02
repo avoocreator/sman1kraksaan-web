@@ -19,6 +19,7 @@ export function usePersisted<T>(key: string, initial: T) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(key);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- baca localStorage setelah mount agar aman dari hydration mismatch
       if (saved !== null) setValue(JSON.parse(saved) as T);
     } catch {}
   }, [key]);

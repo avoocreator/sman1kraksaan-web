@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import { NewsArticle } from "@/types";
@@ -11,26 +11,34 @@ interface NewsDepthCarouselProps {
   articles: NewsArticle[];
 }
 
+// Geser sekian px baru dianggap pindah slide.
+const SWIPE_THRESHOLD = 40;
+
 export function NewsDepthCarousel({
   articles,
 }: NewsDepthCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  // Drag/swipe: dragPx mengikuti jari, paused menghentikan autoplay.
+  const [dragPx, setDragPx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const drag = useRef({ startX: 0, active: false, captured: false });
+  const draggedRef = useRef(false);
 
   const items = articles.slice(0, 5);
 
   useEffect(() => {
-    if (items.length <= 1) return;
+    if (items.length <= 1 || paused) return;
 
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % items.length);
     }, 3200);
 
     return () => window.clearInterval(timer);
-  }, [items.length]);
+  }, [items.length, paused]);
 
   if (!items.length) {
     return (
-      <div className="mx-auto flex aspect-[4/5] w-full max-w-[420px] items-center justify-center rounded-[28px] border border-border bg-surface-alt text-sm text-muted">
+      <div className="mx-auto flex aspect-video w-full max-w-[460px] items-center justify-center rounded-[24px] border border-border bg-surface-alt text-sm text-muted">
         Belum ada berita terbaru.
       </div>
     );
@@ -50,28 +58,85 @@ export function NewsDepthCarousel({
     return offset;
   };
 
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (items.length <= 1) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    drag.current = { startX: e.clientX, active: true, captured: false };
+    draggedRef.current = false;
+    setPaused(true);
+  };
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!drag.current.active) return;
+    const dx = e.clientX - drag.current.startX;
+    if (!drag.current.captured && Math.abs(dx) > 8) {
+      drag.current.captured = true;
+      try {
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      } catch {
+        /* pointer mungkin sudah lepas */
+      }
+    }
+    if (drag.current.captured) {
+      if (Math.abs(dx) > 8) draggedRef.current = true;
+      setDragPx(dx);
+    }
+  };
+
+  const endDrag = () => {
+    if (!drag.current.active) return;
+    drag.current.active = false;
+    const dx = dragPx;
+    setPaused(false);
+    setDragPx(0);
+    if (drag.current.captured && Math.abs(dx) >= SWIPE_THRESHOLD) {
+      setActiveIndex((current) =>
+        dx < 0
+          ? (current + 1) % items.length // geser ke kiri → berita berikutnya
+          : (current - 1 + items.length) % items.length, // geser ke kanan → sebelumnya
+      );
+    }
+    drag.current.captured = false;
+  };
+
   return (
-    <div className="relative mx-auto h-[500px] w-full max-w-[420px] sm:h-[540px] sm:max-w-[500px]">
+    <div
+      className="relative mx-auto h-[330px] w-full max-w-[460px] cursor-grab touch-pan-y select-none active:cursor-grabbing sm:h-[370px] sm:max-w-[520px]"
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onDragStart={(e) => e.preventDefault()}
+      onClickCapture={(e) => {
+        // Setelah menyeret, jangan anggap sebagai klik kartu.
+        if (draggedRef.current) {
+          e.preventDefault();
+          e.stopPropagation();
+          draggedRef.current = false;
+        }
+      }}
+    >
       {items.map((article, index) => {
         const offset = getOffset(index);
         const isActive = offset === 0;
         const isVisible = Math.abs(offset) <= 2;
+        const isDragging = dragPx !== 0;
 
         return (
           <motion.a
             key={article.slug}
             href={`/news/${article.slug}`}
-            className="absolute left-1/2 top-1/2 block w-[270px] sm:w-[300px]"
+            className="absolute left-1/2 top-1/2 block w-[300px] sm:w-[380px]"
             initial={false}
             animate={{
-              x: `calc(-50% + ${offset * 92}px)`,
-              y: `calc(-50% + ${Math.abs(offset) * 18}px)`,
+              x: `calc(-50% + ${offset * 116 + dragPx * 0.35}px)`,
+              y: `calc(-50% + ${Math.abs(offset) * 14}px)`,
               scale:
                 offset === 0
                   ? 1
                   : offset === 1 || offset === -1
-                    ? 0.9
-                    : 0.8,
+                    ? 0.88
+                    : 0.78,
               rotateY: offset * -7,
               opacity: isVisible
                 ? offset === 0
@@ -87,7 +152,7 @@ export function NewsDepthCarousel({
                   : `blur(${Math.min(Math.abs(offset) * 2, 4)}px)`,
             }}
             transition={{
-              duration: 0.7,
+              duration: isDragging ? 0 : 0.7,
               ease: [0.22, 1, 0.36, 1],
             }}
             style={{
@@ -103,8 +168,9 @@ export function NewsDepthCarousel({
                 : undefined
             }
           >
-            <article className="overflow-hidden rounded-[22px] border border-border bg-surface shadow-2xl shadow-ink/10">
-              <div className="relative aspect-[4/5] overflow-hidden">
+            <article className="overflow-hidden rounded-[20px] border border-border bg-surface shadow-2xl shadow-ink/10">
+              {/* Foto berita dari CMS umumnya rasio 16:9 (seperti thumbnail video) */}
+              <div className="relative aspect-video overflow-hidden">
                 <img
                   src={article.cover}
                   alt={article.title}
@@ -113,21 +179,21 @@ export function NewsDepthCarousel({
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
-                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                   <Badge>{article.category}</Badge>
 
-                  <h3 className="mt-3 line-clamp-3 text-lg font-bold leading-snug">
+                  <h3 className="mt-2 line-clamp-2 text-base font-bold leading-snug sm:text-lg">
                     {article.title}
                   </h3>
 
-                  <div className="mt-3 flex items-center gap-2 text-xs text-white/75">
+                  <div className="mt-2 flex items-center gap-2 text-xs text-white/75">
                     <CalendarDays className="h-3.5 w-3.5" />
                     {formatDate(article.publishedAt)}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3 bg-surface px-4 py-3">
+              <div className="flex items-center justify-between gap-3 bg-surface px-4 py-2.5">
                 <p className="line-clamp-1 text-xs text-ink-soft">
                   {article.excerpt}
                 </p>

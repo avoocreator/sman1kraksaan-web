@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getPrograms } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+
+export const revalidate = 60; // refresh data Strapi
 
 export const metadata: Metadata = { title: "Program Pendidikan", description: "Program peminatan dan pengembangan minat siswa SMAN 1 Kraksaan." };
 
@@ -14,7 +17,15 @@ export default async function ProgramsPage() {
         <p className="mt-3 text-base leading-relaxed text-ink-soft">Pilihan jalur peminatan yang dirancang untuk mengembangkan potensi setiap siswa.</p>
       </div>
 
-      <div className="mt-12 space-y-6">
+      {programs.length === 0 ? (
+        <div className="mt-12">
+          <EmptyState
+            title="Belum ada program di CMS."
+            description="Tambahkan entri di Strapi (Collection Types → Program): isi title dan decption — halaman ini terisi otomatis dari CMS."
+          />
+        </div>
+      ) : (
+        <div className="mt-12 space-y-6">
         {programs.map((p, i) => (
           <div key={p.slug} className="grid gap-6 rounded-3xl border border-border bg-surface p-6 md:grid-cols-[auto_1fr] md:p-8">
             <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-soft text-lg font-bold text-orange">
@@ -42,7 +53,8 @@ export default async function ProgramsPage() {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { getNews } from "@/lib/api";
 import { NewsExplorer } from "@/components/news/news-explorer";
+import { EmptyState } from "@/components/ui/empty-state";
+
+export const revalidate = 60; // refresh data Strapi
 
 export const metadata: Metadata = { title: "Berita", description: "Kabar dan informasi terbaru dari SMAN 1 Kraksaan." };
 
@@ -13,7 +16,14 @@ export default async function NewsPage() {
         <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">Kabar Sekolah</h1>
       </div>
       <div className="mt-10">
-        <NewsExplorer articles={articles} />
+        {articles.length === 0 ? (
+          <EmptyState
+            title="Belum ada berita di CMS."
+            description="Tambahkan entri di Strapi (Collection Types → Article): isi title, content, dan unggah foto di field media — halaman ini terisi otomatis."
+          />
+        ) : (
+          <NewsExplorer articles={articles} />
+        )}
       </div>
     </div>
   );

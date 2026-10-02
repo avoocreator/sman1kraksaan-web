@@ -31,14 +31,6 @@ const sample: ProgramItem[] = [
   { title: "Pembiasaan dan Adiwiyata", level: "Semua kelas", icon: "leaf", desc: "Kegiatan pembiasaan dan kepedulian lingkungan rutin setiap Jumat." },
 ];
 
-// Lebar kartu di layout bento: dua kartu pertama besar, sisanya tiga per baris.
-function spanFor(i: number, total: number) {
-  if (i === 0) return "sm:col-span-2 lg:col-span-7";
-  if (i === 1) return "sm:col-span-2 lg:col-span-5";
-  const orphan = i === total - 1 && (total - 2) % 2 === 1;
-  return orphan ? "sm:col-span-2 lg:col-span-4" : "lg:col-span-4";
-}
-
 const container: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
@@ -54,6 +46,14 @@ const rise: Variants = {
   },
 };
 
+/**
+ * Preview program di beranda — GRID SERAGAM.
+ *
+ * Dulu kartu pertama sengaja dibuat besar (layout bento), sehingga bentuknya
+ * berubah-ubah tergantung jumlah program dari CMS (3 program → kartu ketiga
+ * jadi sempit sendirian). Sekarang semua kartu ukurannya sama: 3 per baris
+ * di desktop, 2 di tablet, 1 di HP — konsisten berapa pun jumlah programnya.
+ */
 export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
   const reduce = useReducedMotion();
 
@@ -87,21 +87,16 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
           </Link>
         </motion.div>
 
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-12">
-          {items.map(({ title, level, desc, icon }, i) => {
+        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.slice(0, 6).map(({ title, level, desc, icon }, i) => {
             const Icon = ICONS[icon] ?? BookOpen;
-            const big = i === 0;
             return (
-              <motion.li key={`${title}-${i}`} variants={rise} className={spanFor(i, items.length)}>
-                <article
-                  className={`group relative h-full overflow-hidden rounded-3xl border border-border transition-shadow duration-300 hover:shadow-xl hover:shadow-ink/5 ${
-                    big ? "bg-surface-alt/70 p-7 sm:p-9 lg:min-h-[17rem]" : "bg-surface p-6 sm:p-7"
-                  }`}
-                >
+              <motion.li key={`${title}-${i}`} variants={rise} className="h-full">
+                <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-surface p-6 transition-shadow duration-300 hover:shadow-xl hover:shadow-ink/5 sm:p-7">
                   <Icon
                     aria-hidden
                     strokeWidth={1.25}
-                    className="pointer-events-none absolute -bottom-8 -right-6 h-44 w-44 text-ink opacity-[0.05] transition-transform duration-700 ease-out group-hover:-rotate-6 group-hover:scale-110"
+                    className="pointer-events-none absolute -bottom-8 -right-6 h-40 w-40 text-ink opacity-[0.05] transition-transform duration-700 ease-out group-hover:-rotate-6 group-hover:scale-110"
                   />
 
                   <div className="relative flex items-start justify-between gap-3">
@@ -110,7 +105,7 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
                     </span>
                     <span className="flex items-center gap-2 text-xs font-semibold text-muted">
                       {level && (
-                        <span className="rounded-full border border-border bg-surface px-3 py-1 text-ink-soft">
+                        <span className="max-w-[170px] truncate rounded-full border border-border bg-bg px-3 py-1 text-ink-soft">
                           {level}
                         </span>
                       )}
@@ -120,25 +115,20 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
                     </span>
                   </div>
 
-                  <h3
-                    className={`relative mt-6 font-bold tracking-tight text-ink ${
-                      big ? "max-w-md text-2xl sm:text-3xl" : "text-xl"
-                    }`}
-                  >
+                  {/* Tinggi judul dikunci 2 baris supaya deskripsi sejajar antar kartu */}
+                  <h3 className="relative mt-6 line-clamp-2 min-h-[3.4rem] text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">
                     {title}
                   </h3>
-                  <p className={`relative mt-2 text-ink-soft ${big ? "max-w-md text-base sm:text-lg" : ""}`}>
-                    {desc}
-                  </p>
+                  <p className="relative mt-2 line-clamp-3 text-sm text-ink-soft">{desc}</p>
                 </article>
               </motion.li>
             );
           })}
 
-          <motion.li variants={rise} className="sm:col-span-2 lg:col-span-12">
+          <motion.li variants={rise} className="sm:col-span-2 lg:col-span-3">
             <Link
               href="/programs"
-              className="group flex items-center justify-between gap-4 rounded-3xl bg-ink px-6 py-5 text-bg transition-opacity hover:opacity-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink sm:px-8"
+              className="group flex items-center justify-between gap-4 rounded-3xl bg-blue px-6 py-5 text-bg transition-opacity hover:opacity-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue sm:px-8"
             >
               <span>
                 <span className="block text-lg font-semibold">Program lengkap dan kurikulum</span>

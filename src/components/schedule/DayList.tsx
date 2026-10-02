@@ -1,6 +1,6 @@
 import { Clock, User, Users } from "lucide-react";
 import type { Entry } from "@/types/schedule";
-import { classes, fmt, subjectInfo, teacherName } from "@/lib/schedule";
+import { useSchedule } from "@/components/schedule/context";
 
 type Props = {
   entries: Entry[];
@@ -9,6 +9,7 @@ type Props = {
 };
 
 export default function DayList({ entries, show, nowMin }: Props) {
+  const { classes, fmt, subjectInfo, teacherName } = useSchedule();
   if (entries.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border px-4 py-14 text-center text-ink-soft">
@@ -54,7 +55,7 @@ export default function DayList({ entries, show, nowMin }: Props) {
 
         const l = e.lesson;
         const info = subjectInfo(l.subject);
-        const second = show === "teacher" ? classes[l.classIdx].label : teacherName(l.teacher);
+        const second = show === "teacher" ? classes[l.classIdx]?.label ?? "" : teacherName(l.teacher);
         const accent = info.neutral ? "hsl(220 10% 55%)" : `hsl(${info.hue} 55% 48%)`;
         const tint = info.neutral ? "hsl(220 14% 96%)" : `hsl(${info.hue} 70% 96%)`;
         const pct = active ? ((nowMin! - e.from) / (e.to - e.from)) * 100 : 0;

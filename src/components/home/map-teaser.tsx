@@ -1,17 +1,36 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+"use client";
 
-const pins = [
-  { x: 118, y: 92 },
-  { x: 262, y: 168 },
-  { x: 176, y: 236 },
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  BookOpen,
+  FlaskConical,
+  MapPin,
+  Music2,
+  School,
+  Trophy,
+  UtensilsCrossed,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+type Chip = { icon: LucideIcon; label: string; x: number; y: number; delay: number };
+
+/** Chip ikon lokasi penting sekolah — pengganti ilustrasi kotak-kotak. */
+const chips: Chip[] = [
+  { icon: School, label: "Ruang Kelas", x: 6, y: 8, delay: 0 },
+  { icon: FlaskConical, label: "Laboratorium", x: 58, y: 2, delay: 0.6 },
+  { icon: BookOpen, label: "Perpustakaan", x: 66, y: 40, delay: 1.1 },
+  { icon: Trophy, label: "Lapangan", x: 2, y: 52, delay: 0.3 },
+  { icon: Music2, label: "Ruang Musik", x: 12, y: 82, delay: 0.9 },
+  { icon: UtensilsCrossed, label: "Kantin", x: 60, y: 78, delay: 1.4 },
 ];
 
 export function MapTeaser() {
   return (
     <section aria-labelledby="peta-beranda" className="pb-16 sm:pb-20">
       <div className="container-page">
-        <div className="grid items-center gap-8 overflow-hidden rounded-3xl bg-ink p-6 text-bg sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+        <div className="grid items-center gap-8 overflow-hidden rounded-3xl bg-blue p-6 text-bg sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wider text-bg/60">Peta virtual</p>
             <h2
@@ -31,29 +50,56 @@ export function MapTeaser() {
             </Link>
           </div>
 
-          {/* Ilustrasi denah abstrak, bukan denah sekolah yang sebenarnya */}
-          <div className="relative mx-auto w-full max-w-md" aria-hidden>
-            <svg viewBox="0 0 360 300" className="h-auto w-full" fill="none">
-              <g stroke="currentColor" strokeOpacity="0.28" strokeWidth="1.5">
-                <rect x="24" y="24" width="150" height="90" rx="10" />
-                <rect x="190" y="24" width="146" height="58" rx="10" />
-                <rect x="190" y="98" width="146" height="110" rx="10" />
-                <rect x="24" y="130" width="150" height="78" rx="10" />
-                <rect x="24" y="224" width="312" height="52" rx="10" />
-              </g>
-              <g stroke="currentColor" strokeOpacity="0.16" strokeWidth="1.5" strokeDasharray="4 6">
-                <path d="M99 114v16M263 82v16M99 208v16" />
-              </g>
+          {/* Mini map bergaya ikon: chip lokasi + pin berdenyut + jejak jalur */}
+          <div
+            className="relative mx-auto aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
+            aria-hidden
+          >
+            {/* Grid halus ala denah */}
+            <div
+              className="absolute inset-0 opacity-[0.35]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+                backgroundSize: "36px 36px",
+              }}
+            />
+
+            {/* Jejak jalur putus-putus dari tiap chip ke pin pusat */}
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+              {chips.map((c) => (
+                <path
+                  key={c.label}
+                  d={`M ${c.x + 14} ${c.y + 8} Q 50 ${c.y + 8} 50 50`}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.16)"
+                  strokeWidth="0.5"
+                  strokeDasharray="2 2.5"
+                  strokeLinecap="round"
+                />
+              ))}
             </svg>
-            {pins.map((p) => (
-              <span
-                key={`${p.x}-${p.y}`}
-                className="absolute flex h-3 w-3 -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${(p.x / 360) * 100}%`, top: `${(p.y / 300) * 100}%` }}
-              >
-                <span className="absolute inline-flex h-full w-full rounded-full bg-[hsl(152_65%_55%)] opacity-60 motion-safe:animate-ping" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-[hsl(152_65%_55%)]" />
+
+            {/* Pin pusat berdenyut */}
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <span className="absolute inline-flex h-10 w-10 -translate-x-1/4 -translate-y-1/4 rounded-full bg-emerald-400/30 motion-safe:animate-ping" />
+              <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-emerald-400 text-ink shadow-lg shadow-emerald-400/30">
+                <MapPin className="h-4.5 w-4.5" />
               </span>
+            </span>
+
+            {/* Chip ikon lokasi, mengapung pelan */}
+            {chips.map((c) => (
+              <motion.span
+                key={c.label}
+                className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/15 bg-blue/80 px-2.5 py-1.5 text-[11px] font-semibold text-bg/90 shadow-lg backdrop-blur-sm"
+                style={{ left: `${c.x}%`, top: `${c.y}%` }}
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3.2, repeat: Infinity, delay: c.delay, ease: "easeInOut" }}
+              >
+                <c.icon className="h-3.5 w-3.5 text-orange" />
+                {c.label}
+              </motion.span>
             ))}
           </div>
         </div>

@@ -39,6 +39,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- tutup menu saat pindah halaman (sinkronisasi dengan router)
     setOpen(false);
     setMoreOpen(false);
   }, [pathname]);

@@ -5,10 +5,10 @@ export type LessonEntry = Extract<Entry, { kind: "lesson" }>;
 export const DAYS_SHORT = ["Sen", "Sel", "Rab", "Kam", "Jum"];
 
 export const chipClass = (on: boolean) =>
-  `rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+  `rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
     on
-      ? "border-ink bg-ink text-bg"
-      : "border-border bg-surface text-ink-soft hover:border-ink/40 hover:text-ink"
+      ? "border-blue bg-blue text-bg"
+      : "border-border bg-surface text-ink-soft hover:border-blue/40 hover:text-ink"
   }`;
 
 export function liveState(entries: Entry[], nowMin: number | null) {

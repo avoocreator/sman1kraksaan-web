@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { BookOpen, Building2, Compass, FileCheck2, Target, Users } from "lucide-react";
 import { accreditation } from "@/data/school-profile";
 import { AccreditationCertificateDownload } from "@/components/ui/accreditation-badge";
+import { getAccreditationPdf } from "@/lib/api";
+
+export const revalidate = 120; // refresh data Strapi
 
 export const metadata: Metadata = { title: "Tentang Kami", description: "Sejarah, visi, misi, dan profil SMAN 1 Kraksaan." };
 
@@ -52,7 +55,8 @@ const extracurriculars = [
   "Tahfidz Quran",
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const accreditationPdf = await getAccreditationPdf();
   return (
     <div>
       <div className="container-page py-14 md:py-20">
@@ -116,7 +120,7 @@ export default function AboutPage() {
               </p>
               <p className="mt-2 text-xs text-white/60">No. Sertifikat: {accreditation.certificateNumber}</p>
             </div>
-            <AccreditationCertificateDownload className="bg-orange hover:bg-orange-dark md:self-center" />
+            <AccreditationCertificateDownload className="bg-orange hover:bg-orange-dark md:self-center" href={accreditationPdf} />
           </div>
         </div>
 

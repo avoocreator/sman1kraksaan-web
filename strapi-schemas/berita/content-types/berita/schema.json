@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "beritas",
+  "info": {
+    "singularName": "berita",
+    "pluralName": "beritas",
+    "displayName": "Berita",
+    "description": "Berita, artikel, dan pengumuman sekolah"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "excerpt": {
+      "type": "text",
+      "maxLength": 400
+    },
+    "content": {
+      "type": "blocks"
+    },
+    "category": {
+      "type": "string",
+      "default": "Berita",
+      "maxLength": 60
+    },
+    "cover": {
+      "allowedTypes": ["images"],
+      "type": "media",
+      "multiple": false
+    },
+    "author": {
+      "type": "string",
+      "default": "Humas Sekolah",
+      "maxLength": 120
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

@@ -6,6 +6,8 @@ import { getNewsArticle, getNews } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 
+export const revalidate = 120; // refresh data Strapi
+
 export async function generateStaticParams() {
   const news = await getNews();
   return news.map((n) => ({ slug: n.slug }));

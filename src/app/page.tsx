@@ -9,37 +9,43 @@ import { EventsPreview } from "@/components/home/events-preview";
 import { AiPreview } from "@/components/home/ai-preview";
 import { FinalCta } from "@/components/home/final-cta";
 import ScheduleWidget from "@/components/home/ScheduleWidget";
+import { ScheduleProvider } from "@/components/schedule/context";
 import { Reveal } from "@/components/ui/reveal";
-import { getAchievements, getNews, getEvents } from "@/lib/api";
-import { getHomeAlumni, getHomePartners, getHomePrograms } from "@/lib/home-data";
+import { getHomeData, getSearchSuggestions } from "@/lib/home-data";
+import { getAccreditationPdf } from "@/lib/api";
+import { todayJakarta } from "@/lib/utils";
+
+export const revalidate = 60;
 
 export default async function Home() {
-  const [achievements, news, events, programs, alumni, partners] = await Promise.all([
-    getAchievements(),
-    getNews(),
-    getEvents(),
-    getHomePrograms(),
-    getHomeAlumni(),
-    getHomePartners(),
+  // Semua section beranda memakai subset terkurasi dari data halaman
+  // masing-masing (Strapi dulu, fallback data contoh bawaan).
+  const {
+    heroArticles, achievements, programItems, alumniItems, partnerItems, events, schedule,
+  } = await getHomeData();
+  const [accreditationPdf, suggestions] = await Promise.all([
+    getAccreditationPdf(),
+    getSearchSuggestions(),
   ]);
+  const today = todayJakarta();
 
   return (
     <>
-      <Hero articles={news} />
+      <Hero articles={heroArticles} accreditationPdf={accreditationPdf} suggestions={suggestions} />
 
       {/* Lima logo wajib dari guidebook JHIC, langsung di bawah hero */}
       <SupportedBy />
 
       <AchievementsPreview achievements={achievements} />
 
-      <ProgramsPreview items={programs} />
+      <ProgramsPreview items={programItems} />
 
       <Reveal>
-        <AlumniPreview items={alumni} />
+        <AlumniPreview items={alumniItems} />
       </Reveal>
 
       <Reveal>
-        <PartnersPreview items={partners} />
+        <PartnersPreview items={partnerItems} />
       </Reveal>
 
       <Reveal>
@@ -47,10 +53,12 @@ export default async function Home() {
       </Reveal>
 
       <Reveal>
-        <ScheduleWidget />
+        <ScheduleProvider raw={schedule}>
+          <ScheduleWidget />
+        </ScheduleProvider>
       </Reveal>
 
-      <EventsPreview events={events} />
+      <EventsPreview events={events} today={today} />
 
       <AiPreview />
 

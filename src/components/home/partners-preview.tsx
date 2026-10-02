@@ -1,30 +1,21 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PartnerLogo } from "@/components/ui/partner-logo";
 
 export type PartnerItem = {
   name: string;
   type: string; // Universitas, Lembaga, Komunitas, Instansi, dst
   note: string; // bentuk kerja samanya
+  logo?: string; // URL logo dari field media Strapi (opsional)
 };
 
-// CONTOH. Ganti dengan mitra asli sekolah, atau kirim data dari halaman
-// /partners lewat prop `items`. Jangan pakai nama yang belum dikonfirmasi.
-const sample: PartnerItem[] = [
-  { name: "Nama Universitas", type: "Universitas", note: "Kuliah tamu dan sosialisasi jalur masuk" },
-  { name: "Nama Lembaga", type: "Lembaga", note: "Pelatihan untuk siswa dan guru" },
-  { name: "Nama Komunitas", type: "Komunitas", note: "Kegiatan bersama di luar kelas" },
-  { name: "Nama Instansi", type: "Instansi", note: "Kunjungan dan kegiatan bersama" },
-];
-
-const initials = (name: string) =>
-  name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join("");
-
-export function PartnersPreview({ items = sample }: { items?: PartnerItem[] }) {
+/**
+ * Preview mitra di beranda — logo jadi bintang utama kartu: area putih
+ * besar di atas supaya pengunjung langsung mengenali mitra dari logonya,
+ * tanpa perlu membaca teks.
+ */
+export function PartnersPreview({ items = [] }: { items?: PartnerItem[] }) {
   return (
     <section aria-labelledby="mitra-beranda" className="py-16 sm:py-20">
       <div className="container-page">
@@ -49,21 +40,35 @@ export function PartnersPreview({ items = sample }: { items?: PartnerItem[] }) {
           </Link>
         </div>
 
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {items.slice(0, 4).map((p) => (
-            <li key={p.name} className="rounded-2xl border border-border bg-surface p-5">
-              <span
-                aria-hidden
-                className="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-alt text-sm font-bold text-ink"
+        {items.length === 0 ? (
+          <div className="mt-10">
+            <EmptyState
+              title="Belum ada data mitra di CMS."
+              description="Tambahkan entri di Strapi (Collection Types → Partner) beserta logonya, maka kartu ini terisi otomatis."
+            />
+          </div>
+        ) : (
+          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {items.slice(0, 4).map((p) => (
+              <li
+                key={p.name}
+                className="group overflow-hidden rounded-2xl border border-border bg-surface transition-shadow hover:shadow-lg hover:shadow-ink/5"
               >
-                {initials(p.name)}
-              </span>
-              <p className="mt-4 font-semibold text-ink">{p.name}</p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">{p.type}</p>
-              <p className="mt-3 text-sm text-ink-soft">{p.note}</p>
-            </li>
-          ))}
-        </ul>
+                {/* Panggung logo: putih polos, logo tampil utuh setinggi mungkin */}
+                <div className="flex h-28 items-center justify-center border-b border-border/70 bg-white px-6">
+                  <PartnerLogo name={p.name} logo={p.logo} className="h-20 w-full" />
+                </div>
+                <div className="p-5">
+                  <p className="font-semibold text-ink">{p.name}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-muted">
+                    {p.type}
+                  </p>
+                  <p className="mt-3 line-clamp-3 text-sm text-ink-soft">{p.note}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   );

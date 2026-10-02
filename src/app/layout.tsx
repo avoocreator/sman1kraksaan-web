@@ -4,17 +4,25 @@ import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import AiFloatingButton from "@/components/ai/ai-floating-button";
 
-// NOTE: Plus Jakarta Sans is loaded via next/font/google. This requires
-// network access to fonts.googleapis.com at build time (works normally
-// in any environment with internet access, e.g. Vercel or local dev).
+// NOTE: Plus Jakarta Sans & Bricolage Grotesque are loaded via next/font/google.
+// This requires network access to fonts.googleapis.com at build time (works
+// normally in any environment with internet access, e.g. Vercel or local dev).
 // If your build environment has no internet access, replace this with
 // next/font/local and a self-hosted font file instead.
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+});
+
+// Font display untuk judul (h1-h6) — karakternya lebih berkarakter daripada
+// font body, dipakai lewat utilitas `font-display` di Tailwind.
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -38,7 +46,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${plusJakarta.variable} antialiased`} suppressHydrationWarning>
+      <body className={`${plusJakarta.variable} ${bricolage.variable} antialiased`} suppressHydrationWarning>
         <Navbar />
         <main>{children}</main>
         <Footer />

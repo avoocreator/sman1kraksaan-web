@@ -50,7 +50,7 @@ export function StatsStrip({ statistics }: { statistics: Statistics }) {
             transition={{ duration: 0.4, delay: i * 0.06 }}
             className="text-center md:text-left"
           >
-            <p className="text-3xl font-extrabold text-ink sm:text-4xl">
+            <p className="font-display text-3xl font-extrabold text-ink sm:text-4xl">
               <CountUp value={item.value} />
             </p>
             <p className="mt-1 text-sm text-ink-soft">{item.label}</p>

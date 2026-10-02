@@ -1,10 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Images, X } from "lucide-react";
 import { SchoolRoom } from "@/types";
 
 export function RoomPopup({ room, onClose }: { room: SchoolRoom | null; onClose: () => void }) {
+  // Foto bisa gagal dimuat (belum ada file) — tampilkan fallback rapi.
+  const [imgError, setImgError] = useState(false);
+  const showFallback = !room?.photo || imgError;
+
   return (
     <AnimatePresence>
       {room && (
@@ -31,7 +36,19 @@ export function RoomPopup({ room, onClose }: { room: SchoolRoom | null; onClose:
               <X className="h-4.5 w-4.5" />
             </button>
             <div className="aspect-[16/9] w-full overflow-hidden bg-surface-alt">
-              <img src={room.photo} alt={room.name} className="h-full w-full object-cover" />
+              {showFallback ? (
+                <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-alt text-muted">
+                  <Images className="h-8 w-8" strokeWidth={1.5} aria-hidden />
+                  <span className="text-xs">Foto ruangan belum tersedia</span>
+                </div>
+              ) : (
+                <img
+                  src={room.photo}
+                  alt={room.name}
+                  className="h-full w-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              )}
             </div>
             <div className="p-6">
               <h3 className="text-lg font-bold text-ink">{room.name}</h3>

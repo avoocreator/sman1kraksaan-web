@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getAchievements } from "@/lib/api";
 import { AchievementsExplorer } from "@/components/achievements/achievements-explorer";
 
+export const revalidate = 60; // refresh data Strapi
+
 export const metadata: Metadata = {
   title: "Prestasi",
   description: "Jejak rekam keingintahuan, disiplin, dan keunggulan siswa SMAN 1 Kraksaan.",

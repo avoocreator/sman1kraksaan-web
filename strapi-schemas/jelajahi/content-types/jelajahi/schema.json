@@ -1,0 +1,67 @@
+{
+  "kind": "collectionType",
+  "collectionName": "jelajahis",
+  "info": {
+    "singularName": "jelajahi",
+    "pluralName": "jelajahis",
+    "displayName": "Jelajahi",
+    "description": "Ruangan peta virtual sekolah (halaman Jelajahi)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "maxLength": 120
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["kelas", "lab", "fasilitas", "ekstrakurikuler", "taman", "toilet", "kantin"],
+      "default": "fasilitas",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "maxLength": 500
+    },
+    "photo": {
+      "allowedTypes": ["images"],
+      "type": "media",
+      "multiple": false
+    },
+    "lantai": {
+      "type": "integer",
+      "min": 1,
+      "max": 2,
+      "default": 1
+    },
+    "x": {
+      "type": "integer",
+      "default": 0
+    },
+    "y": {
+      "type": "integer",
+      "default": 0
+    },
+    "width": {
+      "type": "integer",
+      "default": 100
+    },
+    "height": {
+      "type": "integer",
+      "default": 80
+    },
+    "fontSize": {
+      "type": "integer",
+      "min": 8,
+      "max": 30
+    },
+    "vertical": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

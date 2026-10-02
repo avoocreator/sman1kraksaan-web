@@ -34,6 +34,7 @@
   --color-blue-soft: var(--color-blue-soft);
   --color-blue-bright: var(--color-blue-bright);
   --font-sans: var(--font-plus-jakarta);
+  --font-display: var(--font-bricolage);
 }
 
 * {
@@ -48,6 +49,12 @@ body {
   background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Semua judul memakai font display (Bricolage Grotesque) — body tetap
+   Plus Jakarta Sans. Utility `font-display` tersedia untuk elemen lain. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-bricolage), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
 ::selection {
@@ -69,6 +76,31 @@ body {
 
 .text-balance {
   text-wrap: balance;
+}
+
+/* Carousel alumni: geser sendiri ke kiri tanpa henti (loop mulus).
+   Track berisi kartu terduplikasi 2x, digeser -50% lalu ulang. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+.marquee-paused:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

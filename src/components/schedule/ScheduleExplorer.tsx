@@ -1,43 +1,48 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Search } from "lucide-react";
+import { useState } from "react";
 import DayList from "./DayList";
 import NowPanel from "./NowPanel";
 import { useNow, usePersisted } from "./hooks";
 import { chipClass, DAYS_SHORT, dayStats } from "./shared";
-import {
-  classes, dayEntries, DAYS, fmt, scheduleDay, teacherHours, teachers,
-} from "@/lib/schedule";
+import { useSchedule } from "@/components/schedule/context";
+import { teacherName as fmtTeacherName } from "@/lib/schedule";
 
 const LEVELS = ["X", "XI", "XII"] as const;
 
 export default function ScheduleExplorer() {
+  const { classes, dayEntries, DAYS, fmt, scheduleDay, teacherHours, teachers } = useSchedule();
   const now = useNow();
   const reduce = useReducedMotion();
   const [mode, setMode] = usePersisted<"kelas" | "guru">("sch:mode", "kelas");
   const [classIdx, setClassIdx] = usePersisted("sch:class", 0);
-  const [teacher, setTeacher] = usePersisted("sch:teacher", teachers[0].code);
+  const [teacher, setTeacher] = usePersisted("sch:teacher", teachers[0]?.code ?? "");
   const [pickedDay, setPickedDay] = useState<number | null>(null);
   const [q, setQ] = useState("");
 
   const cls = classes[classIdx] ?? classes[0];
-  const tch = teachers.find((t) => t.code === teacher) ?? teachers[0];
+  const tch = teachers.find((t) => t.code === teacher) ?? { code: teacher ?? "", name: fmtTeacherName(teacher ?? "") || teacher || "—" };
   const weekend = now !== null && (now.day === 0 || now.day === 6);
   const day = pickedDay ?? scheduleDay(now);
   const nowMin = now && now.day === day ? now.min : null;
   const show = mode === "kelas" ? "class" : "teacher";
 
-  const entries = useMemo(
-    () => (mode === "kelas" ? dayEntries({ classIdx: cls.idx }, day) : dayEntries({ teacher: tch.code }, day)),
-    [mode, cls.idx, tch.code, day],
-  );
+  const entries =
+    mode === "kelas"
+      ? dayEntries({ classIdx: cls?.idx ?? 0 }, day)
+      : dayEntries({ teacher: tch.code }, day);
   const stats = dayStats(entries);
-  const filtered = useMemo(
-    () => teachers.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase())),
-    [q],
-  );
+  const filtered = teachers.filter((t) => t.name.toLowerCase().includes(q.trim().toLowerCase()));
+
+  if (classes.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border px-4 py-16 text-center text-ink-soft">
+        Jadwal belum tersedia — data jadwal masih kosong. Hubungi admin sekolah atau coba lagi nanti.
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-8 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-12">
@@ -53,8 +58,8 @@ export default function ScheduleExplorer() {
               key={m}
               aria-pressed={mode === m}
               onClick={() => setMode(m)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
-                mode === m ? "bg-ink text-bg" : "text-ink-soft hover:text-ink"
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
+                mode === m ? "bg-blue text-bg" : "text-ink-soft hover:text-ink"
               }`}
             >
               {m === "kelas" ? "Per kelas" : "Per guru"}
@@ -70,7 +75,10 @@ export default function ScheduleExplorer() {
                   key={lv}
                   aria-pressed={cls.level === lv}
                   className={chipClass(cls.level === lv)}
-                  onClick={() => setClassIdx(classes.find((c) => c.level === lv)!.idx)}
+                  onClick={() => {
+                    const c = classes.find((cl) => cl.level === lv);
+                    if (c) setClassIdx(c.idx);
+                  }}
                 >
                   Kelas {lv}
                 </button>
@@ -104,7 +112,7 @@ export default function ScheduleExplorer() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Cari nama guru"
-                className="w-full rounded-full border border-border bg-surface py-2 pl-9 pr-4 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+                className="w-full rounded-full border border-border bg-surface py-2 pl-9 pr-4 text-sm text-ink placeholder:text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
               />
             </div>
             <ul className="mt-3 max-h-72 divide-y divide-border overflow-y-auto rounded-xl border border-border bg-surface">
@@ -114,8 +122,8 @@ export default function ScheduleExplorer() {
                   <button
                     aria-pressed={t.code === tch.code}
                     onClick={() => setTeacher(t.code)}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink ${
-                      t.code === tch.code ? "bg-ink text-bg" : "text-ink-soft hover:bg-surface-alt hover:text-ink"
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-blue ${
+                      t.code === tch.code ? "bg-blue text-bg" : "text-ink-soft hover:bg-surface-alt hover:text-ink"
                     }`}
                   >
                     {t.name}
@@ -157,7 +165,7 @@ export default function ScheduleExplorer() {
                 role="tab"
                 aria-selected={on}
                 onClick={() => setPickedDay(d)}
-                className={`relative flex-1 px-1 py-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ink sm:flex-none sm:px-6 ${
+                className={`relative flex-1 px-1 py-3 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-blue sm:flex-none sm:px-6 ${
                   on ? "text-ink" : "text-ink-soft hover:text-ink"
                 }`}
               >
@@ -175,7 +183,7 @@ export default function ScheduleExplorer() {
                   <motion.span
                     layoutId="hari-aktif"
                     transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 40 }}
-                    className="absolute inset-x-0 -bottom-px h-0.5 bg-ink"
+                    className="absolute inset-x-0 -bottom-px h-0.5 bg-blue"
                   />
                 )}
               </button>

@@ -1,5 +1,5 @@
 import type { Entry } from "@/types/schedule";
-import { classes, fmt, subjectInfo, teacherName } from "@/lib/schedule";
+import { useSchedule } from "@/components/schedule/context";
 import { liveState, type LessonEntry } from "./shared";
 
 type Props = {
@@ -7,9 +7,6 @@ type Props = {
   nowMin: number | null; // null = bukan hari ini
   show: "class" | "teacher";
 };
-
-const who = (e: LessonEntry, show: Props["show"]) =>
-  show === "teacher" ? classes[e.lesson.classIdx].label : teacherName(e.lesson.teacher);
 
 function Quiet({ title, text }: { title: string; text: string }) {
   return (
@@ -21,7 +18,10 @@ function Quiet({ title, text }: { title: string; text: string }) {
 }
 
 export default function NowPanel({ entries, nowMin, show }: Props) {
+  const { classes, fmt, subjectInfo, teacherName } = useSchedule();
   const s = liveState(entries, nowMin);
+  const who = (e: LessonEntry, mode: Props["show"]) =>
+    mode === "teacher" ? classes[e.lesson.classIdx]?.label ?? "" : teacherName(e.lesson.teacher);
 
   if (!s.first || !s.last) {
     return <Quiet title="Tidak ada pelajaran" text="Belum ada jadwal untuk hari ini." />;
@@ -39,7 +39,7 @@ export default function NowPanel({ entries, nowMin, show }: Props) {
     const e = s.current;
     const pct = Math.min(100, Math.max(0, ((nowMin - e.from) / (e.to - e.from)) * 100));
     return (
-      <div className="rounded-2xl bg-ink p-5 text-bg sm:p-6">
+      <div className="rounded-2xl bg-blue p-5 text-bg sm:p-6">
         <p className="flex items-center gap-2 text-sm font-medium text-bg/75">
           <span className="relative flex h-2.5 w-2.5" aria-hidden>
             <span className="absolute inline-flex h-full w-full rounded-full bg-[hsl(152_65%_55%)] opacity-70 motion-safe:animate-ping" />

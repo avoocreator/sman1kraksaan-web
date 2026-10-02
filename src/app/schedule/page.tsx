@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import ScheduleExplorer from "@/components/schedule/ScheduleExplorer";
+import { ScheduleProvider } from "@/components/schedule/context";
+import { getScheduleRaw } from "@/lib/api";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Jadwal Pelajaran | SMAN 1 Kraksaan",
   description: "Jadwal pelajaran semua kelas SMAN 1 Kraksaan, lengkap dengan jam dan guru pengajar.",
 };
 
-export default function SchedulePage() {
+export default async function SchedulePage() {
+  // Data jadwal dari Strapi; kalau masih kosong, jadwal statis bawaan dipakai.
+  const raw = await getScheduleRaw();
+
   return (
     <main className="container-page py-10 sm:py-14">
       <header className="mb-10 max-w-2xl">
@@ -15,7 +22,9 @@ export default function SchedulePage() {
           Cari jadwal kelasmu, atau cek guru mana yang sedang mengajar di kelas mana.
         </p>
       </header>
-      <ScheduleExplorer />
+      <ScheduleProvider raw={raw}>
+        <ScheduleExplorer />
+      </ScheduleProvider>
     </main>
   );
 }

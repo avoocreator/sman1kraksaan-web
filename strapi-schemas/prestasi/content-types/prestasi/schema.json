@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "prestasis",
+  "info": {
+    "singularName": "prestasi",
+    "pluralName": "prestasis",
+    "displayName": "Prestasi",
+    "description": "Prestasi siswa dan sekolah"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "maxLength": 255
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "year": {
+      "type": "integer",
+      "min": 2000,
+      "max": 2100
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["Akademik", "Teknologi", "Olahraga", "Seni"],
+      "default": "Akademik",
+      "required": true
+    },
+    "level": {
+      "type": "enumeration",
+      "enum": ["Sekolah", "Kabupaten", "Provinsi", "Nasional", "Internasional"],
+      "default": "Sekolah",
+      "required": true
+    },
+    "image": {
+      "allowedTypes": ["images"],
+      "type": "media",
+      "multiple": false
+    },
+    "description": {
+      "type": "blocks"
+    },
+    "participants": {
+      "type": "text",
+      "maxLength": 500
+    }
+  }
+}

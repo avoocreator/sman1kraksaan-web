@@ -4,90 +4,124 @@ Frontend untuk kompetisi **Jagoan Hosting Innovation Competition (JHIC) 2.0 2026
 
 "One School. One Digital Ecosystem." — menghubungkan informasi sekolah, prestasi, alumni, mitra industri, karier/PKL, berita, agenda, dan asisten AI dalam satu platform.
 
+> **Terhubung Strapi CMS** — seluruh konten (alumni, mitra, program, jadwal, berita, agenda, prestasi, jelajahi) kini dibaca dari Strapi dengan fallback otomatis ke data contoh. Panduan lengkap: [`docs/STRAPI-INTEGRASI.md`](docs/STRAPI-INTEGRASI.md).
+
 ## Tech Stack
 
 - Next.js 16 (App Router) + TypeScript
 - Tailwind CSS v4 (design tokens berbasis CSS variables)
+- Strapi v5 (CMS headless, REST + API token)
 - Framer Motion (micro-interactions)
 - Lucide React (ikon)
 - Recharts (grafik dashboard/analitik)
-- React Hook Form + Zod (siap dipakai untuk form CRUD lanjutan)
+- React Hook Form + Zod (form CRUD dashboard)
 
 ## Menjalankan Proyek
 
 ```bash
-npm install
+npm install   # atau bun install
 npm run dev
 ```
 
 Buka http://localhost:3000
 
-Build produksi:
+Isi `.env` (lihat `.env.example`):
 
-```bash
-npm run build
-npm start
+```env
+STRAPI_URL=https://cms.sman1kraksaan-web.my.id
+STRAPI_TOKEN=<API token read-only dari Strapi>
 ```
 
-> Catatan: font Plus Jakarta Sans dimuat lewat `next/font/google`, jadi build memerlukan akses internet (normal di Vercel/lokal dengan koneksi). Jika environment build kamu tanpa internet, ganti ke `next/font/local` di `src/app/layout.tsx`.
+## Arsitektur data
+
+```
+Strapi (CMS) ──▶ src/lib/strapi.ts (transport + util)
+                     │
+                     ▼
+              src/lib/api/index.ts   ◀── fallback: src/data/* (data contoh)
+                     │
+        ┌────────────┼────────────────┬─────────────┐
+        ▼            ▼                ▼             ▼
+   halaman publik  beranda        /schedule     dashboard
+   (kurasi di lib/home-data.ts)   (buildSchedule + ScheduleProvider)
+```
+
+- Halaman apa pun **tidak pernah blank**: kalau Strapi down / content type
+  belum dibuat / datanya kosong, data contoh tampil sebagai cadangan.
+- Cache ISR: data Strapi di-refresh tiap 60–120 detik (lihat `revalidate`
+  di tiap halaman).
+- Field Strapi dibaca fleksibel (beberapa alias per field) — daftar lengkap
+  di `docs/STRAPI-INTEGRASI.md`.
 
 ## Struktur Folder
 
 ```
 src/
 ├── app/                  # Routes (App Router)
-│   ├── (public routes)/  # /, /about, /programs, /achievements, /alumni,
-│   │                     # /partners, /career, /news, /events, /ppdb, /search
-│   ├── login/
-│   └── dashboard/        # Admin panel + sub-routes CRUD & analytics
+│   ├── (public)/         # /, /about, /programs, /achievements, /alumni,
+│   │                     # /partners, /news, /events, /schedule, /jelajahi, ...
+│   ├── login/            # dan /dashboard/* (admin panel mock)
 ├── components/
-│   ├── ui/                # Button, Badge, SectionHeading, EmptyState
-│   ├── layout/             # Navbar, Footer
-│   ├── home/                # Seluruh section homepage
-│   ├── achievements/ alumni/ partners/ career/ news/ events/ search/
-│   ├── dashboard/           # Sidebar, Topbar, DataTable, charts
-│   └── ai/                  # Floating button + chat thread (mock)
-├── data/                  # Mock data terpusat (achievements, alumni, dst.)
+│   ├── ui/               # Button, Badge, SectionHeading, EmptyState
+│   ├── layout/           # Navbar, Footer
+│   ├── home/             # Section beranda (preview per konten)
+│   ├── schedule/         # ScheduleExplorer + ScheduleProvider (context)
+│   ├── explore/          # Peta sekolah (JelajahiView)
+│   └── ...
+├── data/                 # Data contoh (fallback) + schedule.json
 ├── lib/
-│   ├── api/                # Abstraksi API — ganti isi fungsi dengan fetch()
-│   │                       # ke backend Hono saat backend siap
-│   ├── ai.ts                # Mock resolver AI assistant
+│   ├── strapi.ts         # Transport Strapi: fetch, populate, media, blocks
+│   ├── api/              # Getter per konten: Strapi dulu → fallback
+│   ├── schedule.ts       # buildSchedule(): jadwal dari dataset apa pun
+│   ├── schedule-strapi.ts# Parser content type `schedules` → dataset jadwal
+│   ├── home-data.ts      # Kurasi subset beranda
 │   └── utils.ts
-└── types/                 # Semua interface TypeScript
+└── types/                # Interface TypeScript
+strapi-schemas/           # Schema 4 content type baru (Berita, Agenda,
+                          # Prestasi, Jelajahi) siap dipasang di Strapi
+scripts/strapi-seed.mjs   # Isi data Strapi (termasuk 890 pelajaran)
+docs/STRAPI-INTEGRASI.md  # Panduan integrasi lengkap
 ```
 
-## Menghubungkan ke Backend (Hono + PostgreSQL + Drizzle)
+## Halaman & sumber data
 
-1. Buat `NEXT_PUBLIC_API_URL` di `.env.local`.
-2. Edit setiap fungsi di `src/lib/api/index.ts` — ganti body dari
-   `return getAllAchievements()` (mock) menjadi `fetch(...)` ke endpoint REST.
-   Signature fungsi & shape data sengaja dibuat stabil sehingga
-   **komponen tidak perlu diubah sama sekali**.
-3. Untuk AI Assistant, edit `src/lib/ai.ts` (`getMockAiResponse`) agar
-   memanggil endpoint AI backend, dan ubah `AiChatThread` agar `async`.
-4. Untuk autentikasi admin, hubungkan form di `src/app/login/page.tsx`
-   ke endpoint auth, lalu tambahkan middleware/guard di
-   `src/app/dashboard/layout.tsx`.
-5. Untuk form tambah/edit data di dashboard (saat ini tombol "Tambah..."
-   masih UI-only), buat form dengan React Hook Form + Zod dan sambungkan
-   ke endpoint POST/PUT/DELETE terkait.
+| Route            | Konten   | Endpoint Strapi  |
+| ---------------- | -------- | ---------------- |
+| `/alumni`        | Alumni   | `alumni-profiles`|
+| `/partners`      | Mitra    | `partners`       |
+| `/programs`      | Program  | `programs`       |
+| `/schedule`      | Jadwal   | `schedules`      |
+| `/news`          | Berita   | `beritas` (baru) |
+| `/events`        | Agenda   | `agendas` / `events` |
+| `/achievements`  | Prestasi | `prestasis` (baru) |
+| `/jelajahi`      | Peta     | `jelajahis` (baru) |
+
+Beranda menampilkan **subset terkurasi** dari halaman masing-masing:
+4 berita (hero) → 4 prestasi → 5 program → 3 alumni → 4 mitra →
+teaser peta → widget "pelajaran hari ini" → 3 agenda terdekat.
+
+## Aktivasi Strapi (checklist)
+
+1. [x] `alumni-profiles`, `partners`, `programs`, `schedules`, `events` — sudah ada di CMS.
+2. [ ] Buat `beritas`, `prestasis`, `jelajahis` — salin dari `strapi-schemas/` (cara cepat: tiru field di Admin → Content-Type Builder).
+3. [ ] Beri izin **find + findOne** pada API token untuk semua content type.
+4. [ ] Isi data: `STRAPI_URL=... STRAPI_TOKEN=<token-tulis> node scripts/strapi-seed.mjs semua`
+       (atau isi manual lewat Admin Strapi).
+5. [ ] Selesai — tanpa perlu mengubah kode frontend.
 
 ## Environment Variables
 
-Belum ada variabel wajib untuk menjalankan frontend saat ini (murni mock data).
-Saat backend siap, tambahkan di `.env.local`:
-
 ```
-NEXT_PUBLIC_API_URL=https://api.sman1kraksaan.sch.id
+STRAPI_URL=https://cms.sman1kraksaan-web.my.id   # base URL CMS
+STRAPI_TOKEN=...                                  # API token (find/findOne minimal)
 ```
 
 ## Sisa Pekerjaan (TODO)
 
-- Hubungkan seluruh fungsi di `src/lib/api/` dan `src/lib/ai.ts` ke backend nyata
-- Tambahkan form create/edit (React Hook Form + Zod) pada tombol "Tambah..." di setiap halaman dashboard
-- Tambahkan autentikasi & proteksi route `/dashboard/*`
-- Tambahkan halaman `/dashboard/settings`
-- Ganti gambar placeholder (Unsplash) dengan aset resmi sekolah
-- Tambahkan pagination pada `/partners` dan halaman lain bila data bertambah banyak
-- Tambahkan skeleton loading state saat data mulai berasal dari network (saat ini data lokal sehingga instan)
-- Uji aksesibilitas (kontras warna, navigasi keyboard) secara menyeluruh
+- Isi konten asli di Strapi (mitra, program, berita, prestasi, jelajahi).
+- Isi `schedules` (format field ada di `docs/STRAPI-INTEGRASI.md`) agar
+  halaman jadwal otomatis beralih dari JSON statis ke CMS.
+- Form create/edit dashboard (React Hook Form + Zod) ke endpoint Strapi
+  (butuh API token dengan izin tulis — jangan pernah ditaruh di client).
+- Autentikasi & proteksi route `/dashboard/*`.
+- Ganti foto placeholder (peta `/jelajah/photos/*`, Unsplash) dengan aset resmi sekolah.

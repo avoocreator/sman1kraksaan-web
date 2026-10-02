@@ -8,13 +8,17 @@ import {
   AccreditationCertificateDownload,
 } from "@/components/ui/accreditation-badge";
 import { NewsArticle } from "@/types";
+import type { SearchItem } from "@/types/search";
 import { NewsDepthCarousel } from "@/components/home/news-depth-carousel";
+import { HeroSearch } from "@/components/search/hero-search";
 
 interface HeroProps {
   articles: NewsArticle[];
+  accreditationPdf?: string; // URL PDF sertifikat dari Strapi
+  suggestions?: SearchItem[]; // rekomendasi untuk search bar
 }
 
-export function Hero({ articles }: HeroProps) {
+export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps) {
   return (
     <section className="relative overflow-hidden bg-bg">
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -61,16 +65,18 @@ export function Hero({ articles }: HeroProps) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.18 }}
-            className="mt-7 flex flex-wrap gap-3"
+            className="mt-7 flex flex-wrap items-center gap-3"
           >
             <LinkButton href="/jelajahi" size="lg">
               Jelajahi Sekolah
               <ArrowRight className="h-4 w-4" />
             </LinkButton>
 
-            <LinkButton href="/news" variant="outline" size="lg">
-              Semua Berita
-            </LinkButton>
+            {/* Search bar dengan rekomendasi (menggantikan tombol "Semua Berita") */}
+            <HeroSearch
+              suggestions={suggestions}
+              className="w-full sm:w-auto sm:min-w-[240px] lg:min-w-0 lg:max-w-[330px] lg:flex-1"
+            />
           </motion.div>
 
           <motion.div
@@ -80,7 +86,7 @@ export function Hero({ articles }: HeroProps) {
             className="mt-7 flex flex-wrap items-center gap-4"
           >
             <AccreditationBadge />
-            <AccreditationCertificateDownload />
+            <AccreditationCertificateDownload href={accreditationPdf} />
           </motion.div>
         </div>
 

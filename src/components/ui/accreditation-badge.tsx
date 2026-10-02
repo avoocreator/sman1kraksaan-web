@@ -52,10 +52,17 @@ export function AccreditationBadge({
   );
 }
 
-export function AccreditationCertificateDownload({ className }: { className?: string }) {
+export function AccreditationCertificateDownload({
+  className,
+  href,
+}: {
+  className?: string;
+  /** URL PDF dari Strapi (single type `acreditation`). Kosong → fallback file statis. */
+  href?: string;
+}) {
   return (
     <a
-      href={accreditation.certificatePdf}
+      href={href || accreditation.certificatePdf}
       download
       className={cn(
         "inline-flex items-center gap-2 rounded-full bg-blue px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#1c3d59]",

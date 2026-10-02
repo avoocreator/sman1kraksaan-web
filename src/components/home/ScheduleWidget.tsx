@@ -5,13 +5,12 @@ import { LinkButton } from "@/components/ui/button";
 import NowPanel from "@/components/schedule/NowPanel";
 import { useNow, usePersisted } from "@/components/schedule/hooks";
 import { chipClass, dayStats, liveState } from "@/components/schedule/shared";
-import {
-  classes, dayEntries, DAYS, fmt, scheduleDay, subjectInfo, teacherName,
-} from "@/lib/schedule";
+import { useSchedule } from "@/components/schedule/context";
 
 const LEVELS = ["X", "XI", "XII"] as const;
 
 export default function ScheduleWidget() {
+  const { classes, dayEntries, DAYS, fmt, scheduleDay, subjectInfo, teacherName } = useSchedule();
   const now = useNow();
   const [classIdx, setClassIdx] = usePersisted("sch:class", 0);
   const cls = classes[classIdx] ?? classes[0];
@@ -20,9 +19,24 @@ export default function ScheduleWidget() {
   const weekend = now !== null && (now.day === 0 || now.day === 6);
   const nowMin = now && now.day === day ? now.min : null;
 
-  const entries = dayEntries({ classIdx: cls.idx }, day);
+  const entries = dayEntries({ classIdx: cls?.idx ?? 0 }, day);
   const s = liveState(entries, nowMin);
   const stats = dayStats(entries);
+
+  if (classes.length === 0) {
+    return (
+      <section aria-labelledby="jadwal-beranda" className="py-16 sm:py-20">
+        <div className="container-page">
+          <h2 id="jadwal-beranda" className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+            Jadwal pelajaran
+          </h2>
+          <p className="mt-3 max-w-md text-ink-soft">
+            Jadwal semua kelas akan tampil di sini begitu datanya sudah diisi di panel admin.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   // Daftar "selanjutnya": pelajaran setelah yang sedang berlangsung
   const upcoming = s.lessons
@@ -46,7 +60,10 @@ export default function ScheduleWidget() {
                 key={lv}
                 aria-pressed={cls.level === lv}
                 className={chipClass(cls.level === lv)}
-                onClick={() => setClassIdx(classes.find((c) => c.level === lv)!.idx)}
+                onClick={() => {
+                  const c = classes.find((cl) => cl.level === lv);
+                  if (c) setClassIdx(c.idx);
+                }}
               >
                 Kelas {lv}
               </button>

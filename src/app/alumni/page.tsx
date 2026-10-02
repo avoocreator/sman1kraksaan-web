@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getAlumni } from "@/lib/api";
 import { AlumniExplorer } from "@/components/alumni/alumni-explorer";
 
+export const revalidate = 60; // refresh data Strapi
+
 export const metadata: Metadata = {
   title: "Alumni",
   description: "Jelajahi kisah alumni SMAN 1 Kraksaan di berbagai bidang dan lokasi.",
