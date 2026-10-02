@@ -4,25 +4,27 @@ import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import AiFloatingButton from "@/components/ai/ai-floating-button";
 
-// NOTE: Plus Jakarta Sans & Bricolage Grotesque are loaded via next/font/google.
-// This requires network access to fonts.googleapis.com at build time (works
-// normally in any environment with internet access, e.g. Vercel or local dev).
-// If your build environment has no internet access, replace this with
-// next/font/local and a self-hosted font file instead.
-import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
+// Font di-host sendiri (src/app/fonts) lewat next/font/local — TIDAK lagi
+// mengunduh dari fonts.googleapis.com saat build/dev. Dulu pakai next/font/google
+// dan bikin build gagal di jaringan yang tidak bisa menjangkau Google
+// ("Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'").
+// File .woff2 variabel (satu file untuk semua ketebalan) subset latin.
+import localFont from "next/font/local";
 
-const plusJakarta = Plus_Jakarta_Sans({
+const plusJakarta = localFont({
+  src: "./fonts/PlusJakartaSans-Variable-latin.woff2",
   variable: "--font-plus-jakarta",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: "200 800",
+  display: "swap",
 });
 
 // Font display untuk judul (h1-h6) — karakternya lebih berkarakter daripada
 // font body, dipakai lewat utilitas `font-display` di Tailwind.
-const bricolage = Bricolage_Grotesque({
+const bricolage = localFont({
+  src: "./fonts/BricolageGrotesque-Variable-latin.woff2",
   variable: "--font-bricolage",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: "200 800",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
