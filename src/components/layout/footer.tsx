@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, Instagram, Youtube, Facebook, Mail, MapPin, Phone } from "lucide-react";
+import { Instagram, Youtube, Facebook, Mail, MapPin, Phone } from "lucide-react";
+import { SupportLogos } from "@/components/home/support-logos";
 
 const columns = [
   {
@@ -23,13 +24,7 @@ const columns = [
       { label: "Berita", href: "/news" },
       { label: "Agenda", href: "/events" },
       { label: "Jelajahi Sekolah", href: "/jelajahi" },
-    ],
-  },
-  {
-    title: "Lainnya",
-    links: [
       { label: "Pencarian", href: "/search" },
-      { label: "Masuk Admin", href: "/login" },
     ],
   },
 ];
@@ -40,8 +35,9 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-border bg-surface">
-      <div className="container-page grid grid-cols-2 gap-10 py-14 md:grid-cols-6">
-        <div className="col-span-2 md:col-span-2">
+      <div className="container-page grid grid-cols-2 gap-x-8 gap-y-10 py-12 md:grid-cols-4 lg:grid-cols-12">
+        {/* Brand */}
+        <div className="col-span-2 md:col-span-4 lg:col-span-3">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
               <img src="/logo-sman1kraksaan.png" alt="Logo SMAN 1 Kraksaan" className="h-full w-full object-contain" />
@@ -59,7 +55,7 @@ export default function Footer() {
         </div>
 
         {columns.map((col) => (
-          <div key={col.title}>
+          <div key={col.title} className="lg:col-span-2">
             <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted">{col.title}</p>
             <ul className="space-y-2.5">
               {col.links.map((link) => (
@@ -73,13 +69,30 @@ export default function Footer() {
           </div>
         ))}
 
-        <div className="col-span-2 md:col-span-2">
+        {/* Kontak + Google Maps */}
+        <div className="col-span-2 md:col-span-2 lg:col-span-5">
           <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted">Kontak</p>
           <ul className="space-y-2.5 text-sm text-ink-soft">
             <li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" /> Jl. Panglima Sudirman, Kraksaan, Probolinggo</li>
             <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> (0335) 841 234</li>
             <li className="flex items-center gap-2"><Mail className="h-4 w-4 shrink-0" /> info@sman1kraksaan.sch.id</li>
           </ul>
+          <iframe
+            title="Peta lokasi SMAN 1 Kraksaan"
+            src="https://maps.google.com/maps?q=SMAN%201%20Kraksaan%2C%20Jl.%20Panglima%20Sudirman%2C%20Kraksaan%2C%20Probolinggo&z=15&output=embed"
+            className="mt-4 h-40 w-full rounded-xl border border-border bg-surface-alt sm:h-44"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+        </div>
+      </div>
+
+      {/* Lima logo pendukung — versi kecil dan seragam di footer */}
+      <div className="border-t border-border">
+        <div className="container-page flex flex-col items-center gap-3 py-5 sm:flex-row sm:justify-between sm:gap-8">
+          <p className="shrink-0 text-xs font-semibold uppercase tracking-wider text-muted">Didukung oleh</p>
+          <SupportLogos className="justify-center sm:justify-end" />
         </div>
       </div>
 

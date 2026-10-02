@@ -1,5 +1,4 @@
 import { Hero } from "@/components/home/hero";
-import { SupportedBy } from "@/components/home/supported-by";
 import { AchievementsPreview } from "@/components/home/achievements-preview";
 import { ProgramsPreview } from "@/components/home/programs-preview";
 import { AlumniPreview } from "@/components/home/alumni-preview";
@@ -32,9 +31,6 @@ export default async function Home() {
   return (
     <>
       <Hero articles={heroArticles} accreditationPdf={accreditationPdf} suggestions={suggestions} />
-
-      {/* Lima logo wajib dari guidebook JHIC, langsung di bawah hero */}
-      <SupportedBy />
 
       <AchievementsPreview achievements={achievements} />
 
