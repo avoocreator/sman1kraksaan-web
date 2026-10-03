@@ -421,8 +421,16 @@ export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: 
     const room = roomId ? byId.get(roomId) : undefined;
     const photo = mediaUrl(pick(r, "photo", "foto", "gambar", "image", "media"));
     // Foto panorama 360° (equirectangular) — field Media "Panorama" di School Place.
+    // Nama field CMS tidak peduli huruf besar/kecil (pick longgar), jadi
+    // "Panorama", "PANORAMA", maupun "panorama" semuanya terbaca.
     const panorama = mediaUrl(
-      pick(r, "panorama", "panorama360", "panorama_360", "photo360", "foto360", "photosphere", "photo_sphere", "foto_panorama"),
+      pick(
+        r,
+        "panorama", "panorama360", "panorama_360", "panoramaSphere",
+        "photo360", "photo_sphere", "photosphere",
+        "foto360", "fotoPanorama", "foto_panorama", "fotoSphere", "foto_sphere",
+        "image360", "gambar360", "sphere",
+      ),
     );
     const desc = blocksToText(pick(r, "description", "deskripsi", "keterangan"), 300);
     if (room) {

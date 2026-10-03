@@ -111,11 +111,26 @@ export async function strapiCount(
 /* Util field: Strapi dibuat manual, jadi nama field bisa beragam.     */
 /* ------------------------------------------------------------------ */
 
-/** Nilai pertama yang terdefinisi & tidak kosong dari daftar alias field. */
+/**
+ * Nilai pertama yang terdefinisi & tidak kosong dari daftar alias field.
+ *
+ * Pencocokan TIDAK PEDULI HURUF BESAR/KECIL pada percobaan kedua: field CMS
+ * dibuat manual lewat Content-Type Builder, jadi bisa tercatat "Panorama",
+ * "PANORAMA", atau "panorama" — semuanya harus terbaca sama. Kasus nyata:
+ * field Media "Panorama" (kapital) tidak terbaca frontend yang mencari
+ * "panorama" → tombol foto 360° tidak muncul padahal sudah diunggah.
+ */
 export function pick<T = unknown>(row: StrapiRow, ...keys: string[]): T | undefined {
+  const hasValue = (v: unknown) => v !== undefined && v !== null && v !== "";
+  // 1) Kebetulan persis (cepat): kunci sama persis dengan alias.
   for (const k of keys) {
-    const v = row[k];
-    if (v !== undefined && v !== null && v !== "") return v as T;
+    if (hasValue(row[k])) return row[k] as T;
+  }
+  // 2) Longgar: cocokkan alias terhadap kunci apa pun, abaikan huruf besar/kecil.
+  for (const k of keys) {
+    const target = k.toLowerCase();
+    const hit = Object.keys(row).find((rk) => rk.toLowerCase() === target);
+    if (hit && hasValue(row[hit])) return row[hit] as T;
   }
   return undefined;
 }

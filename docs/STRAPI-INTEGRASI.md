@@ -86,10 +86,13 @@ Komponen tidak perlu diubah — shape data selalu sama dengan interface di
   foto equirectangular (rasio **2:1**, disarankan ≥ 4096×2048 px, format JPG).
   Setelah itu pop-up ruangan menampilkan tombol **"Lihat Foto 360°"** yang
   membuka penampil photo sphere (putar 360°, zoom, fullscreen).
-  - Nama field bebas: `panorama`, `panorama360`, `photo360`, `foto360`,
-    `photosphere` semuanya otomatis terbaca (lihat alias di
+  - Nama field bebas: `panorama`, `Panorama`, `PANORAMA` (huruf besar/kecil
+    diabaikan), `panorama360`, `photo360`, `foto360`, `photosphere`,
+    `fotoPanorama` semuanya otomatis terbaca (lihat alias di
     `getSchoolRooms()`).
   - Ruangan tanpa foto 360° tidak menampilkan tombol (bukan tombol mati).
+    Tombol baru muncul di ruangan itu begitu field Panorama diisi + entri
+    di-publish, dan situs melakukan revalidasi (± 1 menit).
   - Sumber foto 360: mode panorama HP (Google Street View / kamera 360° HP),
     aplikasi Google Street View, atau kamera 360 (Insta360, Ricoh Theta) —
     ekspor hasilnya sebagai JPG equirectangular.
