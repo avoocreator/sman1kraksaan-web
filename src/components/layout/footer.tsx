@@ -53,6 +53,22 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
             <a href="#" aria-label="YouTube" className="hover:text-orange"><Youtube className="h-4.5 w-4.5" /></a>
             <a href="#" aria-label="Facebook" className="hover:text-orange"><Facebook className="h-4.5 w-4.5" /></a>
           </div>
+
+          {/* Penghitung kunjungan — chip kecil & elegan, tidak mencolok. */}
+          <div className="mt-5">
+            <div
+              className="inline-flex items-center gap-2.5 rounded-full border border-border bg-surface-alt py-1.5 pl-1.5 pr-4"
+              title="Satu pengunjung dihitung sekali dalam rentang 1 jam aktivitas — buka halaman mana pun tetap dihitung satu kunjungan"
+            >
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-orange">
+                <Eye className="h-3.5 w-3.5 text-white" aria-hidden />
+              </span>
+              <p className="text-xs text-muted">
+                <span className="text-sm font-bold tabular-nums text-ink">{visits.toLocaleString("id-ID")}</span>{" "}
+                kunjungan
+              </p>
+            </div>
+          </div>
         </div>
 
         {columns.map((col) => (
@@ -100,14 +116,6 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
       <div className="border-t border-border py-5">
         <div className="container-page flex flex-col items-center justify-between gap-2 text-xs text-muted sm:flex-row">
           <p>© {new Date().getFullYear()} SMAN 1 Kraksaan. Seluruh hak cipta dilindungi.</p>
-          {/* Penghitung kunjungan — sengaja kecil & redup agar tidak mencolok. */}
-          <p
-            className="flex items-center gap-1.5 tabular-nums"
-            title="Jumlah kunjungan — satu pengunjung dihitung sekali dalam rentang 1 jam aktivitas"
-          >
-            <Eye className="h-3 w-3" aria-hidden />
-            {visits.toLocaleString("id-ID")} kunjungan
-          </p>
           <p>Dibuat untuk JHIC 2.0 2026 — Web Development</p>
         </div>
       </div>

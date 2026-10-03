@@ -159,8 +159,9 @@ tindih dengan pemesanan berstatus `Disetujui` pada fasilitas & tanggal sama.
 
 ### Penghitung Kunjungan — `visit-logs`
 
-Angka kecil "👁 N kunjungan" di footer — **selalu tampil**; kalau CT/token
-belum disetel angkanya 0, dan begitu Strapi siap angka berjalan sendiri.
+Chip kecil "👁 N kunjungan" di kolom kiri footer (tepat di bawah ikon
+media sosial) — **selalu tampil**; kalau CT/token belum disetel angkanya 0,
+dan begitu Strapi siap angka berjalan sendiri.
 Mekanisme: pengunjung dikenali dari IP (disimpan sebagai hash, bukan alamat
 mentah); aktivitas apa pun dalam rentang **60 menit** tetap dihitung satu
 kunjungan — setelah idle melewati rentang itu, kunjungan berikutnya dihitung
