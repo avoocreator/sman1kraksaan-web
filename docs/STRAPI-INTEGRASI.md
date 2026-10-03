@@ -138,7 +138,7 @@ Field yang dibutuhkan (nama bebas huruf besar/kecil — yang penting ada):
 | `endTime`       | Text                | 10:00                           |
 | `participants`  | Number (integer)    | 50                              |
 | `purpose`       | Text (panjang)      | Rapat persiapan pentas seni     |
-| `status`        | Enumeration: `Menunggu`, `Disetujui`, `Ditolak`, `Selesai` (default `Menunggu`) |
+| `bookingStatus` | Enumeration: `Menunggu`, `Disetujui`, `Ditolak`, `Selesai` (default `Menunggu`) |
 | `adminNote`     | Text                | Koordinasi tata suara dgn Operator |
 
 Saran: matikan **Draft & Publish** pada CT ini (Content-Type Builder → edit →

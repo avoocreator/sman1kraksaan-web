@@ -132,7 +132,7 @@ function mapBooking(r: StrapiRow, withContact: boolean): FacilityBooking {
     endTime: txt(pick(r, "endTime", "end_time", "jamSelesai", "jam_selesai", "selesai", "end")) || "21:00",
     participants: num(pick(r, "participants", "participant", "jumlahPeserta", "jumlah_peserta", "peserta"), 0),
     purpose: blocksToText(pick(r, "purpose", "keperluan", "tujuan", "keterangan"), 500),
-    status: normBookingStatus(pick(r, "status", "statusPemesanan", "status_pemesanan")),
+    status: normBookingStatus(pick(r, "bookingStatus", "status", "statusPemesanan", "status_pemesanan")),
     adminNote: txt(pick(r, "adminNote", "admin_note", "catatanAdmin", "catatan_admin", "catatan")) || undefined,
     createdAt: txt(pick(r, "createdAt", "tanggalPengajuan", "dibuat")) || new Date().toISOString(),
   };
@@ -312,8 +312,8 @@ export async function createBooking(input: BookingInput): Promise<FacilityBookin
     // publish, (3) field inti saja — supaya tetap jalan di CT dengan
     // Draft&Publish aktif maupun tanpa field status.
     const attempts: Record<string, unknown>[] = [
-      { ...fields, status: "Menunggu", publishedAt: new Date().toISOString() },
-      { ...fields, status: "Menunggu" },
+      { ...fields, bookingStatus: "Menunggu", publishedAt: new Date().toISOString() },
+      { ...fields, bookingStatus: "Menunggu" },
       { ...fields },
     ];
     try {
