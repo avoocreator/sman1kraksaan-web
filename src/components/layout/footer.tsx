@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import { Eye, Instagram, Youtube, Facebook, Mail, MapPin, Phone } from "lucide-react";
 import { SupportLogos } from "@/components/home/support-logos";
@@ -32,7 +34,32 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
   // Widget selalu tampil. Kalau data belum tersedia (CT Visit Log / token
   // tulis belum disetel), angka tampil 0 — begitu Strapi siap, angka berjalan
   // sendiri tanpa perlu perubahan apa pun di sini.
-  const visits = typeof totalVisits === "number" && totalVisits >= 0 ? totalVisits : 0;
+  const [visits, setVisits] = useState(
+    typeof totalVisits === "number" && totalVisits >= 0 ? totalVisits : 0,
+  );
+
+  // Angka dari server (layout) ter-cache ISR 5 menit di Vercel — supaya tidak
+  // "nyangkut", segarkan dari /api/visit-total (tanpa cache) begitu halaman
+  // terbuka, lalu tiap 60 detik selama halaman terbuka.
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => {
+      fetch("/api/visit-total", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j: { total?: number } | null) => {
+          if (alive && j && typeof j.total === "number" && j.total >= 0) setVisits(j.total);
+        })
+        .catch(() => {
+          /* penghitung bukan fitur kritis */
+        });
+    };
+    refresh();
+    const timer = setInterval(refresh, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, []);
 
   return (
     <footer className="border-t border-border bg-surface">

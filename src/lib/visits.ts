@@ -258,15 +258,22 @@ function txtOf(v: unknown): string {
  * yang baru dibuat, sedangkan token tulis (yang dibuat bersama CT ini)
  * biasanya punya. Hasil di-cache 5 menit supaya tidak membebani Strapi.
  */
-export async function getTotalVisits(): Promise<number | null> {
+export async function getTotalVisits(
+  opts: { fresh?: boolean } = {},
+): Promise<number | null> {
   const BASE = strapiBase();
   if (!BASE) return null;
+  // fresh = tanpa cache (dipakai /api/visit-total agar footer selalu terkini);
+  // default = cache 5 menit supaya build/ISR tidak menghantam Strapi.
+  const cacheInit: RequestInit = opts.fresh
+    ? { cache: "no-store" }
+    : { next: { revalidate: 300 } };
   const tokens = [...new Set([readToken(), writeToken()].filter(Boolean))];
   for (const token of tokens) {
     try {
       const res = await fetch(`${BASE}/api/visit-logs?pagination[pageSize]=1`, {
         headers: { Authorization: `Bearer ${token}` },
-        next: { revalidate: 300 },
+        ...cacheInit,
         signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) continue; // 403/404 → coba token berikutnya
