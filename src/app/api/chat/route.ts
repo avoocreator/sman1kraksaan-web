@@ -94,7 +94,8 @@ class ProviderError extends Error {
 function strapiRequest() {
   const strapiUrl = process.env.STRAPI_URL?.replace(/\/$/, "");
   const headers: HeadersInit = {};
-  if (process.env.STRAPI_API_TOKEN) headers.Authorization = `Bearer ${process.env.STRAPI_API_TOKEN}`;
+  const token = process.env.STRAPI_TOKEN || process.env.STRAPI_API_TOKEN;
+  if (token) headers.Authorization = `Bearer ${token}`;
   return { strapiUrl, headers };
 }
 
