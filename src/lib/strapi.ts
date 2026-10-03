@@ -25,7 +25,7 @@ async function strapiListOne<T extends StrapiRow>(
 ): Promise<{ rows: T[]; meta: ListMeta } | null> {
   if (!BASE) return null;
   try {
-    const res = await fetch(`${BASE}/api/${path}?populate=*`, {
+    const res = await fetch(`${BASE}/api/${path}?populate=*&pagination[pageSize]=100`, {
       headers: headers(),
       next: { revalidate },
       signal: AbortSignal.timeout(8000),

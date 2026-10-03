@@ -62,6 +62,11 @@ function minutesBetween(iso: string, now: number): number {
   return (now - t) / 60_000;
 }
 
+/** Jeda minimal antar tulisan ke Strapi per pengunjung (melindungi pool DB CMS). */
+const THROTTLE_MS = 5 * 60_000;
+// ponytail: memori per instance; kalau banyak instance, throttle jadi per-instance saja.
+const lastPing = new Map<string, number>();
+
 /**
  * Catat satu aktivitas kunjungan. Dipanggil API route /api/visit (POST).
  * Diam-diam no-op kalau Strapi tidak siap — penghitung bukan fitur kritis.
@@ -71,7 +76,11 @@ export async function recordVisit(ip: string | null): Promise<void> {
   const token = writeToken();
   if (!BASE || !token || !ip) return;
   const visitor = hashVisitor(ip);
-  const nowIso = new Date().toISOString();
+  const nowMs = Date.now();
+  if (nowMs - (lastPing.get(visitor) ?? 0) < THROTTLE_MS) return;
+  lastPing.set(visitor, nowMs);
+  if (lastPing.size > 5000) lastPing.clear();
+  const nowIso = new Date(nowMs).toISOString();
 
   try {
     // 1) Cari sesi aktif milik IP ini (lastActiveAt dalam rentang istirahat).
