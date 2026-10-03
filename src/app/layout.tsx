@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Total kunjungan untuk footer (cache 5 menit; null = fitur belum siap → widget disembunyikan).
+  // Total kunjungan untuk footer (cache 5 menit; null = CT/token belum siap → widget tampil 0).
   const totalVisits = await getTotalVisits();
 
   return (

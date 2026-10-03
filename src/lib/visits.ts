@@ -13,8 +13,9 @@
  * kunjungan (visitor = hash IP, startedAt, lastActiveAt). Total kunjungan =
  * jumlah seluruh entri (diambil dari meta.pagination.total — murah, tanpa
  * memuat semua baris). Karena ini butuh TULIS, dipakai STRAPI_WRITE_TOKEN
- * (lihat docs/STRAPI-INTEGRASI.md); kalau belum diisi, penghitung diam-diam
- * tidak aktif dan widget footer tidak tampil — situs tetap normal.
+ * (lihat docs/STRAPI-INTEGRASI.md). Widget footer SELALU tampil; kalau
+ * CT/token belum disetel angkanya 0, dan begitu Strapi siap angka berjalan
+ * sendiri — situs tidak pernah rusak karena penghitung ini.
  */
 
 import { createHash } from "node:crypto";
@@ -122,26 +123,33 @@ function txtOf(v: unknown): string {
 
 /**
  * Total kunjungan (jumlah semua sesi). null = belum tersedia
- * (CT visit-logs belum dibuat / Strapi down) → widget footer disembunyikan.
- * Hasil di-cache 5 menit supaya tidak membebani Strapi di setiap render.
+ * (CT visit-logs belum dibuat / Strapi down) → widget footer tampil 0.
+ *
+ * Token dicoba berurutan: token baca dulu, lalu token tulis — karena izin
+ * Strapi per-aksi, token baca lama mungkin belum punya izin `find` pada CT
+ * yang baru dibuat, sedangkan token tulis (yang dibuat bersama CT ini)
+ * biasanya punya. Hasil di-cache 5 menit supaya tidak membebani Strapi.
  */
 export async function getTotalVisits(): Promise<number | null> {
   const BASE = strapiBase();
-  const token = readToken() ?? writeToken();
-  if (!BASE || !token) return null;
-  try {
-    const res = await fetch(`${BASE}/api/visit-logs?pagination[pageSize]=1`, {
-      headers: { Authorization: `Bearer ${token}` },
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) return null;
-    const json = (await res.json().catch(() => ({}))) as {
-      meta?: { pagination?: { total?: number } };
-    };
-    const total = json.meta?.pagination?.total;
-    return typeof total === "number" ? total : null;
-  } catch {
-    return null;
+  if (!BASE) return null;
+  const tokens = [...new Set([readToken(), writeToken()].filter(Boolean))];
+  for (const token of tokens) {
+    try {
+      const res = await fetch(`${BASE}/api/visit-logs?pagination[pageSize]=1`, {
+        headers: { Authorization: `Bearer ${token}` },
+        next: { revalidate: 300 },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!res.ok) continue; // 403/404 → coba token berikutnya
+      const json = (await res.json().catch(() => ({}))) as {
+        meta?: { pagination?: { total?: number } };
+      };
+      const total = json.meta?.pagination?.total;
+      if (typeof total === "number") return total;
+    } catch {
+      // lanjut ke token berikutnya
+    }
   }
+  return null;
 }

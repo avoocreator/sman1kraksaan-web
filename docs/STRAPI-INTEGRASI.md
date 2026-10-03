@@ -144,7 +144,9 @@ Field yang dibutuhkan (nama bebas huruf besar/kecil — yang penting ada):
 Saran: matikan **Draft & Publish** pada CT ini (Content-Type Builder → edit →
 Advanced → matikan Draft & Publish) supaya setiap pengajuan langsung terlihat.
 
-**Alur persetujuan admin (tanpa dashboard):**
+**Alur persetujuan admin (tanpa dashboard):** — langkah lengkapnya ada di
+[`docs/PANDUAN-APPROVAL-BOOKING.md`](./PANDUAN-APPROVAL-BOOKING.md).
+Ringkasannya:
 1. Buka Strapi → Content Manager → **Fasility-booking**.
 2. Entri baru berstatus `Menunggu` = pengajuan yang belum diproses.
 3. Klik entri → ubah **status** jadi `Disetujui` atau `Ditolak` → isi
@@ -157,10 +159,12 @@ tindih dengan pemesanan berstatus `Disetujui` pada fasilitas & tanggal sama.
 
 ### Penghitung Kunjungan — `visit-logs`
 
-Angka kecil "👁 N kunjungan" di footer. Mekanisme: pengunjung dikenali dari
-IP (disimpan sebagai hash, bukan alamat mentah); aktivitas apa pun dalam
-rentang **60 menit** tetap dihitung satu kunjungan — setelah idle melewati
-rentang itu, kunjungan berikutnya dihitung baru.
+Angka kecil "👁 N kunjungan" di footer — **selalu tampil**; kalau CT/token
+belum disetel angkanya 0, dan begitu Strapi siap angka berjalan sendiri.
+Mekanisme: pengunjung dikenali dari IP (disimpan sebagai hash, bukan alamat
+mentah); aktivitas apa pun dalam rentang **60 menit** tetap dihitung satu
+kunjungan — setelah idle melewati rentang itu, kunjungan berikutnya dihitung
+baru.
 
 Buat content type **Visit Log** (plural `visit-logs`) dengan 3 field, tanpa
 field lain, Draft & Publish dimatikan:
@@ -173,18 +177,19 @@ field lain, Draft & Publish dimatikan:
 
 Satu entri = satu sesi kunjungan; total kunjungan = jumlah seluruh entri.
 
-**Izin token:** token baca (`STRAPI_TOKEN`) cukup untuk membaca total. Agar
-kunjungan & pengajuan pemesanan bisa ditulis, buat **API Token** baru di
-Strapi (Settings → API Tokens → Create new API Token):
+**Izin token:** total kunjungan dibaca dengan token baca (`STRAPI_TOKEN`)
+atau token tulis — kode mencoba keduanya, jadi cukup satu yang punya izin
+`find`. Agar kunjungan & pengajuan pemesanan bisa ditulis, buat **API Token**
+baru di Strapi (Settings → API Tokens → Create new API Token):
 - Name: `Website writes`, type **Custom**.
 - `facility-bookings`: izin `create` ✓
-- `visit-logs`: izin `create` ✓ dan `update` ✓
+- `visit-logs`: izin `find` ✓, `create` ✓ dan `update` ✓
 - Content type lain: tidak perlu.
 
 Lalu isi nilainya sebagai `STRAPI_WRITE_TOKEN` di `.env` (lokal) dan di
 Environment Variables Vercel, kemudian redeploy. Tanpa token tulis:
-pengajuan pemesanan menampilkan pesan gagal yang jelas, penghitung kunjungan
-tidak aktif (widget footer disembunyikan) — selebihnya situs normal.
+pengajuan pemesanan menampilkan pesan gagal yang jelas dan penghitung
+kunjungan tetap 0 — selebihnya situs normal.
 
 ## Alias field yang didukung
 

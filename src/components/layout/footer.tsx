@@ -29,7 +29,10 @@ const columns = [
 ];
 
 export default function Footer({ totalVisits }: { totalVisits?: number | null }) {
-  const showVisits = typeof totalVisits === "number" && totalVisits >= 0;
+  // Widget selalu tampil. Kalau data belum tersedia (CT Visit Log / token
+  // tulis belum disetel), angka tampil 0 — begitu Strapi siap, angka berjalan
+  // sendiri tanpa perlu perubahan apa pun di sini.
+  const visits = typeof totalVisits === "number" && totalVisits >= 0 ? totalVisits : 0;
 
   return (
     <footer className="border-t border-border bg-surface">
@@ -98,15 +101,13 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
         <div className="container-page flex flex-col items-center justify-between gap-2 text-xs text-muted sm:flex-row">
           <p>© {new Date().getFullYear()} SMAN 1 Kraksaan. Seluruh hak cipta dilindungi.</p>
           {/* Penghitung kunjungan — sengaja kecil & redup agar tidak mencolok. */}
-          {showVisits && (
-            <p
-              className="flex items-center gap-1.5 tabular-nums"
-              title="Jumlah kunjungan — satu pengunjung dihitung sekali dalam rentang 1 jam aktivitas"
-            >
-              <Eye className="h-3 w-3" aria-hidden />
-              {(totalVisits as number).toLocaleString("id-ID")} kunjungan
-            </p>
-          )}
+          <p
+            className="flex items-center gap-1.5 tabular-nums"
+            title="Jumlah kunjungan — satu pengunjung dihitung sekali dalam rentang 1 jam aktivitas"
+          >
+            <Eye className="h-3 w-3" aria-hidden />
+            {visits.toLocaleString("id-ID")} kunjungan
+          </p>
           <p>Dibuat untuk JHIC 2.0 2026 — Web Development</p>
         </div>
       </div>
