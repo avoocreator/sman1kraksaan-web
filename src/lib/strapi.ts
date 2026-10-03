@@ -22,10 +22,11 @@ function headers(): Record<string, string> {
 async function strapiListOne<T extends StrapiRow>(
   path: string,
   revalidate: number,
+  query = "",
 ): Promise<{ rows: T[]; meta: ListMeta } | null> {
   if (!BASE) return null;
   try {
-    const res = await fetch(`${BASE}/api/${path}?populate=*&pagination[pageSize]=100`, {
+    const res = await fetch(`${BASE}/api/${path}?populate=*&pagination[pageSize]=100${query}`, {
       headers: headers(),
       next: { revalidate },
       signal: AbortSignal.timeout(8000),
@@ -55,10 +56,11 @@ async function strapiListOne<T extends StrapiRow>(
 export async function strapiList<T extends StrapiRow>(
   paths: string | string[],
   revalidate = 60,
+  query = "", // tambahan query string, mis. "&sort=createdAt:desc"
 ): Promise<T[] | null> {
   const candidates = Array.isArray(paths) ? paths : [paths];
   for (const path of candidates) {
-    const result = await strapiListOne<T>(path, revalidate);
+    const result = await strapiListOne<T>(path, revalidate, query);
     if (result) return result.rows;
   }
   return null;

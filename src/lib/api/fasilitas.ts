@@ -154,24 +154,30 @@ export function toPublicBooking(b: FacilityBooking): FacilityBooking {
  * Semua pemesanan dari Strapi (termasuk kontak — JANGAN dikirim mentah ke
  * komponen publik; pakai toPublicBooking). null → CMS tidak terjangkau.
  */
-export async function getBookingsRaw(): Promise<FacilityBooking[] | null> {
-  const rows = await strapiList(CT_BOOKING, 0); // 0 = tanpa cache: pengajuan baru langsung terbaca
+export async function getBookingsRaw(fresh = false): Promise<FacilityBooking[] | null> {
+  // Baca biasa di-cache 15 dtk (melindungi pool DB Strapi); fresh = tanpa cache,
+  // dipakai saat keputusan bentrok & cek kode. Terbaru dulu: kalau data > batas halaman,
+  // yang terpotong adalah yang paling lama.
+  const rows = await strapiList(CT_BOOKING, fresh ? 0 : 15, "&sort=createdAt:desc");
   if (rows === null) return null;
   return rows.map((r) => mapBooking(r, true)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 /** Pemesanan untuk tampilan publik/jadwal: CMS dulu, data contoh saat CMS down. */
-export async function getBookings(): Promise<FacilityBooking[]> {
-  const raw = await getBookingsRaw();
+export async function getBookings(fresh = false): Promise<FacilityBooking[]> {
+  const raw = await getBookingsRaw(fresh);
   return raw ?? seedBookings.map((b) => ({ ...b }));
 }
 
 /** Cari satu pemesanan berdasarkan kode (untuk halaman cek status). */
 export async function getBookingByCode(code: string): Promise<FacilityBooking | undefined> {
   const target = code.trim().toLowerCase();
-  const raw = await getBookingsRaw();
-  const list = raw ?? seedBookings;
-  return list.find((b) => b.id.toLowerCase() === target);
+  const find = (l: FacilityBooking[]) => l.find((b) => b.id.toLowerCase() === target);
+  // Cache dulu; kalau tak ketemu (pengajuan baru < 15 dtk) baru baca segar.
+  const cached = find((await getBookingsRaw()) ?? seedBookings);
+  if (cached) return cached;
+  const raw = await getBookingsRaw(true);
+  return raw ? find(raw) : undefined;
 }
 
 /* --- pengajuan baru (dipanggil API route /api/bookings) ------------- */
@@ -278,7 +284,7 @@ export async function createBooking(input: BookingInput): Promise<FacilityBookin
 
   // Bentrokan dengan pemesanan yang SUDAH DISETUJUI ditolak di sisi server —
   // jangan bergantung pada pemeriksaan di browser saja.
-  const existing = await getBookings();
+  const existing = await getBookings(true); // segar: jangan lolos bentrok karena data basi
   const clash = existing.find(
     (b) =>
       b.facilitySlug === facility.slug &&
