@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Maximize2, Minimize2, Sparkles, X } from "lucide-react";
 import { AiChatThread } from "@/components/ai/ai-chat-thread";
@@ -9,8 +8,6 @@ import { AiChatThread } from "@/components/ai/ai-chat-thread";
 export default function AiFloatingButton() {
   const [open, setOpen] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
-  const pathname = usePathname();
-  if (pathname?.startsWith("/dashboard")) return null;
 
   return (
     <>

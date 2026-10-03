@@ -51,12 +51,10 @@ export default function Navbar() {
     setMoreOpen(false);
   }, [pathname]);
 
-  const isDashboard = pathname?.startsWith("/dashboard");
   // Mode portal siswa: saat berada di /siswa, tombol berubah jadi pintu keluar.
   const inPortal = pathname === "/siswa";
   const portalHref = inPortal ? "/" : "/siswa";
   const portalLabel = inPortal ? "Keluar Portal" : "Portal Siswa";
-  if (isDashboard) return null;
 
   const onMoreBlur = (e: FocusEvent<HTMLDivElement>) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setMoreOpen(false);

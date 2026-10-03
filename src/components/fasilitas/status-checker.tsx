@@ -1,13 +1,10 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, ScanSearch, CheckCircle2, Clock3, XCircle, Flag } from "lucide-react";
+import { Search, ScanSearch, CheckCircle2, Clock3, XCircle, Flag, Loader2 } from "lucide-react";
 import { FacilityBooking } from "@/types";
-import {
-  subscribeBookings, getBookingsSnapshot, getBookingsServerSnapshot,
-} from "@/lib/bookings-client";
 import { Button } from "@/components/ui/button";
 import { BookingStatusBadge } from "@/components/fasilitas/booking-status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -29,8 +26,6 @@ function statusIndex(status: FacilityBooking["status"]): number {
     case "Selesai": return 3;
   }
 }
-
-const emptySubscribe = () => () => {};
 
 function BookingResult({ booking }: { booking: FacilityBooking }) {
   const idx = statusIndex(booking.status);
@@ -146,31 +141,37 @@ export function StatusChecker() {
   const params = useSearchParams();
   const initialCode = params.get("kode") ?? "";
 
-  const bookings = useSyncExternalStore(
-    subscribeBookings,
-    getBookingsSnapshot,
-    getBookingsServerSnapshot
-  );
-  // Dapatkan sinyal "sudah berjalan di klien" tanpa useEffect (lint-safe).
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-
   const [code, setCode] = useState(initialCode);
-  const [submittedCode, setSubmittedCode] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [result, setResult] = useState<FacilityBooking | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
-  const activeCode = submittedCode ?? (mounted && initialCode ? initialCode : null);
-  const result = useMemo(() => {
-    if (!activeCode) return null;
-    return bookings.find((b) => b.id.toLowerCase() === activeCode.trim().toLowerCase()) ?? null;
-  }, [bookings, activeCode]);
-  const notFound = activeCode !== null && !result;
+  async function runCheck(rawCode: string) {
+    const target = rawCode.trim();
+    if (!target) return;
+    setChecking(true);
+    setNotFound(false);
+    setResult(null);
+    try {
+      const res = await fetch(`/api/bookings?kode=${encodeURIComponent(target)}`);
+      const json = await res.json().catch(() => null);
+      if (res.ok && json?.booking) setResult(json.booking as FacilityBooking);
+      else setNotFound(true);
+    } catch {
+      setNotFound(true);
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  // Kode dari URL (link "Lacak Status" dari form) dicek otomatis saat masuk.
+  useEffect(() => {
+    if (initialCode) void runCheck(initialCode);
+  }, [initialCode]);
 
   function handleCheck(e?: React.FormEvent, override?: string) {
     e?.preventDefault();
-    setSubmittedCode(override ?? code);
+    void runCheck(override ?? code);
   }
 
   return (
@@ -190,21 +191,16 @@ export function StatusChecker() {
               className="h-11 w-full rounded-full border border-border bg-surface pl-10 pr-4 text-sm uppercase tracking-wide text-ink placeholder:text-muted placeholder:normal-case focus:outline-none focus:ring-2 focus:ring-orange/40"
             />
           </div>
-          <Button type="submit">Lacak</Button>
+          <Button type="submit" disabled={checking}>
+            {checking ? <Loader2 className="h-4 w-4 animate-spin" /> : "Lacak"}
+          </Button>
         </div>
         <p className="mt-3 text-center text-xs text-muted">
-          Contoh kode untuk dicoba:{" "}
-          <button type="button" onClick={() => { setCode("FSV-2026-0002"); handleCheck(undefined, "FSV-2026-0002"); }} className="font-semibold text-orange hover:underline">
-            FSV-2026-0002
-          </button>{" "}
-          atau{" "}
-          <button type="button" onClick={() => { setCode("FSV-2026-0004"); handleCheck(undefined, "FSV-2026-0004"); }} className="font-semibold text-orange hover:underline">
-            FSV-2026-0004
-          </button>
+          Status diperbarui langsung dari admin sarana prasarana.
         </p>
       </form>
 
-      {mounted && notFound && (
+      {notFound && !checking && (
         <EmptyState
           title="Kode pemesanan tidak ditemukan."
           description="Periksa kembali kode Anda, atau hubungi Tata Usaha untuk bantuan."

@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import AiFloatingButton from "@/components/ai/ai-floating-button";
+import { VisitTracker } from "@/components/visit-tracker";
+import { getTotalVisits } from "@/lib/visits";
 
 // Font di-host sendiri (src/app/fonts) lewat next/font/local — TIDAK lagi
 // mengunduh dari fonts.googleapis.com saat build/dev. Dulu pakai next/font/google
@@ -43,15 +45,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Total kunjungan untuk footer (cache 5 menit; null = fitur belum siap → widget disembunyikan).
+  const totalVisits = await getTotalVisits();
+
   return (
     <html lang="id" suppressHydrationWarning>
       <body className={`${plusJakarta.variable} ${bricolage.variable} antialiased`} suppressHydrationWarning>
         <Navbar />
         <main>{children}</main>
-        <Footer />
+        <Footer totalVisits={totalVisits} />
+        <VisitTracker />
         <AiFloatingButton />
       </body>
     </html>

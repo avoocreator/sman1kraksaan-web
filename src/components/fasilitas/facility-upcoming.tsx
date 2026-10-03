@@ -1,14 +1,10 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { CalendarDays, Clock3 } from "lucide-react";
-import {
-  subscribeBookings, getBookingsSnapshot, getBookingsServerSnapshot,
-} from "@/lib/bookings-client";
+import { FacilityBooking } from "@/types";
 import { formatDateShort, formatTimeRange } from "@/lib/utils";
-
-const emptySubscribe = () => () => {};
 
 function todayIso() {
   const d = new Date();
@@ -17,17 +13,10 @@ function todayIso() {
 
 /**
  * Daftar pemesanan terdekat untuk satu fasilitas — menampilkan siapa,
- * kapan, dan untuk apa fasilitas akan dipakai. Data dibaca dari store
- * prototype (seed + pengajuan baru) agar selalu sinkron.
+ * kapan, dan untuk apa fasilitas akan dipakai. Data diambil server-side
+ * dari Strapi lalu dikirim sebagai prop.
  */
-export function FacilityUpcoming({ slug }: { slug: string }) {
-  const bookings = useSyncExternalStore(
-    subscribeBookings,
-    getBookingsSnapshot,
-    getBookingsServerSnapshot
-  );
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
-
+export function FacilityUpcoming({ slug, bookings }: { slug: string; bookings: FacilityBooking[] }) {
   const upcoming = useMemo(() => {
     const today = todayIso();
     return bookings
@@ -40,8 +29,6 @@ export function FacilityUpcoming({ slug }: { slug: string }) {
       .sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
       .slice(0, 3);
   }, [bookings, slug]);
-
-  if (!mounted) return null;
 
   return (
     <div className="mt-5 border-t border-border pt-4">

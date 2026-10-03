@@ -37,6 +37,9 @@ Komponen tidak perlu diubah — shape data selalu sama dengan interface di
 | `/jelajahi`     | `school-places`       | `name`, `media`, `description`, `panorama` (opsional, foto 360°) | teaser peta ikon |
 | `/schedule`     | `schedules`           | `Class`, `Subject`, `Teacher`      | widget "Pelajaran hari ini"  |
 | `/ppdb`         | `ppdb-infos`          | (belum ada field)                  | —                            |
+| `/fasilitas`    | `facilities`          | `name`, `media`, `description`, dst. | katalog fasilitas           |
+| Pesan Fasilitas | `facility-bookings`   | lihat tabel di bawah               | jadwal & status pemesanan    |
+| Penghitung kunjungan | `visit-logs`     | `visitor`, `startedAt`, `lastActiveAt` | angka kunjungan di footer |
 | Tentang/Akreditasi | `acreditation` (single type) | `media` (PDF sertifikat)  | tombol "Unduh Sertifikat"    |
 | Tentang         | `about` (single type) | belum terpakai (endpoint 404)      | —                            |
 
@@ -111,6 +114,77 @@ Komponen tidak perlu diubah — shape data selalu sama dengan interface di
 ### Akreditasi — single type `acreditation`
 - Unggah PDF sertifikat di field `media` → tombol "Unduh Sertifikat Akreditasi
   (PDF)" di beranda & halaman Tentang otomatis memakai file dari CMS.
+
+### Pemesanan Fasilitas — `facility-bookings` (label admin: "Fasility-booking")
+
+Pengajuan dari form `/fasilitas/pesan` **tersimpan langsung ke content type
+ini** (dulu prototype localStorage — kini Strapi). Admin menyetujui/menolak
+sepenuhnya dari Strapi Content Manager; halaman dashboard admin di situs
+sudah dihapus.
+
+Field yang dibutuhkan (nama bebas huruf besar/kecil — yang penting ada):
+
+| Field di Strapi | Tipe                | Isi contoh                      |
+| --------------- | ------------------- | ------------------------------- |
+| `bookingCode`   | Text                | FSV-2026-0001                   |
+| `facility`      | Text                | Aula Serbaguna                  |
+| `facilitySlug`  | Text                | aula                            |
+| `requesterName` | Text                | Budi Siswa                      |
+| `requesterType` | Text                | Siswa                           |
+| `organization`  | Text                | XI-2 / OSIS                     |
+| `contact`       | Text                | 0812… / email                   |
+| `date`          | Date                | 2026-10-05                      |
+| `startTime`     | Text                | 08:00                           |
+| `endTime`       | Text                | 10:00                           |
+| `participants`  | Number (integer)    | 50                              |
+| `purpose`       | Text (panjang)      | Rapat persiapan pentas seni     |
+| `status`        | Enumeration: `Menunggu`, `Disetujui`, `Ditolak`, `Selesai` (default `Menunggu`) |
+| `adminNote`     | Text                | Koordinasi tata suara dgn Operator |
+
+Saran: matikan **Draft & Publish** pada CT ini (Content-Type Builder → edit →
+Advanced → matikan Draft & Publish) supaya setiap pengajuan langsung terlihat.
+
+**Alur persetujuan admin (tanpa dashboard):**
+1. Buka Strapi → Content Manager → **Fasility-booking**.
+2. Entri baru berstatus `Menunggu` = pengajuan yang belum diproses.
+3. Klik entri → ubah **status** jadi `Disetujui` atau `Ditolak` → isi
+   `adminNote` (opsional, tampil di halaman cek status pemesan) → **Save**.
+4. Selesai — situs (jadwal pemesanan, halaman cek status, daftar terdekat)
+   otomatis mengikuti dalam ± 1 menit (cache revalidate).
+
+Pemeriksaan bentrokan jadwal server-side menolak pengajuan yang tumpang
+tindih dengan pemesanan berstatus `Disetujui` pada fasilitas & tanggal sama.
+
+### Penghitung Kunjungan — `visit-logs`
+
+Angka kecil "👁 N kunjungan" di footer. Mekanisme: pengunjung dikenali dari
+IP (disimpan sebagai hash, bukan alamat mentah); aktivitas apa pun dalam
+rentang **60 menit** tetap dihitung satu kunjungan — setelah idle melewati
+rentang itu, kunjungan berikutnya dihitung baru.
+
+Buat content type **Visit Log** (plural `visit-logs`) dengan 3 field, tanpa
+field lain, Draft & Publish dimatikan:
+
+| Field di Strapi | Tipe     | Isi                                   |
+| --------------- | -------- | ------------------------------------- |
+| `visitor`       | Text     | hash IP (32 karakter)                 |
+| `startedAt`     | DateTime | awal kunjungan                        |
+| `lastActiveAt`  | DateTime | denyut aktivitas terakhir             |
+
+Satu entri = satu sesi kunjungan; total kunjungan = jumlah seluruh entri.
+
+**Izin token:** token baca (`STRAPI_TOKEN`) cukup untuk membaca total. Agar
+kunjungan & pengajuan pemesanan bisa ditulis, buat **API Token** baru di
+Strapi (Settings → API Tokens → Create new API Token):
+- Name: `Website writes`, type **Custom**.
+- `facility-bookings`: izin `create` ✓
+- `visit-logs`: izin `create` ✓ dan `update` ✓
+- Content type lain: tidak perlu.
+
+Lalu isi nilainya sebagai `STRAPI_WRITE_TOKEN` di `.env` (lokal) dan di
+Environment Variables Vercel, kemudian redeploy. Tanpa token tulis:
+pengajuan pemesanan menampilkan pesan gagal yang jelas, penghitung kunjungan
+tidak aktif (widget footer disembunyikan) — selebihnya situs normal.
 
 ## Alias field yang didukung
 

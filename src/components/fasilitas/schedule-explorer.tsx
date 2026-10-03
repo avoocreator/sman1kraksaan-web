@@ -1,23 +1,18 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ChevronLeft, ChevronRight, Clock3, CalendarCheck2, CalendarDays, Info, Users,
 } from "lucide-react";
 import { FacilityBooking } from "@/types";
 import { facilities } from "@/data/facilities";
-import {
-  subscribeBookings, getBookingsSnapshot, getBookingsServerSnapshot,
-} from "@/lib/bookings-client";
 import { BookingStatusBadge } from "@/components/fasilitas/booking-status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { LinkButton } from "@/components/ui/button";
 import {
   formatDayName, formatDate, formatDateShort, formatTime, formatTimeRange, cn,
 } from "@/lib/utils";
-
-const emptySubscribe = () => () => {};
 
 function todayIso() {
   const d = new Date();
@@ -52,14 +47,7 @@ function monthMatrix(anchorIso: string): (string | null)[][] {
   return weeks;
 }
 
-export function ScheduleExplorer() {
-  const bookings = useSyncExternalStore(
-    subscribeBookings,
-    getBookingsSnapshot,
-    getBookingsServerSnapshot
-  );
-  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
-
+export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) {
   const today = todayIso();
   const [monthAnchor, setMonthAnchor] = useState(() => today.slice(0, 8) + "01");
   const [selected, setSelected] = useState(today);
@@ -128,10 +116,6 @@ export function ScheduleExplorer() {
     setSelected(today);
     setMonthAnchor(today.slice(0, 8) + "01");
   };
-
-  if (!mounted) {
-    return <div className="h-96 animate-pulse rounded-3xl border border-border bg-surface" />;
-  }
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,370px)_minmax(0,1fr)] lg:items-start">

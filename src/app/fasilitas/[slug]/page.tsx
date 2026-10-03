@@ -3,13 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Users, MapPin, UserCheck, Clock, CheckCircle2, Info, ArrowRight, CalendarDays } from "lucide-react";
 import { getAllFacilities, getFacilityBySlug } from "@/data/facilities";
-import { getFacilities, getFacility } from "@/lib/api/fasilitas";
+import { getFacilities, getFacility, getBookings, toPublicBooking } from "@/lib/api/fasilitas";
 import { LinkButton } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FacilityCard } from "@/components/fasilitas/facility-card";
 import { FacilityUpcoming } from "@/components/fasilitas/facility-upcoming";
 import { formatTime } from "@/lib/utils";
-import type { Facility } from "@/types";
+import type { Facility, FacilityBooking } from "@/types";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -42,7 +42,13 @@ const rules = [
  * di layar kapan pun halaman discroll — dan sebagai kartu biasa di tablet/mobile
  * yang mengalir mengikuti konten halaman.
  */
-function BookingPanel({ facility }: { facility: Facility }) {
+function BookingPanel({
+  facility,
+  bookings,
+}: {
+  facility: Facility;
+  bookings: FacilityBooking[];
+}) {
   return (
     <div className="rounded-3xl border border-border bg-surface p-6 shadow-lg shadow-ink/5">
       <h2 className="text-lg font-bold text-ink">Pesan Fasilitas Ini</h2>
@@ -104,7 +110,7 @@ function BookingPanel({ facility }: { facility: Facility }) {
         </div>
       </dl>
 
-      <FacilityUpcoming slug={facility.slug} />
+      <FacilityUpcoming slug={facility.slug} bookings={bookings} />
 
       {facility.note && (
         <div className="mt-5 flex gap-2.5 rounded-xl bg-orange-soft/70 p-3.5 text-xs leading-relaxed text-orange-dark">
@@ -128,6 +134,11 @@ export default async function FacilityDetailPage({ params }: Props) {
     .concat(all.filter((f) => f.slug !== facility.slug && f.category !== facility.category))
     .slice(0, 4);
 
+  // Jadwal terdekat fasilitas ini (proyeksi publik — tanpa kontak pemesan).
+  const upcomingBookings = (await getBookings())
+    .map(toPublicBooking)
+    .filter((b) => b.facilitySlug === facility.slug);
+
   return (
     <div className="container-page py-14 md:py-20">
       <Link
@@ -148,7 +159,7 @@ export default async function FacilityDetailPage({ params }: Props) {
           <div className="grid grid-cols-[1.6fr_1fr] gap-10">
             <div />
             <div className="pointer-events-auto max-h-[calc(100vh-7rem)] overflow-y-auto">
-              <BookingPanel facility={facility} />
+              <BookingPanel facility={facility} bookings={upcomingBookings} />
             </div>
           </div>
         </div>
@@ -197,7 +208,7 @@ export default async function FacilityDetailPage({ params }: Props) {
         {/* Tablet/mobile: kartu pemesanan mengalir biasa mengikuti konten
             (di desktop kartu ini disembunyikan dan digantikan panel fixed di atas) */}
         <div className="lg:hidden">
-          <BookingPanel facility={facility} />
+          <BookingPanel facility={facility} bookings={upcomingBookings} />
         </div>
 
         {/* Fasilitas lainnya — ditempatkan di kolom kiri baris ke-2 (desktop)

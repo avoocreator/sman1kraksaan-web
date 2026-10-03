@@ -1,20 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   CalendarCheck2, CheckCircle2, ClipboardCheck, Clock3, PartyPopper, RotateCcw,
-  Building2, AlertTriangle, Timer,
+  Building2, AlertTriangle, Loader2, Timer,
 } from "lucide-react";
 import { Facility, FacilityBooking, RequesterType } from "@/types";
 import { facilities as allFacilities } from "@/data/facilities";
 import { Button, LinkButton } from "@/components/ui/button";
-import {
-  persistBooking, generateBookingCode, getBookingsSnapshot, findConflicts,
-} from "@/lib/bookings-client";
-import { formatDuration, formatTime, formatTimeRange, cn } from "@/lib/utils";
+import { formatDuration, formatTime, formatTimeRange, timeOverlaps, cn } from "@/lib/utils";
 
 const requesterTypes: RequesterType[] = ["Siswa", "Guru", "Ekstrakurikuler", "Organisasi", "Umum"];
 
@@ -63,7 +60,24 @@ export function BookingForm() {
   const [purpose, setPurpose] = useState("");
   const [agree, setAgree] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<FacilityBooking | null>(null);
+  // Pemesanan yang sudah ada (dari Strapi via /api/bookings, tanpa kontak)
+  // — dipakai untuk deteksi bentrokan jadwal secara langsung.
+  const [bookings, setBookings] = useState<FacilityBooking[]>([]);
+
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch("/api/bookings", { signal: ctrl.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => {
+        if (Array.isArray(json?.bookings)) setBookings(json.bookings);
+      })
+      .catch(() => {
+        // daftar bentrokan opsional — gagal ambil tidak memblokir form
+      });
+    return () => ctrl.abort();
+  }, []);
 
   const facility: Facility = useMemo(
     () => allFacilities.find((f) => f.slug === facilitySlug) ?? allFacilities[0],
@@ -73,14 +87,28 @@ export function BookingForm() {
   /** Deteksi bentrokan jadwal secara langsung saat pengguna mengatur waktu. */
   const conflicts = useMemo(() => {
     if (!date || !startTime || !endTime || startTime >= endTime) {
-      return { approved: [], pending: [] as FacilityBooking[] };
+      return { approved: [] as FacilityBooking[], pending: [] as FacilityBooking[] };
     }
-    return findConflicts(facility.slug, date, startTime, endTime);
-  }, [facility.slug, date, startTime, endTime]);
+    const same = bookings.filter(
+      (b) =>
+        b.facilitySlug === facility.slug &&
+        b.date === date &&
+        b.status !== "Ditolak" &&
+        b.status !== "Selesai",
+    );
+    return {
+      approved: same.filter(
+        (b) => b.status === "Disetujui" && timeOverlaps(startTime, endTime, b.startTime, b.endTime),
+      ),
+      pending: same.filter(
+        (b) => b.status === "Menunggu" && timeOverlaps(startTime, endTime, b.startTime, b.endTime),
+      ),
+    };
+  }, [bookings, facility.slug, date, startTime, endTime]);
 
   const durationLabel = startTime && endTime ? formatDuration(startTime, endTime) : "";
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!name.trim()) return setError("Nama pemesan wajib diisi.");
@@ -105,26 +133,37 @@ export function BookingForm() {
     if (!purpose.trim()) return setError("Tuliskan keperluan pemesanan.");
     if (!agree) return setError("Centang persetujuan ketentuan pemesanan.");
 
-    const booking: FacilityBooking = {
-      id: generateBookingCode(getBookingsSnapshot()),
-      facilitySlug: facility.slug,
-      facilityName: facility.name,
-      requesterName: name.trim(),
-      requesterType: type,
-      organization: organization.trim(),
-      contact: contact.trim(),
-      date,
-      startTime,
-      endTime,
-      participants: Number(participants),
-      purpose: purpose.trim(),
-      status: "Menunggu",
-      createdAt: new Date().toISOString(),
-    };
-
-    persistBooking(booking);
-    setSubmitted(booking);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSubmitting(true);
+    try {
+      // Pengajuan disimpan ke Strapi (via API route) — admin memverifikasi
+      // dari Strapi Content Manager, bukan lagi dari situs.
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          facilitySlug: facility.slug,
+          requesterName: name.trim(),
+          requesterType: type,
+          organization: organization.trim(),
+          contact: contact.trim(),
+          date,
+          startTime,
+          endTime,
+          participants: Number(participants),
+          purpose: purpose.trim(),
+        }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.booking) {
+        throw new Error(json?.error || "Pengajuan gagal terkirim. Coba lagi atau hubungi Tata Usaha.");
+      }
+      setSubmitted(json.booking as FacilityBooking);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Pengajuan gagal terkirim. Coba lagi.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -323,8 +362,16 @@ export function BookingForm() {
           <p className="mt-4 rounded-xl bg-red-50 px-4 py-2.5 text-xs font-medium text-red-600">{error}</p>
         )}
 
-        <Button type="submit" size="lg" className="mt-6 w-full sm:w-auto">
-          <CalendarCheck2 className="h-4.5 w-4.5" /> Kirim Pengajuan Pemesanan
+        <Button type="submit" size="lg" className="mt-6 w-full sm:w-auto" disabled={submitting}>
+          {submitting ? (
+            <>
+              <Loader2 className="h-4.5 w-4.5 animate-spin" /> Mengirim pengajuan…
+            </>
+          ) : (
+            <>
+              <CalendarCheck2 className="h-4.5 w-4.5" /> Kirim Pengajuan Pemesanan
+            </>
+          )}
         </Button>
       </form>
 

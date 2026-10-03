@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { ScheduleExplorer } from "@/components/fasilitas/schedule-explorer";
+import { getBookings, toPublicBooking } from "@/lib/api/fasilitas";
+
+export const revalidate = 60; // refresh status pemesanan dari Strapi
 
 export const metadata: Metadata = {
   title: "Jadwal Pemesanan Fasilitas",
@@ -8,7 +10,10 @@ export const metadata: Metadata = {
     "Lihat fasilitas SMAN 1 Kraksaan yang sudah dibooking — siapa pemesannya, kapan, dan untuk keperluan apa.",
 };
 
-export default function JadwalFasilitasPage() {
+export default async function JadwalFasilitasPage() {
+  // Data pemesanan dari Strapi (proyeksi publik — tanpa kontak pemesan).
+  const bookings = (await getBookings()).map(toPublicBooking);
+
   return (
     <div className="container-page py-14 md:py-20">
       <div className="max-w-2xl">
@@ -24,9 +29,7 @@ export default function JadwalFasilitasPage() {
       </div>
 
       <div className="mt-10">
-        <Suspense fallback={<div className="h-96 animate-pulse rounded-3xl border border-border bg-surface" />}>
-          <ScheduleExplorer />
-        </Suspense>
+        <ScheduleExplorer bookings={bookings} />
       </div>
     </div>
   );

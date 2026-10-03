@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Instagram, Youtube, Facebook, Mail, MapPin, Phone } from "lucide-react";
+import { Eye, Instagram, Youtube, Facebook, Mail, MapPin, Phone } from "lucide-react";
 import { SupportLogos } from "@/components/home/support-logos";
 
 const columns = [
@@ -29,9 +28,8 @@ const columns = [
   },
 ];
 
-export default function Footer() {
-  const pathname = usePathname();
-  if (pathname?.startsWith("/dashboard")) return null;
+export default function Footer({ totalVisits }: { totalVisits?: number | null }) {
+  const showVisits = typeof totalVisits === "number" && totalVisits >= 0;
 
   return (
     <footer className="border-t border-border bg-surface">
@@ -99,6 +97,16 @@ export default function Footer() {
       <div className="border-t border-border py-5">
         <div className="container-page flex flex-col items-center justify-between gap-2 text-xs text-muted sm:flex-row">
           <p>© {new Date().getFullYear()} SMAN 1 Kraksaan. Seluruh hak cipta dilindungi.</p>
+          {/* Penghitung kunjungan — sengaja kecil & redup agar tidak mencolok. */}
+          {showVisits && (
+            <p
+              className="flex items-center gap-1.5 tabular-nums"
+              title="Jumlah kunjungan — satu pengunjung dihitung sekali dalam rentang 1 jam aktivitas"
+            >
+              <Eye className="h-3 w-3" aria-hidden />
+              {(totalVisits as number).toLocaleString("id-ID")} kunjungan
+            </p>
+          )}
           <p>Dibuat untuk JHIC 2.0 2026 — Web Development</p>
         </div>
       </div>
