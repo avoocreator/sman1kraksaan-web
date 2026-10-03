@@ -178,7 +178,7 @@ export function StatusChecker() {
     <div className="space-y-8">
       <form onSubmit={handleCheck} className="mx-auto max-w-xl">
         <label htmlFor="kode" className="mb-1.5 block text-center text-xs font-medium text-ink-soft">
-          Masukkan kode pemesanan (cth. FSV-2026-0001)
+          Masukkan kode pemesanan (cth. FSV-2026-AB3K7M)
         </label>
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -187,7 +187,7 @@ export function StatusChecker() {
               id="kode"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="FSV-2026-0001"
+              placeholder="FSV-2026-AB3K7M"
               className="h-11 w-full rounded-full border border-border bg-surface pl-10 pr-4 text-sm uppercase tracking-wide text-ink placeholder:text-muted placeholder:normal-case focus:outline-none focus:ring-2 focus:ring-orange/40"
             />
           </div>

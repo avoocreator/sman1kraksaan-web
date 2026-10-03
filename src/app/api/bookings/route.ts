@@ -3,7 +3,7 @@
  *
  * GET  /api/bookings            → daftar pemesanan (proyeksi publik, tanpa kontak)
  *                                untuk pemeriksaan bentrok di form & jadwal.
- * GET  /api/bookings?kode=FSV…  → satu pemesanan (dengan kontak) untuk cek status.
+ * GET  /api/bookings?kode=FSV…  → satu pemesanan (tanpa kontak) untuk cek status.
  * POST /api/bookings            → ajukan pemesanan baru → tersimpan di Strapi
  *                                (content type `facility-bookings`), status awal
  *                                "Menunggu" hingga disetujui admin di Strapi.
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     if (!booking) {
       return NextResponse.json({ error: "Kode pemesanan tidak ditemukan." }, { status: 404 });
     }
-    return NextResponse.json({ booking });
+    return NextResponse.json({ booking: toPublicBooking(booking) });
   }
   const bookings = await getBookings();
   return NextResponse.json({ bookings: bookings.map(toPublicBooking) });

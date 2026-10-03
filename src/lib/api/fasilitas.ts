@@ -14,6 +14,7 @@
  *   - Situs membaca ulang status (revalidate 60 detik).
  */
 
+import { randomBytes } from "node:crypto";
 import { strapiList, txt, num, pick, mediaUrl, arr, blocksToText, rowSlug, dateOnly } from "@/lib/strapi";
 import type { StrapiRow } from "@/lib/strapi";
 import type { Facility, FacilityCategory, FacilityBooking, BookingStatus, RequesterType } from "@/types";
@@ -154,7 +155,7 @@ export function toPublicBooking(b: FacilityBooking): FacilityBooking {
  * komponen publik; pakai toPublicBooking). null → CMS tidak terjangkau.
  */
 export async function getBookingsRaw(): Promise<FacilityBooking[] | null> {
-  const rows = await strapiList(CT_BOOKING, REVALIDATE);
+  const rows = await strapiList(CT_BOOKING, 0); // 0 = tanpa cache: pengajuan baru langsung terbaca
   if (rows === null) return null;
   return rows.map((r) => mapBooking(r, true)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
@@ -174,6 +175,12 @@ export async function getBookingByCode(code: string): Promise<FacilityBooking | 
 }
 
 /* --- pengajuan baru (dipanggil API route /api/bookings) ------------- */
+
+/** 6 karakter acak (tanpa 0/O/1/I) — kode tidak bisa ditebak dan tidak bentrok antar entri. */
+function randomCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from(randomBytes(6), (b) => chars[b % chars.length]).join("");
+}
 
 export class BookingError extends Error {
   status: number;
@@ -285,13 +292,11 @@ export async function createBooking(input: BookingInput): Promise<FacilityBookin
       409,
     );
 
-  // Kode berurutan FSV-<tahun>-<4 digit> dari jumlah entri saat ini.
   const year = todayIsoJakarta().slice(0, 4);
-  const seqBase = existing.filter((b) => /^FSV-\d{4}-\d{4}$/.test(b.id)).length;
   let booking: FacilityBooking | null = null;
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 3 && !booking; attempt++) {
-    const code = `FSV-${year}-${String(seqBase + 1 + attempt).padStart(4, "0")}`;
+    const code = `FSV-${year}-${randomCode()}`;
     const fields: Record<string, unknown> = {
       bookingCode: code,
       facilitySlug: facility.slug,
