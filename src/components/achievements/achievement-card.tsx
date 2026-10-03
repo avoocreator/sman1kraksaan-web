@@ -33,7 +33,7 @@ export function AchievementCard({ achievement, index = 0 }: { achievement: Achie
             <Badge tone="orange">{achievement.category}</Badge>
             <Badge tone="blue">{achievement.level}</Badge>
           </div>
-          <h3 className="text-sm font-semibold leading-snug text-ink group-hover:text-orange-dark">
+          <h3 title={achievement.title} className="line-clamp-2 min-h-[2.75em] text-sm font-semibold leading-snug text-ink group-hover:text-orange-dark">
             {achievement.title}
           </h3>
           <p className="mt-1.5 text-xs text-muted">{achievement.year}</p>

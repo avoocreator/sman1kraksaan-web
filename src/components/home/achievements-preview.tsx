@@ -55,7 +55,7 @@ export function AchievementsPreview({
           <EmptyState title="Belum ada prestasi pada kategori ini." />
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
-            {filtered.slice(0, 5).map((a, i) => (
+            {filtered.slice(0, 4).map((a, i) => (
               <AchievementCard
                 achievement={a}
                 key={a.slug}
