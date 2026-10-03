@@ -397,13 +397,20 @@ function normRoomName(s: string): string {
     .trim();
 }
 
-function matchRoomId(name: string, rooms: SchoolRoom[]): string | undefined {
-  const alias = PLACE_ALIASES[normRoomName(name)];
-  if (alias) return alias;
+/**
+ * SEMUA ruangan denah yang cocok dengan nama entri CMS — bukan cuma yang pertama.
+ * Perlu karena denah punya nama ganda (Taman ×2, Mushola Putri ×2, Toilet Putri ×2);
+ * dengan pencocokan tunggal, kembar kedua tidak pernah mendapat konten CMS.
+ */
+function matchRoomIds(name: string, rooms: SchoolRoom[]): string[] {
   const target = normRoomName(name);
+  const alias = PLACE_ALIASES[target];
+  if (alias) return [alias];
   // Buang awalan generik "RUANG "/"R "/"LAB " di kedua sisi lalu bandingkan.
   const strip = (s: string) => s.replace(/^(RUANG|R|LAB)\s+/, "");
-  return rooms.find((room) => strip(normRoomName(room.name)) === strip(target))?.id;
+  return rooms
+    .filter((room) => strip(normRoomName(room.name)) === strip(target))
+    .map((room) => room.id);
 }
 
 export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: SchoolRoom[] }> {
@@ -419,8 +426,6 @@ export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: 
   for (const r of rows) {
     const name = txt(pick(r, "name", "nama", "title", "judul"));
     if (!name) continue;
-    const roomId = matchRoomId(name, [...floor1, ...floor2]);
-    const room = roomId ? byId.get(roomId) : undefined;
     const photo = mediaUrl(pick(r, "photo", "foto", "gambar", "image", "media"));
     // Foto panorama 360° (equirectangular) — field Media "Panorama" di School Place.
     // Nama field CMS tidak peduli huruf besar/kecil (pick longgar), jadi
@@ -435,16 +440,19 @@ export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: 
       ),
     );
     const desc = blocksToText(pick(r, "description", "deskripsi", "keterangan"), 300);
-    if (room) {
+    // Terapkan ke SEMUA ruangan denah yang cocok (nama ganda ikut terlayani).
+    const matched = matchRoomIds(name, [...floor1, ...floor2]);
+    for (const id of matched) {
+      const room = byId.get(id);
+      if (!room) continue;
       // Konten dari CMS menimpa bawaan; posisi (x/y/w/h) tetap dari denah.
       if (photo) room.photo = photo;
       if (panorama) room.panorama = panorama;
       if (desc) room.description = desc;
-    } else if (photo) {
-      // Ruangan CMS tanpa padanan di denah: tampilkan sebagai kartu ekstra
-      // di bawah peta tidak memungkinkan (peta statis) — lewati saja.
-      continue;
     }
+    // Ruangan CMS tanpa padanan di denah: tampilkan sebagai kartu ekstra
+    // di bawah peta tidak memungkinkan (peta statis) — lewati saja.
+    continue;
   }
   return { floor1, floor2 };
 }

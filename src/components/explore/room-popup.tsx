@@ -66,16 +66,26 @@ export function RoomPopup({ room, onClose }: { room: SchoolRoom | null; onClose:
                 <h3 className="text-lg font-bold text-ink">{room.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{room.description}</p>
 
-                {/* Tombol ke foto panorama 360° — hanya muncul bila ruangan punya foto 360. */}
-                {room.panorama && (
-                  <button
-                    onClick={() => setPanoRoom(room)}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-orange px-5 py-3 text-sm font-bold text-white shadow-md transition-colors hover:bg-orange-dark"
-                  >
-                    <Rotate3d className="h-4.5 w-4.5" aria-hidden />
-                    Lihat Foto 360°
-                  </button>
-                )}
+                {/* Tombol 360° SELALU tampil — redup + tak bisa diklik bila
+                    ruangan belum punya foto panorama di CMS (permintaan user). */}
+                <button
+                  onClick={() => room.panorama && setPanoRoom(room)}
+                  disabled={!room.panorama}
+                  title={
+                    room.panorama
+                      ? "Lihat foto panorama 360°"
+                      : "Foto panorama belum tersedia di CMS untuk ruangan ini"
+                  }
+                  className={
+                    "mt-4 flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold shadow-md transition-colors " +
+                    (room.panorama
+                      ? "bg-orange text-white hover:bg-orange-dark"
+                      : "cursor-not-allowed bg-ink/10 text-ink/40")
+                  }
+                >
+                  <Rotate3d className="h-4.5 w-4.5" aria-hidden />
+                  Lihat Foto 360°
+                </button>
               </div>
             </motion.div>
           </motion.div>

@@ -67,6 +67,122 @@ const THROTTLE_MS = 5 * 60_000;
 // ponytail: memori per instance; kalau banyak instance, throttle jadi per-instance saja.
 const lastPing = new Map<string, number>();
 
+/* ------------------------------------------------------------------ */
+/* Adaptasi validasi Strapi (400) — WAJIB: nama field CT bisa beda      */
+/* (contoh nyata: CT user tak punya `startedAt` → 400 "Invalid key      */
+/* startedAt" → payload dibuang field-nya lalu dicoba lagi).            */
+/* ------------------------------------------------------------------ */
+
+type Validation = { invalid: string[]; missing: string[]; message: string };
+
+/**
+ * Parsir body error Strapi → daftar field yang ditolak / yang wajib ada.
+ * Menangani DUA bentuk error Strapi v5:
+ *   1. { error: { details: { errors: [{ path: ["x"], message }] } } }
+ *   2. { error: { message: "Invalid key x", details: { key: "x", path: null } } }
+ *      (bentuk 2 inilah yang membuat versi lama menyerah — counter 0 selamanya)
+ */
+function parseValidation(body: unknown): Validation {
+  const invalid: string[] = [];
+  const missing: string[] = [];
+  let message = "";
+  const visit = (node: unknown, depth = 0) => {
+    if (depth > 4 || !node || typeof node !== "object") return;
+    const o = node as Record<string, unknown>;
+    const msg = typeof o.message === "string" ? o.message : "";
+    const path = Array.isArray(o.path)
+      ? o.path.filter((p) => typeof p === "string").join(".")
+      : typeof o.path === "string"
+        ? o.path
+        : "";
+    const scalarKey = typeof o.key === "string" ? o.key : "";
+    if (msg) {
+      if (!message) message = msg;
+      const key =
+        path ||
+        scalarKey ||
+        msg.match(/invalid key\s*["']?([\w-]+)/i)?.[1] ||
+        msg.match(/["']?([\w-]+)["']?\s+must be defined/i)?.[1] ||
+        msg.match(/["']?([\w-]+)["']?\s+is invalid/i)?.[1] ||
+        "";
+      if (/invalid key|is invalid/i.test(msg) && key) invalid.push(key);
+      else if (/must be defined/i.test(msg) && key) missing.push(key);
+    }
+    for (const child of Object.values(o)) if (child && typeof child === "object") visit(child, depth + 1);
+  };
+  visit(body);
+  return { invalid: [...new Set(invalid)], missing: [...new Set(missing)], message };
+}
+
+/**
+ * POST/PUT dengan adaptasi otomatis: 400 → buang field asing / isi field
+ * wajib yang diketahui, lalu coba lagi (maks 2 adaptasi).
+ * 401/403 → log jelas soal izin token; gagal lain dicatat ke log server.
+ */
+async function mutateVisit(
+  method: "POST" | "PUT",
+  url: string,
+  token: string,
+  buildPayload: () => Record<string, unknown>,
+  fillValue: (key: string) => unknown,
+): Promise<boolean> {
+  const payload = buildPayload();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method,
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ data: payload }),
+        cache: "no-store",
+        signal: AbortSignal.timeout(8000),
+      });
+    } catch (err) {
+      console.warn(`[visit] ${method} ${url} gagal jaringan:`, String(err));
+      return false;
+    }
+    if (res.ok) return true;
+    if (res.status === 401 || res.status === 403) {
+      console.warn(
+        `[visit] ${res.status} pada ${method} visit-logs — token tidak punya izin ` +
+          `${method === "POST" ? "create" : "update"} Visit Log. Perbaiki: Strapi → Settings → ` +
+          `API Tokens → centang ${method === "POST" ? "create" : "update"} untuk Visit log → Save.`,
+      );
+      return false;
+    }
+    if (res.status !== 400 && res.status !== 422) {
+      console.warn(`[visit] ${res.status} tak terduga pada ${method} visit-logs`);
+      return false;
+    }
+    const body = (await res.json().catch(() => ({}))) as unknown;
+    const { invalid, missing, message } = parseValidation(body);
+    if (invalid.length === 0 && missing.length === 0) {
+      console.warn(`[visit] 400 pada ${method} visit-logs: ${message || "validasi gagal"}`);
+      return false;
+    }
+    for (const key of invalid) delete payload[key];
+    let filled = 0;
+    for (const key of missing) {
+      if (payload[key] === undefined) {
+        const value = fillValue(key);
+        if (value !== undefined) {
+          payload[key] = value;
+          filled++;
+        }
+      }
+    }
+    if (invalid.length === 0 && filled === 0) {
+      console.warn(`[visit] 400 berulang pada ${method} visit-logs: ${message}`);
+      return false;
+    }
+    if (attempt >= 2) {
+      console.warn(`[visit] ${method} visit-logs: adaptasi mencapai batas — menyerah.`);
+      return false;
+    }
+  }
+  return false;
+}
+
 /**
  * Catat satu aktivitas kunjungan. Dipanggil API route /api/visit (POST).
  * Diam-diam no-op kalau Strapi tidak siap — penghitung bukan fitur kritis.
@@ -100,27 +216,30 @@ export async function recordVisit(ip: string | null): Promise<void> {
       const lastActive = txtOf(hit?.lastActiveAt) || txtOf(hit?.startedAt);
       if (hit?.documentId && lastActive && minutesBetween(lastActive, Date.now()) < SESSION_MINUTES) {
         // 2a) Sesi masih hidup — perbarui denyut aktivitasnya saja.
-        await fetch(`${BASE}/api/visit-logs/${hit.documentId}`, {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ data: { lastActiveAt: nowIso } }),
-          cache: "no-store",
-          signal: AbortSignal.timeout(8000),
-        });
+        await mutateVisit(
+          "PUT",
+          `${BASE}/api/visit-logs/${hit.documentId}`,
+          token,
+          () => ({ lastActiveAt: nowIso }),
+          () => nowIso,
+        );
         return;
       }
     }
 
     // 2b) Belum ada sesi / sudah kedaluwarsa → kunjungan baru.
-    await fetch(`${BASE}/api/visit-logs`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data: { visitor, startedAt: nowIso, lastActiveAt: nowIso, publishedAt: nowIso },
-      }),
-      cache: "no-store",
-      signal: AbortSignal.timeout(8000),
-    });
+    await mutateVisit(
+      "POST",
+      `${BASE}/api/visit-logs`,
+      token,
+      () => ({ visitor, startedAt: nowIso, lastActiveAt: nowIso, publishedAt: nowIso }),
+      (key) => {
+        const k = key.toLowerCase();
+        if (k === "visitor" || k.includes("visitor")) return visitor;
+        if (k.includes("started") || k.includes("lastactive") || k.includes("published")) return nowIso;
+        return undefined;
+      },
+    );
   } catch {
     // Penghitung tidak boleh mengganggu situs — abaikan kegagalan.
   }
