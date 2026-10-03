@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { RotateCcw, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getAiResponse } from "@/lib/ai";
+import { getAiIntro, getAiResponse } from "@/lib/ai";
 
 interface Message {
   role: "user" | "assistant";
@@ -43,7 +43,12 @@ export function AiChatThread({ compact = false }: { compact?: boolean }) {
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
+  const [intro, setIntro] = useState({ welcome: "", questions: [] as string[] });
   const threadRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getAiIntro().then(({ welcome, questions }) => setIntro({ welcome, questions })).catch(() => {});
+  }, []);
 
   useEffect(() => {
     try {
@@ -76,8 +81,8 @@ export function AiChatThread({ compact = false }: { compact?: boolean }) {
     window.localStorage.removeItem(STORAGE_KEY);
   }
 
-  async function handleSend() {
-    const text = input.trim();
+  async function handleSend(preset?: string) {
+    const text = (preset ?? input).trim();
     if (!text || thinking) return;
     const history = messages.slice(-(MAX_MESSAGES_TO_AI - 1)).map((message) => ({
       role: message.role,
@@ -117,7 +122,23 @@ export function AiChatThread({ compact = false }: { compact?: boolean }) {
       </div>
       <div ref={threadRef} className={cn("min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4", compact ? "text-sm" : "text-sm")}>
         {!messages.length && !thinking && (
-          <p className="py-10 text-center text-xs text-muted">Belum ada percakapan. Tanyakan sesuatu tentang sekolah.</p>
+          <div className="space-y-3 py-6 text-center">
+            <p className="text-xs text-muted">
+              {intro.welcome || "Belum ada percakapan. Tanyakan sesuatu tentang sekolah."}
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {intro.questions.map((question) => (
+                <button
+                  key={question}
+                  type="button"
+                  onClick={() => handleSend(question)}
+                  className="rounded-full border border-border px-3 py-1.5 text-xs text-ink transition-colors hover:bg-surface-alt"
+                >
+                  {question}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
         {messages.map((m, i) => (
           <motion.div

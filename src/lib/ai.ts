@@ -15,3 +15,9 @@ export async function getAiResponse(
 
   return data.answer as string;
 }
+
+export async function getAiIntro() {
+  const response = await fetch("/api/chat");
+  if (!response.ok) throw new Error("intro unavailable");
+  return (await response.json()) as { enabled: boolean; welcome: string; questions: string[] };
+}
