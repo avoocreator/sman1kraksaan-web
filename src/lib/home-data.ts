@@ -81,9 +81,9 @@ export async function getHomeData(): Promise<HomeData> {
   const n: Record<string, number> = {};
   return {
     heroArticles,
-    // 4 teratas per kategori: filter di beranda dilakukan di klien, jadi tab
+    // 5 teratas per kategori: filter di beranda dilakukan di klien, jadi tab
     // non-teratas tidak kosong. Urutan (tahun terbaru) tetap terjaga.
-    achievements: achievements.filter((a) => (n[a.category] = (n[a.category] ?? 0) + 1) <= 4),
+    achievements: achievements.filter((a) => (n[a.category] = (n[a.category] ?? 0) + 1) <= 5),
     programItems: programs.slice(0, 5).map(toProgramItem),
     alumniItems: alumniForHome.map(toAlumniItem),
     partnerItems: partners.slice(0, 4).map(toPartnerItem),
