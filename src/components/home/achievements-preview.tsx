@@ -9,7 +9,7 @@ import { AchievementCard } from "@/components/achievements/achievement-card";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 
-const filters = ["Semua", "Akademik", "Teknologi", "Olahraga", "Seni"] as const;
+const filters = ["Semua", "Akademik", "Teknologi", "Olahraga", "Seni", "Organisasi"] as const;
 
 export function AchievementsPreview({
   achievements,

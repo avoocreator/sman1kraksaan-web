@@ -72,7 +72,7 @@ function placeholder(kind: "berita" | "agenda" | "prestasi"): string {
 /* ------------------------------------------------------------------ */
 
 const LEVELS: AchievementLevel[] = ["Sekolah", "Kabupaten", "Provinsi", "Nasional", "Internasional"];
-const CATEGORIES: AchievementCategory[] = ["Akademik", "Teknologi", "Olahraga", "Seni"];
+const CATEGORIES: AchievementCategory[] = ["Akademik", "Teknologi", "Olahraga", "Seni", "Organisasi"];
 
 function normEnum<T extends string>(v: unknown, options: T[], fallback: T): T {
   const s = txt(v).toLowerCase();
@@ -109,7 +109,7 @@ function mapAchievement(r: StrapiRow): Achievement {
 /** Tebak tingkat prestasi dari isi judul kalau field level tidak ada. */
 function inferLevel(v: unknown, title: string): AchievementLevel {
   const explicit = txt(v);
-  if (explicit) return normEnum(explicit, LEVELS, "Sekolah");
+  if (explicit) return normEnum(explicit.replace(/kab\/kota|kota/i, "Kabupaten"), LEVELS, "Sekolah");
   const t = title.toLowerCase();
   if (t.includes("internasional") || t.includes("international")) return "Internasional";
   if (t.includes("nasional")) return "Nasional";
@@ -123,7 +123,9 @@ export async function getAchievements(): Promise<Achievement[]> {
   // null  = Strapi tidak terjangkau / endpoint belum ada → data contoh.
   // []    = CMS ada tapi belum diisi → halaman tampil kosong (jujur).
   if (rows === null) return getAllAchievements();
-  return rows.map(mapAchievement).sort((a, b) => b.year - a.year);
+  // Tanggal penuh terbaru dulu; sort tahun berikutnya stabil, jadi urutan tanggal terjaga.
+  const day = (r: StrapiRow) => dateOnly(pick(r, "date", "tanggal", "tanggalPrestasi"), "");
+  return [...rows].sort((a, b) => day(b).localeCompare(day(a))).map(mapAchievement).sort((a, b) => b.year - a.year);
 }
 
 export async function getAchievement(slug: string): Promise<Achievement | undefined> {

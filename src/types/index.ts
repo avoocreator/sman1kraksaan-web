@@ -1,5 +1,5 @@
 export type AchievementLevel = "Sekolah" | "Kabupaten" | "Provinsi" | "Nasional" | "Internasional";
-export type AchievementCategory = "Akademik" | "Teknologi" | "Olahraga" | "Seni";
+export type AchievementCategory = "Akademik" | "Teknologi" | "Olahraga" | "Seni" | "Organisasi";
 
 export interface Achievement {
   slug: string;

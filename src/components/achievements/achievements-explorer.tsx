@@ -7,7 +7,7 @@ import { AchievementCard } from "@/components/achievements/achievement-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 
-const categories = ["Semua", "Akademik", "Teknologi", "Olahraga", "Seni"] as const;
+const categories = ["Semua", "Akademik", "Teknologi", "Olahraga", "Seni", "Organisasi"] as const;
 const levels = ["Semua", "Sekolah", "Kabupaten", "Provinsi", "Nasional", "Internasional"] as const;
 const PAGE_SIZE = 8;
 
