@@ -196,7 +196,7 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
               id="lulusan-beranda"
               className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              JEJAK PRESTASI DAN KARIR ALUMNI
+              Jejak Prestasi & Karir Alumni
             </h2>
             <p className="mt-3 max-w-xl text-ink-soft">
               Galeri lulusan terbaik kami — geser ke samping, klik kartu untuk info singkat.

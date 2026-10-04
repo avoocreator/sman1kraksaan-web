@@ -63,7 +63,7 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
               id="program-beranda"
               className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              PROGRAM UNGGULAN KAMI
+              Program Unggulan Kami
             </h2>
             <p className="mt-3 max-w-xl text-ink-soft">
               Ini alasan yang paling sering disebut siswa dan orang tua kami —

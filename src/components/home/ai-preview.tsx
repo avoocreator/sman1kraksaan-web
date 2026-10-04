@@ -22,7 +22,7 @@ export function AiPreview() {
           />
           <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface-alt px-4 py-2 text-xs font-medium text-ink-soft">
             <Sparkles className="h-3.5 w-3.5 text-orange" />
-            Tersedia di seluruh halaman — cukup klik ikon di pojok layar.
+            Tersedia di seluruh halaman.
           </div>
         </motion.div>
 
