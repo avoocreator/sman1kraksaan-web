@@ -33,6 +33,8 @@ import type { StrapiRow } from "@/lib/strapi";
 import { todayJakarta } from "@/lib/utils";
 
 export { getScheduleRaw } from "@/lib/schedule-strapi";
+export { getAboutContent, ABOUT_FALLBACK, PRINCIPAL_ROLE } from "@/lib/api/tentang";
+export type { AboutContent } from "@/lib/api/tentang";
 
 /**
  * Kandidat nama endpoint (pluralName di Strapi bisa bervariasi).
