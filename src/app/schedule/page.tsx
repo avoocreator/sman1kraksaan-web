@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function SchedulePage() {
-  // Data jadwal dari Strapi; kalau masih kosong, jadwal statis bawaan dipakai.
   const raw = await getScheduleRaw();
 
   return (

@@ -11,8 +11,8 @@ import { HeroSearch } from "@/components/search/hero-search";
 
 interface HeroProps {
   articles: NewsArticle[];
-  accreditationPdf?: string; // URL PDF sertifikat dari Strapi
-  suggestions?: SearchItem[]; // rekomendasi untuk search bar
+  accreditationPdf?: string;
+  suggestions?: SearchItem[];
 }
 
 export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps) {
@@ -24,7 +24,7 @@ export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps
       </div>
 
       <div className="container-page grid items-center gap-10 py-10 md:py-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14 lg:py-14">
-        {/* Left */}
+        {/* kiri */}
         <div>
           <motion.h1
             initial={{ opacity: 0, y: 18 }}
@@ -59,7 +59,6 @@ export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps
               <ArrowRight className="h-4 w-4" />
             </LinkButton>
 
-            {/* Search bar dengan rekomendasi (menggantikan tombol "Semua Berita") */}
             <HeroSearch
               suggestions={suggestions}
               className="w-full sm:w-auto sm:min-w-[240px] lg:min-w-0 lg:max-w-[330px] lg:flex-1"
@@ -72,18 +71,17 @@ export function Hero({ articles, accreditationPdf, suggestions = [] }: HeroProps
             transition={{ duration: 0.5, delay: 0.24 }}
             className="mt-7 flex flex-wrap items-center gap-4"
           >
-            {/* Box akreditasi = tombol unduh: sekali klik langsung mengunduh PDF. */}
             <AccreditationDownloadCard href={accreditationPdf} />
           </motion.div>
         </div>
 
-        {/* Right: News Carousel */}
         <motion.div
           initial={{ opacity: 0, x: 24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.15 }}
           className="min-w-0"
         >
+          {/* kanan */}
           <NewsDepthCarousel articles={articles} />
         </motion.div>
       </div>

@@ -10,9 +10,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 const monthShort = ["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGU","SEP","OKT","NOV","DES"];
 
 export function EventsPreview({ events, today }: { events: SchoolEvent[]; today: string }) {
-  // Tiga agenda terdekat yang akan datang (urut dari tanggal paling dekat).
-  // Agenda hari ini (mis. Hari Batik Nasional tanggal 2 Oktober) otomatis
-  // tampil paling depan dengan sorotan khusus.
   const upcoming = events
     .filter((e) => e.status === "Akan Datang")
     .sort((a, b) => a.date.localeCompare(b.date))

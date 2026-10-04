@@ -6,7 +6,7 @@ import { getEvent, getEvents } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 
-export const revalidate = 120; // refresh data Strapi
+export const revalidate = 120;
 
 export async function generateStaticParams() {
   const events = await getEvents();

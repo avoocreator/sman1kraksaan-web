@@ -36,12 +36,6 @@ const rules = [
   "Fasilitas harus dikembalikan dalam kondisi awal setelah kegiatan selesai.",
 ];
 
-/**
- * Kartu "Pesan Fasilitas Ini".
- * Dirender dua kali: sebagai panel melayang (fixed) di desktop — selalu terlihat
- * di layar kapan pun halaman discroll — dan sebagai kartu biasa di tablet/mobile
- * yang mengalir mengikuti konten halaman.
- */
 function BookingPanel({
   facility,
   bookings,
@@ -124,7 +118,6 @@ function BookingPanel({
 
 export default async function FacilityDetailPage({ params }: Props) {
   const { slug } = await params;
-  // Strapi dulu, fallback data statis — entri statis selalu bisa diakses.
   const facility = (await getFacility(slug)) ?? getFacilityBySlug(slug);
   if (!facility) notFound();
 
@@ -134,7 +127,6 @@ export default async function FacilityDetailPage({ params }: Props) {
     .concat(all.filter((f) => f.slug !== facility.slug && f.category !== facility.category))
     .slice(0, 4);
 
-  // Jadwal terdekat fasilitas ini (proyeksi publik — tanpa kontak pemesan).
   const upcomingBookings = (await getBookings())
     .map(toPublicBooking)
     .filter((b) => b.facilitySlug === facility.slug);
@@ -148,12 +140,6 @@ export default async function FacilityDetailPage({ params }: Props) {
         <ArrowLeft className="h-4 w-4" /> Kembali ke katalog
       </Link>
 
-      {/* Desktop: kartu pemesanan MELAYANG (position: fixed) — posisinya tetap di layar
-          selama halaman discroll ke bagian mana pun, sampai footer sekalipun.
-          Wrapper full-width + container-page + grid yang sama membuat kartu persis
-          segaris dengan kolom kanan grid konten di bawahnya.
-          pointer-events-none pada wrapper agar area kosongnya tidak menghalangi klik
-          konten di belakangnya; pointer-events-auto dikembalikan pada kartunya. */}
       <div className="pointer-events-none fixed inset-x-0 top-24 z-40 hidden lg:block">
         <div className="container-page">
           <div className="grid grid-cols-[1.6fr_1fr] gap-10">
@@ -166,7 +152,6 @@ export default async function FacilityDetailPage({ params }: Props) {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.6fr_1fr]">
-        {/* Kolom kiri: foto + deskripsi */}
         <div className="lg:col-start-1 lg:row-start-1">
           <div className="overflow-hidden rounded-3xl border border-border">
             <img src={facility.image} alt={facility.name} className="aspect-[16/10] w-full object-cover" />
@@ -205,14 +190,10 @@ export default async function FacilityDetailPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Tablet/mobile: kartu pemesanan mengalir biasa mengikuti konten
-            (di desktop kartu ini disembunyikan dan digantikan panel fixed di atas) */}
         <div className="lg:hidden">
           <BookingPanel facility={facility} bookings={upcomingBookings} />
         </div>
 
-        {/* Fasilitas lainnya — ditempatkan di kolom kiri baris ke-2 (desktop)
-            agar kartu-kartunya tidak tertutup panel pemesanan yang melayang di kanan */}
         <div className="lg:col-start-1 lg:row-start-2">
           <div className="flex items-end justify-between">
             <h2 className="text-2xl font-bold text-ink sm:text-3xl">Fasilitas Lainnya</h2>

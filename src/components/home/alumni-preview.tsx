@@ -9,12 +9,12 @@ import { EmptyState } from "@/components/ui/empty-state";
 
 export type AlumniItem = {
   name: string;
-  year: string; // tahun lulus
+  year: string;
   university: string;
   major: string;
-  path: string; // jalur, mis. Pendidikan Tinggi / Karier Profesional / Wirausaha
-  photo?: string; // URL foto (opsional)
-  desc?: string; // info singkat dari CMS (deskripsi alumni)
+  path: string;
+  photo?: string;
+  desc?: string;
 };
 
 const initials = (name: string) =>
@@ -25,26 +25,8 @@ const initials = (name: string) =>
     .map((w) => w[0]?.toUpperCase())
     .join("");
 
-const THRESHOLD = 60; // geser sekian px baru dianggap pindah slide
+const THRESHOLD = 60;
 
-/**
- * Preview alumni di beranda — kartu kelas Prestasi (foto + badge + nama)
- * dalam carousel yang bisa DIGESER LANGSUNG (drag/swipe ke samping), bukan
- * cuma lewat dot. Auto-play berhenti sementara saat pengguna sedang menyeret.
- *
- * Teknik: track = konten terduplikasi (2-3 salinan), index berjalan 0..total.
- * Sampai di salinan kedua (posisi visual == awal) → lompat senyap ke 0
- * tanpa animasi, sehingga loop terasa tak berujung ke kanan maupun ke kiri.
- *
- * Kelancaran (fix "kadang macet saat digeser"):
- * - Posisi geseran (dragX) dan lebar langkah (step) disimpan sebagai REF,
- *   bukan state. Dulu setiap pointermove memicu setState → seluruh track
- *   (kartu + foto) di-re-render React di tiap frame → karatan.
- * - Sekarang transform ditulis LANGSUNG ke style track lewat rAF; React
- *   hanya re-render saat drag mulai/berakhir (ganti kursor).
- * - Auto-play maju terus dan berputar lewat lompatan senyap — dulu pakai
- *   modulo sehingga sesekali mundur cepat sejauh seluruh track (terasa macet).
- */
 export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
   const [selected, setSelected] = useState<AlumniItem | null>(null);
   const total = items.length;
@@ -55,14 +37,12 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
 
   const trackRef = useRef<HTMLUListElement>(null);
   const drag = useRef({ startX: 0, active: false, captured: false });
-  const draggedRef = useRef(false); // true kalau sudah melewati ambang → klik dibatalkan
+  const draggedRef = useRef(false);
 
   const dragXRef = useRef(0);
-  const stepRef = useRef(296); // fallback: kartu 280px + jarak 16px (sm+)
+  const stepRef = useRef(296);
   const rafRef = useRef(0);
 
-  // Tulis transform langsung ke DOM. animate=false untuk mengikuti jari/mouse
-  // (tanpa transisi), true untuk snap antar kartu.
   const apply = useCallback((target: number, animate: boolean) => {
     const el = trackRef.current;
     if (!el) return;
@@ -70,9 +50,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     el.style.transform = `translate3d(calc(${-target * stepRef.current}px + ${dragXRef.current}px), 0, 0)`;
   }, []);
 
-  // Jarak antar kartu diukur langsung dari DOM (260px di ponsel, 280px di sm+)
-  // supaya tiap geseran jatuh tepat di kartu berikutnya. Dulu dipatok 296px dan
-  // posisi kartu jadi melenceng di layar ponsel.
   useEffect(() => {
     const measure = () => {
       const first = trackRef.current?.children[0] as HTMLElement | undefined;
@@ -90,11 +67,9 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     };
   }, [total, index, apply]);
 
-  // Salinan track: konten pendek perlu 3 salinan supaya area kanan tak kosong.
   const copies = total > 0 && total < 5 ? 3 : 2;
   const loop = total > 0 ? Array.from({ length: copies }, () => items).flat() : [];
 
-  // Kembali ke 0 secara senyap saat menyentuh zona salinan kedua.
   useEffect(() => {
     if (dragging || total === 0) return;
     if (index >= total) {
@@ -106,7 +81,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     }
   }, [index, total, dragging]);
 
-  // Setelah lompatan senyap, nyalakan lagi transisi di frame berikutnya.
   useEffect(() => {
     if (anim) return;
     const id = window.requestAnimationFrame(() =>
@@ -115,14 +89,10 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     return () => cancelAnimationFrame(id);
   }, [anim]);
 
-  // Terapkan posisi track setiap index/anim berubah (autoplay, panah, lompatan senyap).
   useEffect(() => {
     apply(index, anim);
   }, [index, anim, apply]);
 
-  // Geser sendiri setiap ±4,5 detik; berhenti saat diseret atau pop-up terbuka.
-  // Maju terus (tanpa modulo) — putaran ditangani lompatan senyap di atas,
-  // jadi tidak ada lagi animasi mundur sejauh seluruh track.
   useEffect(() => {
     if (total <= 1 || dragging || selected) return;
     const t = window.setInterval(() => setIndex((i) => i + 1), 4500);
@@ -153,11 +123,9 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     );
   }
 
-  const next = () => setIndex((i) => i + 1); // boleh mencapai total → efek lompat senyap di atas
+  const next = () => setIndex((i) => i + 1);
   const prev = () => {
     if (index <= 0) {
-      // Posisi paling kiri: lompat senyap ke salinan kedua lalu mundur satu,
-      // sehingga geser ke kiri terasa tak berujung.
       setAnim(false);
       setIndex(total);
       window.requestAnimationFrame(() =>
@@ -186,14 +154,11 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
       drag.current.captured = true;
       try {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-      } catch {
-        /* pointer mungkin sudah lepas — biarkan */
-      }
+      } catch {}
     }
     if (drag.current.captured) {
       if (Math.abs(dx) > 8) draggedRef.current = true;
       dragXRef.current = dx;
-      // Tulis transform langsung via rAF — tanpa setState, tanpa re-render.
       if (!rafRef.current) {
         rafRef.current = window.requestAnimationFrame(() => {
           rafRef.current = 0;
@@ -216,7 +181,7 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
     if (drag.current.captured) {
       if (dx <= -THRESHOLD) next();
       else if (dx >= THRESHOLD) prev();
-      else apply(index, true); // tidak melewati ambang → kembali ke kartu semula
+      else apply(index, true);
     }
     drag.current.captured = false;
   };
@@ -245,10 +210,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
           </Link>
         </div>
 
-        {/* Carousel dikunci ke lebar container — tidak lagi meluber sampai tepi
-            layar. Fade tepi (mask) hidup di area padding: kartu pertama saat
-            halaman dibuka tetap utuh sejajar teks di atas, kartu yang keluar
-            ke samping memudar halus di tepi kolom konten. */}
         <div
           className="relative -mx-5 mt-10 touch-pan-y select-none overflow-hidden md:-mx-10"
           style={{
@@ -268,7 +229,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
           onPointerCancel={endDrag}
           onDragStart={(e) => e.preventDefault()}
           onClickCapture={(e) => {
-            // Setelah menyeret, jangan anggap sebagai klik kartu (pop-up).
             if (draggedRef.current) {
               e.preventDefault();
               e.stopPropagation();
@@ -276,7 +236,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
             }
           }}
         >
-          {/* pr-4 seragam agar -step jatuh tepat di kartu berikutnya (loop mulus) */}
           {loop.map((a, i) => (
             <li key={`${a.name}-${i}`} className="shrink-0 pr-4">
               <button
@@ -284,7 +243,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
                 onClick={() => setSelected(a)}
                 className="group block w-[260px] overflow-hidden rounded-2xl border border-border bg-surface text-left shadow-sm transition-shadow hover:shadow-lg hover:shadow-ink/5 sm:w-[280px]"
               >
-                {/* Foto di atas, konsep sama dengan kartu Prestasi */}
                 <div className="relative aspect-[4/3] overflow-hidden bg-surface-alt">
                   {a.photo ? (
                     <img
@@ -322,7 +280,6 @@ export function AlumniPreview({ items = [] }: { items?: AlumniItem[] }) {
         </div>
       </div>
 
-      {/* Pop-up info singkat */}
       <AnimatePresence>
         {selected && (
           <motion.div

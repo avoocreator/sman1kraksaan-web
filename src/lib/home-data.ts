@@ -9,24 +9,19 @@ import {
 } from "@/lib/api";
 import { todayJakarta } from "@/lib/utils";
 
-/**
- * Data beranda: subset terkurasi dari data halaman masing-masing.
- * Semua berasal dari lapisan API yang sama dengan halaman penuhnya
- * (Strapi dulu, fallback data contoh) — hanya diambil sebagian agar
- * beranda ringkas, bukan menyalin seluruh isi halaman.
- */
 export type HomeData = {
-  heroArticles: NewsArticle[]; // 4 berita teratas: featured dulu, lalu terbaru
-  achievements: Achievement[]; // 4 prestasi dengan tahun terbaru
-  programItems: ProgramItem[]; // 5 program untuk layout bento
-  alumniItems: AlumniItem[]; // galeri lulusan utk carousel
-  partnerItems: PartnerItem[]; // 4 mitra
-  events: SchoolEvent[]; // semua agenda; preview sendiri memilih 3 terdekat
-  schedule: RawSchedule | null; // jadwal dari Strapi (null = statis)
+  heroArticles: NewsArticle[];
+  achievements: Achievement[];
+  programItems: ProgramItem[];
+  alumniItems: AlumniItem[];
+  partnerItems: PartnerItem[];
+  events: SchoolEvent[];
+  schedule: RawSchedule | null;
 };
 
 const truncate = (s: string, max: number) => (s.length > max ? `${s.slice(0, max - 1).trimEnd()}…` : s);
 
+// mapper
 function toProgramItem(p: Program): ProgramItem {
   return {
     title: p.name,
@@ -57,6 +52,7 @@ function toPartnerItem(p: Partner): PartnerItem {
   };
 }
 
+// data beranda
 export async function getHomeData(): Promise<HomeData> {
   const [news, achievements, programs, alumni, partners, events, schedule] = await Promise.all([
     getNews(),
@@ -68,21 +64,16 @@ export async function getHomeData(): Promise<HomeData> {
     getScheduleRaw(),
   ]);
 
-  // Hero: berita unggulan dulu, lalu sisanya per tanggal terbaru.
   const heroArticles = [...news]
     .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, 4);
 
-  // Beranda menampilkan alumni dari Strapi (yang bernama didahulukan);
-  // carousel kelas Prestasi menggeser semuanya berulang.
   const namedAlumni = alumni.filter((a) => !a.name.startsWith("Alumni SMAN"));
   const alumniForHome = namedAlumni.length ? namedAlumni : alumni;
 
   const n: Record<string, number> = {};
   return {
     heroArticles,
-    // 4 teratas per kategori: filter di beranda dilakukan di klien, jadi tab
-    // non-teratas tidak kosong. Urutan (tahun terbaru) tetap terjaga.
     achievements: achievements.filter((a) => (n[a.category] = (n[a.category] ?? 0) + 1) <= 4),
     programItems: programs.slice(0, 5).map(toProgramItem),
     alumniItems: alumniForHome.map(toAlumniItem),
@@ -92,13 +83,7 @@ export async function getHomeData(): Promise<HomeData> {
   };
 }
 
-/**
- * Rekomendasi untuk search bar beranda (maksimal ±6).
- * Prioritas: agenda hari ini dulu (paling relevan saat ini diakses),
- * lalu berita terbaru/unggulan, lalu prestasi terbaru, lalu halaman populer.
- * Data diambil lewat lapisan API yang sama (ISR 60 detik) sehingga selalu
- * segar tanpa perlu endpoint tambahan.
- */
+// saran pencarian
 export async function getSearchSuggestions(): Promise<SearchItem[]> {
   const [news, events, achievements] = await Promise.all([
     getNews(),
@@ -109,7 +94,6 @@ export async function getSearchSuggestions(): Promise<SearchItem[]> {
   const today = todayJakarta();
   const out: SearchItem[] = [];
 
-  // 1) Agenda hari ini — kalau hari ini ada agenda (mis. Hari Batik Nasional).
   const todayEvent = events.find((e) => e.date === today);
   if (todayEvent) {
     out.push({
@@ -120,8 +104,6 @@ export async function getSearchSuggestions(): Promise<SearchItem[]> {
     });
   }
 
-  // 2) Berita terbaru/unggulan (sudah diurut featured dulu di getHomeData,
-  //    di sini cukup per tanggal terbaru).
   for (const n of [...news]
     .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, 4)) {
@@ -133,7 +115,6 @@ export async function getSearchSuggestions(): Promise<SearchItem[]> {
     });
   }
 
-  // 3) Prestasi terbaru.
   const topAchievement = achievements[0];
   if (topAchievement) {
     out.push({
@@ -144,7 +125,6 @@ export async function getSearchSuggestions(): Promise<SearchItem[]> {
     });
   }
 
-  // Buang duplikat berdasarkan href lalu batasi jumlahnya.
   const seen = new Set<string>();
   return out.filter((s) => (seen.has(s.href) ? false : (seen.add(s.href), true))).slice(0, 6);
 }

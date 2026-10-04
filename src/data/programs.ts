@@ -23,7 +23,6 @@ export const programs: Program[] = [
 
   },
 
-
   {
     slug: "soshum",
     name: "kelas sosial dan hukum SMAN 1 Kraksaan",

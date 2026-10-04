@@ -4,8 +4,8 @@ import { useSchedule } from "@/components/schedule/context";
 
 type Props = {
   entries: Entry[];
-  show: "class" | "teacher"; // info kedua di tiap blok
-  nowMin: number | null; // null = bukan hari ini
+  show: "class" | "teacher";
+  nowMin: number | null;
 };
 
 export default function DayList({ entries, show, nowMin }: Props) {

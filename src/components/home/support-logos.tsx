@@ -1,7 +1,5 @@
 import { cn } from "@/lib/utils";
 
-// Lima logo pendukung (wajib ada semua) — versi footer: kecil, seragam,
-// grayscale dengan warna kembali saat hover supaya footer tetap rapi.
 const logos = [
   { name: "JHIC", src: "/supported-by/jhic.png" },
   { name: "Jagoan Hosting", src: "/supported-by/jagoan-hosting.png" },

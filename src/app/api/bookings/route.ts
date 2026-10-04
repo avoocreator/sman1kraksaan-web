@@ -1,13 +1,3 @@
-/**
- * API route pemesanan fasilitas.
- *
- * GET  /api/bookings            → daftar pemesanan (proyeksi publik, tanpa kontak)
- *                                untuk pemeriksaan bentrok di form & jadwal.
- * GET  /api/bookings?kode=FSV…  → satu pemesanan (tanpa kontak) untuk cek status.
- * POST /api/bookings            → ajukan pemesanan baru → tersimpan di Strapi
- *                                (content type `facility-bookings`), status awal
- *                                "Menunggu" hingga disetujui admin di Strapi.
- */
 import { NextRequest, NextResponse } from "next/server";
 import {
   BookingError, createBooking, getBookingByCode, getBookings, toPublicBooking,

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
+/* tema */
 :root {
-  /* Base */
   --color-bg: #FFFDF5;
   --color-surface: #FFFFFF;
   --color-surface-alt: #FFF6DC;
@@ -10,7 +10,6 @@
   --color-muted: #5C7580;
   --color-border: #D9CFA0;
 
-  /* Brand */
   --color-orange: #F5B31A;
   --color-orange-dark: #D89400;
   --color-orange-soft: #FFF0C2;
@@ -51,8 +50,6 @@ body {
   font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Semua judul memakai font display (Bricolage Grotesque) — body tetap
-   Plus Jakarta Sans. Utility `font-display` tersedia untuk elemen lain. */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-bricolage), var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
@@ -78,8 +75,7 @@ h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
 }
 
-/* Carousel alumni: geser sendiri ke kiri tanpa henti (loop mulus).
-   Track berisi kartu terduplikasi 2x, digeser -50% lalu ulang. */
+/* animasi */
 @keyframes marquee {
   from {
     transform: translateX(0);

@@ -31,16 +31,10 @@ const columns = [
 ];
 
 export default function Footer({ totalVisits }: { totalVisits?: number | null }) {
-  // Widget selalu tampil. Kalau data belum tersedia (CT Visit Log / token
-  // tulis belum disetel), angka tampil 0 — begitu Strapi siap, angka berjalan
-  // sendiri tanpa perlu perubahan apa pun di sini.
   const [visits, setVisits] = useState(
     typeof totalVisits === "number" && totalVisits >= 0 ? totalVisits : 0,
   );
 
-  // Angka dari server (layout) ter-cache ISR 5 menit di Vercel — supaya tidak
-  // "nyangkut", segarkan dari /api/visit-total (tanpa cache) begitu halaman
-  // terbuka, lalu tiap 60 detik selama halaman terbuka.
   useEffect(() => {
     let alive = true;
     const refresh = () => {
@@ -49,9 +43,7 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
         .then((j: { total?: number } | null) => {
           if (alive && j && typeof j.total === "number" && j.total >= 0) setVisits(j.total);
         })
-        .catch(() => {
-          /* penghitung bukan fitur kritis */
-        });
+        .catch(() => {});
     };
     refresh();
     const timer = setInterval(refresh, 60_000);
@@ -64,7 +56,7 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
   return (
     <footer className="border-t border-border bg-surface">
       <div className="container-page grid grid-cols-2 gap-x-8 gap-y-10 py-12 md:grid-cols-4 lg:grid-cols-12">
-        {/* Brand */}
+        {/* brand */}
         <div className="col-span-2 md:col-span-4 lg:col-span-3">
           <Link href="/" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg">
@@ -81,7 +73,6 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
             <a href="#" aria-label="Facebook" className="hover:text-orange"><Facebook className="h-4.5 w-4.5" /></a>
           </div>
 
-          {/* Penghitung kunjungan — chip kecil & elegan, tidak mencolok. */}
           <div className="mt-5">
             <div
               className="inline-flex items-center gap-2.5 rounded-full border border-border bg-surface-alt py-1.5 pl-1.5 pr-4"
@@ -113,9 +104,9 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
           </div>
         ))}
 
-        {/* Kontak + Google Maps */}
         <div className="col-span-2 md:col-span-2 lg:col-span-5">
           <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted">Kontak</p>
+          {/* kontak */}
           <ul className="space-y-2.5 text-sm text-ink-soft">
             <li className="flex items-start gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0" /> Jl. Panglima Sudirman, Kraksaan, Probolinggo</li>
             <li className="flex items-center gap-2"><Phone className="h-4 w-4 shrink-0" /> (0335) 841 234</li>
@@ -132,10 +123,10 @@ export default function Footer({ totalVisits }: { totalVisits?: number | null })
         </div>
       </div>
 
-      {/* Lima logo pendukung — versi kecil dan seragam di footer */}
       <div className="border-t border-border">
         <div className="container-page flex flex-col items-center gap-3 py-5 sm:flex-row sm:justify-between sm:gap-8">
           <p className="shrink-0 text-xs font-semibold uppercase tracking-wider text-muted">Didukung oleh</p>
+          {/* logo pendukung */}
           <SupportLogos className="justify-center sm:justify-end" />
         </div>
       </div>

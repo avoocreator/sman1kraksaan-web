@@ -4,7 +4,7 @@ import { accreditation } from "@/data/school-profile";
 import { AccreditationCertificateDownload } from "@/components/ui/accreditation-badge";
 import { getAccreditationPdf, getAboutContent, PRINCIPAL_ROLE } from "@/lib/api";
 
-export const revalidate = 120; // refresh data Strapi
+export const revalidate = 120;
 
 export const metadata: Metadata = { title: "Tentang Kami", description: "Sejarah, visi, misi, dan profil SMAN 1 Kraksaan." };
 
@@ -24,6 +24,7 @@ export default async function AboutPage() {
           ))}
         </div>
 
+        {/* sejarah */}
         <div className="mt-14 grid gap-10 lg:grid-cols-2 lg:items-start">
           <div className="aspect-[4/3] overflow-hidden rounded-3xl border border-border">
             <img
@@ -40,6 +41,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
+        {/* visi misi */}
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           <div className="rounded-2xl border border-border bg-surface p-6">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-soft text-orange"><Compass className="h-5 w-5" /></span>
@@ -57,6 +59,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
+        {/* akreditasi */}
         <div className="mt-16 overflow-hidden rounded-3xl border border-border bg-blue text-white">
           <div className="grid gap-8 p-8 md:grid-cols-[auto_1fr_auto] md:items-center md:p-10">
             <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-4xl font-extrabold">
@@ -77,6 +80,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
+        {/* sambutan */}
         <div className="mt-10 rounded-3xl border border-border bg-surface p-8 md:p-10">
           <div className="flex items-start gap-4">
             <img
@@ -95,6 +99,7 @@ export default async function AboutPage() {
           </div>
         </div>
 
+        {/* fasilitas & ekskul */}
         <div className="mt-16 grid gap-10 md:grid-cols-2">
           <div>
             <div className="flex items-center gap-2">

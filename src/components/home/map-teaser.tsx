@@ -16,7 +16,6 @@ import type { LucideIcon } from "lucide-react";
 
 type Chip = { icon: LucideIcon; label: string; x: number; y: number; delay: number };
 
-/** Chip ikon lokasi penting sekolah — pengganti ilustrasi kotak-kotak. */
 const chips: Chip[] = [
   { icon: School, label: "Ruang Kelas", x: 6, y: 8, delay: 0 },
   { icon: FlaskConical, label: "Laboratorium", x: 58, y: 2, delay: 0.6 },
@@ -50,12 +49,10 @@ export function MapTeaser() {
             </Link>
           </div>
 
-          {/* Mini map bergaya ikon: chip lokasi + pin berdenyut + jejak jalur */}
           <div
             className="relative mx-auto aspect-[4/3] w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
             aria-hidden
           >
-            {/* Grid halus ala denah */}
             <div
               className="absolute inset-0 opacity-[0.35]"
               style={{
@@ -65,7 +62,6 @@ export function MapTeaser() {
               }}
             />
 
-            {/* Jejak jalur putus-putus dari tiap chip ke pin pusat */}
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
               {chips.map((c) => (
                 <path
@@ -80,7 +76,6 @@ export function MapTeaser() {
               ))}
             </svg>
 
-            {/* Pin pusat berdenyut */}
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <span className="absolute inline-flex h-10 w-10 -translate-x-1/4 -translate-y-1/4 rounded-full bg-emerald-400/30 motion-safe:animate-ping" />
               <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-emerald-400 text-ink shadow-lg shadow-emerald-400/30">
@@ -88,7 +83,6 @@ export function MapTeaser() {
               </span>
             </span>
 
-            {/* Chip ikon lokasi, mengapung pelan */}
             {chips.map((c) => (
               <motion.span
                 key={c.label}

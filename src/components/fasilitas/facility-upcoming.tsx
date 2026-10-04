@@ -11,11 +11,6 @@ function todayIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/**
- * Daftar pemesanan terdekat untuk satu fasilitas — menampilkan siapa,
- * kapan, dan untuk apa fasilitas akan dipakai. Data diambil server-side
- * dari Strapi lalu dikirim sebagai prop.
- */
 export function FacilityUpcoming({ slug, bookings }: { slug: string; bookings: FacilityBooking[] }) {
   const upcoming = useMemo(() => {
     const today = todayIso();

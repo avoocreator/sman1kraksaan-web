@@ -7,15 +7,11 @@ import { SchoolRoom } from "@/types";
 import { PanoramaViewer } from "@/components/explore/panorama-viewer";
 
 export function RoomPopup({ room, onClose }: { room: SchoolRoom | null; onClose: () => void }) {
-  // Foto bisa gagal dimuat (belum ada file) — tampilkan fallback rapi.
   const [imgError, setImgError] = useState(false);
   const [imgRoom, setImgRoom] = useState<SchoolRoom | null>(room);
-  // Ruangan yang fotonya dibuka mode 360°.
   const [panoRoom, setPanoRoom] = useState<SchoolRoom | null>(null);
   const showFallback = !room?.photo || (imgError && imgRoom === room);
 
-  // Reset status gagal gambar saat ruangan berganti (pola resmi React:
-  // menyesuaikan state saat render, bukan di dalam useEffect).
   if (imgRoom !== room) {
     setImgRoom(room);
     setImgError(false);
@@ -66,8 +62,6 @@ export function RoomPopup({ room, onClose }: { room: SchoolRoom | null; onClose:
                 <h3 className="text-lg font-bold text-ink">{room.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{room.description}</p>
 
-                {/* Tombol 360° SELALU tampil — redup + tak bisa diklik bila
-                    ruangan belum punya foto panorama di CMS (permintaan user). */}
                 <button
                   onClick={() => room.panorama && setPanoRoom(room)}
                   disabled={!room.panorama}
@@ -92,7 +86,6 @@ export function RoomPopup({ room, onClose }: { room: SchoolRoom | null; onClose:
         )}
       </AnimatePresence>
 
-      {/* Penampil photo sphere layar penuh */}
       <PanoramaViewer room={panoRoom} onClose={() => setPanoRoom(null)} />
     </>
   );

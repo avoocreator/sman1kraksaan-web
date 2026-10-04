@@ -1,10 +1,5 @@
 import { Facility } from "@/types";
 
-/**
- * Data fasilitas sekolah yang dapat dipesan.
- * Daftar ruangan mengacu pada data peta sekolah (school-map.ts) —
- * hanya ruangan yang memang dapat dipinjam/dipesan yang dimasukkan.
- */
 export const facilities: Facility[] = [
   {
     slug: "aula",

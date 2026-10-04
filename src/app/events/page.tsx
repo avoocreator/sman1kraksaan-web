@@ -4,14 +4,12 @@ import { EventsCalendar } from "@/components/events/events-calendar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { todayJakarta } from "@/lib/utils";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = { title: "Agenda", description: "Kegiatan dan agenda sekolah SMAN 1 Kraksaan." };
 
 export default async function EventsPage() {
   const events = await getEvents();
-  // "Hari ini" dihitung di server (WIB) lalu diteruskan ke komponen client
-  // supaya highlight agenda hari ini konsisten antara HTML & hydration.
   const today = todayJakarta();
   return (
     <div className="container-page py-14 md:py-20">

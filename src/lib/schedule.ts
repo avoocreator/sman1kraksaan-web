@@ -11,14 +11,12 @@ const t = (s: string) => {
 export const fmt = (m: number) =>
   `${String(Math.floor(m / 60)).padStart(2, "0")}.${String(m % 60).padStart(2, "0")}`;
 
-// Jam pelajaran ke-1 sampai 11 (istirahat & ishoma disisipkan terpisah)
 export const SLOTS = [
   ["7:00", "7:40"], ["7:40", "8:20"], ["8:20", "9:00"], ["9:00", "9:40"],
   ["9:55", "10:35"], ["10:35", "11:15"], ["11:15", "11:55"],
   ["12:40", "13:20"], ["13:20", "13:55"], ["13:55", "14:30"], ["14:30", "15:05"],
 ].map(([a, b]) => ({ from: t(a), to: t(b) }));
 
-/** "07.20" / "7:20" -> nomor slot jam ke- (1-11). null kalau di luar jam sekolah. */
 export function timeToSlot(time: string): number | null {
   const match = time.match(/(\d{1,2})[.:](\d{2})/);
   if (!match) return null;
@@ -27,7 +25,6 @@ export function timeToSlot(time: string): number | null {
   return idx >= 0 ? idx + 1 : null;
 }
 
-// Jeda yang muncul setelah jam ke-4 dan ke-7
 const BREAKS: Record<number, { label: string; from: number; to: number }> = {
   4: { label: "Istirahat", from: t("9:40"), to: t("9:55") },
   7: { label: "Ishoma", from: t("11:55"), to: t("12:40") },
@@ -37,13 +34,11 @@ const segEnd = (s: number) => (s <= 4 ? 4 : s <= 7 ? 7 : 11);
 
 const title = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 
-/** Dataset jadwal mentah yang bisa di-serialize antara server dan client. */
 export type RawSchedule = {
   classes: string[];
   lessons: [number, number, number, number, string, string][];
 };
 
-/** Deretan fungsi & data jadwal yang dipakai komponen via useSchedule(). */
 export type Schedule = {
   classes: ClassInfo[];
   lessons: Lesson[];
@@ -57,7 +52,6 @@ export type Schedule = {
   scheduleDay: (now: { day: number } | null) => number;
 };
 
-// Nama mapel & warna. Cek ulang JEP, BJ, KKA dan TL dengan pihak sekolah.
 const SUBJECTS: Record<string, [string, number]> = {
   MTK: ["Matematika", 220], FIS: ["Fisika", 250], KIM: ["Kimia", 280],
   BIO: ["Biologi", 140], BIN: ["Bahasa Indonesia", 355], BIG: ["Bahasa Inggris", 22],
@@ -92,11 +86,9 @@ export function wibNow() {
   return { day, min: (Number(get("hour")) % 24) * 60 + Number(get("minute")) };
 }
 
-// Akhir pekan ditampilkan sebagai Senin
 export const scheduleDay = (now: { day: number } | null) =>
   now && now.day >= 1 && now.day <= 5 ? now.day : 1;
 
-/** Bangun instance jadwal lengkap dari dataset mentah (Strapi atau JSON statis). */
 export function buildSchedule(raw: RawSchedule): Schedule {
   const classes: ClassInfo[] = (raw.classes ?? []).map((name, idx) => {
     const [level, ...rest] = name.split(" ");
@@ -153,5 +145,4 @@ export function buildSchedule(raw: RawSchedule): Schedule {
   };
 }
 
-/** Jadwal bawaan: JSON statis di repo (fallback kalau Strapi kosong). */
 export const staticSchedule = buildSchedule(rawStatic as unknown as RawSchedule);

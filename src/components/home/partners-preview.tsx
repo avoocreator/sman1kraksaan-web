@@ -5,16 +5,11 @@ import { PartnerLogo } from "@/components/ui/partner-logo";
 
 export type PartnerItem = {
   name: string;
-  type: string; // Universitas, Lembaga, Komunitas, Instansi, dst
-  note: string; // bentuk kerja samanya
-  logo?: string; // URL logo dari field media Strapi (opsional)
+  type: string;
+  note: string;
+  logo?: string;
 };
 
-/**
- * Preview mitra di beranda — logo jadi bintang utama kartu: area putih
- * besar di atas supaya pengunjung langsung mengenali mitra dari logonya,
- * tanpa perlu membaca teks.
- */
 export function PartnersPreview({ items = [] }: { items?: PartnerItem[] }) {
   return (
     <section aria-labelledby="mitra-beranda" className="py-16 sm:py-20">
@@ -54,7 +49,6 @@ export function PartnersPreview({ items = [] }: { items?: PartnerItem[] }) {
                 key={p.name}
                 className="group overflow-hidden rounded-2xl border border-border bg-surface transition-shadow hover:shadow-lg hover:shadow-ink/5"
               >
-                {/* Panggung logo: putih polos, logo tampil utuh setinggi mungkin */}
                 <div className="flex h-28 items-center justify-center border-b border-border/70 bg-white px-6">
                   <PartnerLogo name={p.name} logo={p.logo} className="h-20 w-full" />
                 </div>

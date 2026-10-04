@@ -10,7 +10,6 @@ export function CompassControl() {
         const y2 = 60 - 46 * Math.cos(rad);
         return <line key={a} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#D9CFA0" strokeWidth="2" />;
       })}
-      {/* jarum */}
       <polygon points="60,16 68,60 60,60 52,60" fill="#EB662B" />
       <polygon points="60,104 68,60 60,60 52,60" fill="#2E4A54" />
       <circle cx="60" cy="60" r="5" fill="#FFFDF5" stroke="#0F2A33" strokeWidth="2" />

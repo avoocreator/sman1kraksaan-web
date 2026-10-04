@@ -1,11 +1,4 @@
-/**
- * Tes integrasi alur pemesanan fasilitas + penghitung kunjungan
- * terhadap MOCK Strapi (tanpa menyentuh CMS produksi).
- *
- * Jalankan: bun scripts/test-bookings-visits.ts
- */
 
-// Env harus diset SEBELUM import modul lib (strapi.ts membaca env saat load).
 process.env.STRAPI_URL = "http://127.0.0.1:4599";
 process.env.STRAPI_TOKEN = "test-read";
 process.env.STRAPI_WRITE_TOKEN = "test-write";
@@ -86,7 +79,6 @@ ok("slot bebas pada hari sama lolos", /^FSV-\d{4}-\d{4}$/.test(b2.id));
 
 console.log("\n== Pemesanan: bentrokan dengan yang disetujui ==");
 
-// Setujui b1 langsung di mock (meniru admin yang mengubah status di Strapi).
 const fbRow = (await (await fetch("http://127.0.0.1:4599/api/facility-bookings", {
   headers: { Authorization: "Bearer test-read" },
 })).json()).data.find((r) => r.documentId !== undefined);
@@ -95,8 +87,6 @@ await fetch(`http://127.0.0.1:4599/api/facility-bookings/${fbRow.documentId}`, {
   headers: { Authorization: "Bearer test-write", "Content-Type": "application/json" },
   body: JSON.stringify({ data: { status: "Disetujui" } }),
 });
-// Cache revalidate bisa menyimpan daftar lama — paksa dengan kode beda supaya
-// pembacaan berikutnya tetap mentok cache; di sini cukup tunggu sebentar.
 await new Promise((r) => setTimeout(r, 50));
 
 let clashMsg = "";
@@ -119,7 +109,6 @@ eq("aktivitas dalam 1 jam = kunjungan sama", await visits.getTotalVisits(), 1);
 await visits.recordVisit("198.51.100.7");
 eq("IP berbeda = kunjungan baru", await visits.getTotalVisits(), 2);
 
-// Telanjangi sesi IP pertama: mundurkan lastActiveAt 2 jam (meniru idle > 1 jam).
 const vlRows = (await (await fetch("http://127.0.0.1:4599/api/visit-logs", {
   headers: { Authorization: "Bearer test-read" },
 })).json()).data;
@@ -136,7 +125,6 @@ eq("aktivitas berikutnya tetap kunjungan sama", await visits.getTotalVisits(), 3
 
 console.log("\n== Ketahanan ==");
 
-// Token tulis salah → createBooking gagal jelas, bukan diam-diam.
 process.env.STRAPI_WRITE_TOKEN = "salah";
 let wroteFail = false;
 try {
@@ -147,8 +135,6 @@ try {
 ok("token tulis salah → gagal jelas", wroteFail);
 process.env.STRAPI_WRITE_TOKEN = "test-write";
 
-// CMS down → pembacaan jatuh ke data contoh. Catatan: BASE di strapi.ts
-// terbaca saat modul dimuat, jadi matikan servernya (bukan ganti env).
 server.stop(true);
 const fallback = await fasilitas.getBookings();
 eq("CMS down → fallback seed", fallback.length, seedBookings.length);

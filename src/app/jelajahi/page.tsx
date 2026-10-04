@@ -10,8 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function JelajahiPage() {
-  // Ruangan dari Strapi (content type `jelajahis`); kalau belum ada,
-  // data peta bawaan repo yang dipakai.
   const { floor1, floor2 } = await getSchoolRooms();
 
   return <JelajahiView floor1Rooms={floor1} floor2Rooms={floor2} />;

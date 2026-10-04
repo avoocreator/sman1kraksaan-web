@@ -1,34 +1,7 @@
-/**
- * Konten halaman "Tentang Kami" dari Strapi single type `about`.
- *
- * Prinsip: SEMUA field punya nilai cadangan (fallback) yang sama dengan isi
- * hardcode sebelumnya — jadi situs tidak pernah rusak walau CMS kosong,
- * field belum dibuat, atau Strapi sedang tidak terjangkau.
- *
- * Field CMS yang dibaca (nama fleksibel, besar/kecil huruf diabaikan):
- *   title             Text        — judul H1 (opsional)
- *   decription        Rich text   — paragraf pengantar "Mengenal sekolah"
- *                                 (mengikuti nama field yang sudah ada, typo tetap dibaca)
- *   schoolPhoto       Media       — foto gedung sekolah di samping "Sejarah Singkat"
- *                                 (nama field yang dibuat user; alias lama tetap dibaca:
- *                                 media / heroImage / gambar / fotoSekolah / fotoGedung)
- *   history           Rich text   — sejarah singkat
- *   vision            Text        — visi
- *   mission           Text        — misi, SATU MISI PER BARIS
- *   facilitiesList    Text        — fasilitas, SATU PER BARIS (opsional;
- *                                 kalau kosong dipakai nama dari CT `facilities`)
- *   extracurriculars  Text        — ekskul, SATU PER BARIS
- *   principalName     Text        — nama kepala sekolah
- *   principalMessage  Rich text   — isi sambutan kepala sekolah
- *   principalPhoto    Media       — foto kepala sekolah
- */
 import { strapiSingle, strapiList, pick, txt, mediaUrl, blocksToParagraphs, blocksToText } from "@/lib/strapi";
 import type { StrapiRow } from "@/lib/strapi";
 
-/* ------------------------------------------------------------------ */
-/* Nilai cadangan = isi hardcode lama                                   */
-/* ------------------------------------------------------------------ */
-
+// fallback
 export const ABOUT_FALLBACK = {
   heading: "Mengenal SMAN 1 Kraksaan",
   intro:
@@ -71,13 +44,6 @@ const FALLBACK_EXTRACURRICULARS = [
 
 export const PRINCIPAL_ROLE = "Kepala SMAN 1 Kraksaan";
 
-/* ------------------------------------------------------------------ */
-/* Util kecil                                                           */
-/* ------------------------------------------------------------------ */
-
-/** Teks multiline → daftar item (SATU PER BARIS, koma TIDAK dipakai pemisah
- *  karena banyak kalimat mengandung koma). Kalau field ternyata Rich text
- *  (Blocks), setiap blok paragraf dianggap satu item. */
 function textItems(v: unknown): string[] {
   if (Array.isArray(v)) {
     const out = (v as Array<Record<string, unknown>>)
@@ -92,7 +58,6 @@ function textItems(v: unknown): string[] {
     .filter(Boolean);
 }
 
-/** Rich text (Blocks) / string → daftar paragraf. */
 function paragraphs(v: unknown): string[] {
   if (typeof v === "string") {
     return v.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -100,10 +65,7 @@ function paragraphs(v: unknown): string[] {
   return blocksToParagraphs(v);
 }
 
-/* ------------------------------------------------------------------ */
-/* Tipe hasil                                                           */
-/* ------------------------------------------------------------------ */
-
+// tipe
 export type AboutContent = {
   heading: string;
   intro: string[];
@@ -117,13 +79,8 @@ export type AboutContent = {
   principalRole: string;
   principalMessage: string[];
   principalPhoto?: string;
-  /** true kalau ada cukup data dari Strapi (min. intro/history terisi). */
   fromCms: boolean;
 };
-
-/* ------------------------------------------------------------------ */
-/* Ambil konten                                                         */
-/* ------------------------------------------------------------------ */
 
 async function facilityNamesFromCt(revalidate: number): Promise<string[]> {
   const rows = await strapiList(["facilities", "facility"], revalidate);
@@ -134,10 +91,10 @@ async function facilityNamesFromCt(revalidate: number): Promise<string[]> {
   return [...new Set(names)].sort((a, b) => a.localeCompare(b, "id"));
 }
 
+// ambil konten
 export async function getAboutContent(revalidate = 120): Promise<AboutContent> {
   const about = await strapiSingle<StrapiRow>(["about", "about-page", "tentang"], revalidate);
 
-  // Fasilitas: field teks di About → CT facilities → fallback statis.
   let facilities = textItems(pick(about ?? {}, "facilitiesList", "facilities", "daftarFasilitas"));
   if (facilities.length === 0) facilities = await facilityNamesFromCt(revalidate);
   if (facilities.length === 0) facilities = FALLBACK_FACILITIES;

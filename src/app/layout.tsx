@@ -6,11 +6,6 @@ import AiFloatingButton from "@/components/ai/ai-floating-button";
 import { VisitTracker } from "@/components/visit-tracker";
 import { getTotalVisits } from "@/lib/visits";
 
-// Font di-host sendiri (src/app/fonts) lewat next/font/local — TIDAK lagi
-// mengunduh dari fonts.googleapis.com saat build/dev. Dulu pakai next/font/google
-// dan bikin build gagal di jaringan yang tidak bisa menjangkau Google
-// ("Module not found: Can't resolve '@vercel/turbopack-next/internal/font/google/font'").
-// File .woff2 variabel (satu file untuk semua ketebalan) subset latin.
 import localFont from "next/font/local";
 
 const plusJakarta = localFont({
@@ -20,8 +15,6 @@ const plusJakarta = localFont({
   display: "swap",
 });
 
-// Font display untuk judul (h1-h6) — karakternya lebih berkarakter daripada
-// font body, dipakai lewat utilitas `font-display` di Tailwind.
 const bricolage = localFont({
   src: "./fonts/BricolageGrotesque-Variable-latin.woff2",
   variable: "--font-bricolage",
@@ -48,7 +41,6 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Total kunjungan untuk footer (cache 5 menit; null = CT/token belum siap → widget tampil 0).
   const totalVisits = await getTotalVisits();
 
   return (

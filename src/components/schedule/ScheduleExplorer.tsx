@@ -46,7 +46,6 @@ export default function ScheduleExplorer() {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[19rem_minmax(0,1fr)] lg:gap-12">
-      {/* Pemilih */}
       <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
         <div
           role="group"
@@ -138,7 +137,6 @@ export default function ScheduleExplorer() {
         )}
       </aside>
 
-      {/* Jadwal */}
       <section aria-live="polite" className="min-w-0">
         <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
           {mode === "kelas" ? cls.label : tch.name}

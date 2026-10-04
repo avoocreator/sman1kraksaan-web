@@ -1,12 +1,3 @@
-/**
- * API route penghitung kunjungan.
- *
- * POST /api/visit — dipanggil client (VisitTracker) setiap kali halaman
- * dibuka. Server mengenali pengunjung dari IP (x-forwarded-for), lalu:
- *   - sesi masih hidup (aktivitas < 60 menit) → perbarui denyutnya saja;
- *   - selain itu → catat kunjungan baru.
- * Respons selalu 204 agar gagal/berhasil tidak perlu ditangani di client.
- */
 import { NextRequest, NextResponse } from "next/server";
 import { clientIpFrom, recordVisit } from "@/lib/visits";
 

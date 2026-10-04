@@ -11,14 +11,12 @@ interface NewsDepthCarouselProps {
   articles: NewsArticle[];
 }
 
-// Geser sekian px baru dianggap pindah slide.
 const SWIPE_THRESHOLD = 40;
 
 export function NewsDepthCarousel({
   articles,
 }: NewsDepthCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  // Drag/swipe: dragPx mengikuti jari, paused menghentikan autoplay.
   const [dragPx, setDragPx] = useState(0);
   const [paused, setPaused] = useState(false);
   const drag = useRef({ startX: 0, active: false, captured: false });
@@ -73,9 +71,7 @@ export function NewsDepthCarousel({
       drag.current.captured = true;
       try {
         (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-      } catch {
-        /* pointer mungkin sudah lepas */
-      }
+      } catch {}
     }
     if (drag.current.captured) {
       if (Math.abs(dx) > 8) draggedRef.current = true;
@@ -92,7 +88,7 @@ export function NewsDepthCarousel({
     if (drag.current.captured && Math.abs(dx) >= SWIPE_THRESHOLD) {
       setActiveIndex((current) =>
         dx < 0
-          ? (current + 1) % items.length // geser ke kiri → berita berikutnya
+          ? (current + 1) % items.length
           : (current - 1 + items.length) % items.length, // geser ke kanan → sebelumnya
       );
     }
@@ -108,7 +104,6 @@ export function NewsDepthCarousel({
       onPointerCancel={endDrag}
       onDragStart={(e) => e.preventDefault()}
       onClickCapture={(e) => {
-        // Setelah menyeret, jangan anggap sebagai klik kartu.
         if (draggedRef.current) {
           e.preventDefault();
           e.stopPropagation();
@@ -169,7 +164,6 @@ export function NewsDepthCarousel({
             }
           >
             <article className="overflow-hidden rounded-[20px] border border-border bg-surface shadow-2xl shadow-ink/10">
-              {/* Foto berita dari CMS umumnya rasio 16:9 (seperti thumbnail video) */}
               <div className="relative aspect-video overflow-hidden">
                 <img
                   src={article.cover}
@@ -205,9 +199,7 @@ export function NewsDepthCarousel({
         );
       })}
 
-      {/* Indicator + Lihat semua */}
       <div className="absolute inset-x-0 -bottom-10 z-30 h-5">
-        {/* Dots tetap tepat di tengah carousel */}
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5">
           {items.map((article, index) => (
             <button
@@ -224,7 +216,6 @@ export function NewsDepthCarousel({
           ))}
         </div>
 
-        {/* Lihat semua tetap di sisi kanan carousel */}
         <a
           href="/news"
           className="absolute right-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-xs font-semibold text-orange transition-colors hover:text-orange-dark"

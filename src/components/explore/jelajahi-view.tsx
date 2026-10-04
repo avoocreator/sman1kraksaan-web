@@ -7,10 +7,6 @@ import { CompassControl } from "@/components/explore/compass-control";
 import { SchoolRoom } from "@/types";
 import { cn } from "@/lib/utils";
 
-/**
- * Tampilan peta sekolah. Data ruangan dikirim dari server (Strapi
- * `jelajahis` kalau sudah diisi, kalau belum data bawaan repo).
- */
 export default function JelajahiView({
   floor1Rooms,
   floor2Rooms,

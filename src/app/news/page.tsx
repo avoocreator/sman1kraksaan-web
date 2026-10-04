@@ -3,7 +3,7 @@ import { getNews } from "@/lib/api";
 import { NewsExplorer } from "@/components/news/news-explorer";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = { title: "Berita", description: "Kabar dan informasi terbaru dari SMAN 1 Kraksaan." };
 

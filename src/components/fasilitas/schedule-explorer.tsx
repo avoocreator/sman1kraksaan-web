@@ -19,7 +19,6 @@ function todayIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/** ISO "YYYY-MM-DD" dari komponen tahun/bulan(1-12)/tanggal. */
 function isoOf(y: number, m: number, d: number) {
   return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
@@ -27,15 +26,11 @@ function isoOf(y: number, m: number, d: number) {
 const WEEKDAYS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 const monthLabelFmt = new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" });
 
-/**
- * Matriks kalender bulanan (minggu dimulai Senin, konvensi Indonesia).
- * Mengembalikan array minggu; sel berisi ISO date atau null (luar bulan).
- */
 function monthMatrix(anchorIso: string): (string | null)[][] {
   const d = new Date(anchorIso + "T00:00:00");
   const year = d.getFullYear();
   const month = d.getMonth();
-  const offset = (new Date(year, month, 1).getDay() + 6) % 7; // Senin = 0
+  const offset = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   const cells: (string | null)[] = Array(offset).fill(null);
@@ -54,7 +49,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
   const [facilityFilter, setFacilityFilter] = useState("semua");
   const [includePending, setIncludePending] = useState(true);
 
-  /** Pemesanan pada tanggal terpilih (mengikuti filter). */
   const visible = useMemo(
     () =>
       bookings
@@ -70,7 +64,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
     [bookings, selected, facilityFilter, includePending]
   );
 
-  /** Dikelompokkan per fasilitas → "fasilitas apa saja yang dibooking". */
   const groups = useMemo(() => {
     const byFacility = new Map<string, FacilityBooking[]>();
     for (const b of visible) {
@@ -83,7 +76,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
       .map((f) => ({ facility: f, items: byFacility.get(f.slug)! }));
   }, [visible]);
 
-  /** Jumlah pemesanan per tanggal (untuk penanda kalender), selalu non-Ditolak. */
   const countByDate = useMemo(() => {
     const map: Record<string, number> = {};
     for (const b of bookings) {
@@ -119,10 +111,9 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,370px)_minmax(0,1fr)] lg:items-start">
-      {/* ===== KIRI: Kalender bulanan ===== */}
+      {/* kalender */}
       <div className="lg:sticky lg:top-24">
         <div className="rounded-3xl border border-border bg-surface p-4 shadow-lg shadow-ink/5 sm:p-5">
-          {/* Navigasi bulan */}
           <div className="flex items-center justify-between gap-2">
             <p className="text-base font-extrabold text-ink sm:text-lg">{monthLabel}</p>
             <div className="flex items-center gap-1.5">
@@ -154,7 +145,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
             </div>
           </div>
 
-          {/* Header hari */}
           <div className="mt-4 grid grid-cols-7 gap-1 sm:gap-1.5">
             {WEEKDAYS.map((w) => (
               <p
@@ -166,7 +156,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
             ))}
           </div>
 
-          {/* Grid tanggal */}
           <div className="mt-1.5 space-y-1 sm:space-y-1.5">
             {weeks.map((week, wi) => (
               <div key={wi} className="grid grid-cols-7 gap-1 sm:gap-1.5">
@@ -216,7 +205,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
             ))}
           </div>
 
-          {/* Legenda + ringkasan bulan */}
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-border pt-3.5 text-[11px] text-ink-soft">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-orange" /> Ada pemesanan
@@ -231,9 +219,8 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
         </div>
       </div>
 
-      {/* ===== KANAN: Daftar fasilitas terbooking ===== */}
       <div className="min-w-0 space-y-4">
-        {/* Tanggal terpilih + filter — kontras biru brand agar beda dari kartu daftar */}
+        {/* daftar booking */}
         <div className="rounded-3xl bg-blue p-4 text-white shadow-lg shadow-blue/25 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -266,7 +253,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
             </div>
           </div>
 
-          {/* Ringkasan */}
           <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/15 pt-3.5">
             <span className="rounded-full bg-orange px-3 py-1 text-[11px] font-bold text-ink">
               {visible.length} pemesanan
@@ -282,7 +268,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
           </div>
         </div>
 
-        {/* Daftar per fasilitas */}
         {visible.length === 0 ? (
           <EmptyState
             icon={CalendarCheck2}
@@ -298,7 +283,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
           <div className="space-y-4">
             {groups.map(({ facility, items }) => (
               <div key={facility.slug} className="overflow-hidden rounded-3xl border border-border bg-surface">
-                {/* Header fasilitas */}
                 <div className="flex items-center gap-3 border-b border-border bg-surface-alt/50 px-4 py-3">
                   <img
                     src={facility.image}
@@ -321,12 +305,10 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
                   </span>
                 </div>
 
-                {/* Daftar pemesanan fasilitas ini */}
                 <ul className="divide-y divide-border">
                   {items.map((b) => (
                     <li key={b.id} className="px-4 py-3.5">
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-                        {/* Waktu */}
                         <div className="shrink-0 sm:w-24">
                           <p className="flex items-center gap-1.5 text-base font-extrabold leading-none text-ink">
                             <Clock3 className="h-3.5 w-3.5 text-orange" /> {formatTime(b.startTime)}
@@ -334,7 +316,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
                           <p className="mt-1 text-[11px] text-muted">s.d. {formatTime(b.endTime)} WIB</p>
                         </div>
 
-                        {/* Siapa + untuk apa */}
                         <div className="min-w-0 flex-1">
                           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-ink">
                             {b.requesterName}
@@ -352,7 +333,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
                           </p>
                         </div>
 
-                        {/* Status */}
                         <div className="shrink-0 sm:pt-0.5">
                           <BookingStatusBadge status={b.status} />
                         </div>
@@ -363,7 +343,6 @@ export function ScheduleExplorer({ bookings }: { bookings: FacilityBooking[] }) 
               </div>
             ))}
 
-            {/* Pengingat */}
             <div className="rounded-2xl border border-dashed border-border bg-surface px-4 py-3.5 text-xs leading-relaxed text-ink-soft">
               <span className="flex items-start gap-2">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange" />

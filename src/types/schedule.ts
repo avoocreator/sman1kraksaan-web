@@ -1,8 +1,8 @@
 export type Lesson = {
   classIdx: number;
-  day: number; // 1 = Senin ... 5 = Jumat
-  start: number; // jam ke-
-  span: number; // jumlah jam berurutan
+  day: number;
+  start: number;
+  span: number;
   subject: string;
   teacher: string;
 };

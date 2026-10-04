@@ -5,7 +5,7 @@ import { ArrowLeft, Globe, CalendarClock } from "lucide-react";
 import { getPartner, getPartners } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 
-export const revalidate = 120; // refresh data Strapi
+export const revalidate = 120;
 
 export async function generateStaticParams() {
   const partners = await getPartners();

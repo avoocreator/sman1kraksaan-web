@@ -38,7 +38,6 @@ export default function ScheduleWidget() {
     );
   }
 
-  // Daftar "selanjutnya": pelajaran setelah yang sedang berlangsung
   const upcoming = s.lessons
     .filter((e) => nowMin === null || e.from > nowMin)
     .slice(nowMin === null ? 1 : 0, nowMin === null ? 5 : 4);

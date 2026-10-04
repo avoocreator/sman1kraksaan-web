@@ -12,10 +12,6 @@ import { getAccreditationPdf } from "@/lib/api";
 export const revalidate = 60;
 
 export default async function Home() {
-  // Urutan beranda (mode umum): Hero → Kenapa di sini (program) → Prestasi →
-  // Alumni → Mitra → Jelajahi peta virtual → PPDB sebagai penutup.
-  // Widget jadwal pelajaran kini hidup di Portal Siswa (/siswa), agenda di
-  // halaman /events, dan asisten AI tetap bisa diakses dari tombol mengambang.
   const { heroArticles, achievements, programItems, alumniItems, partnerItems } =
     await getHomeData();
   const [accreditationPdf, suggestions] = await Promise.all([

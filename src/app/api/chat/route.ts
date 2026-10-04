@@ -69,7 +69,6 @@ const defaultPrompt =
   "Jangan menyatakan telah melakukan tindakan yang sebenarnya tidak dilakukan.";
 const configTtl = 5 * 60_000;
 let configCache: { at: number; value: AiConfig } | undefined;
-// ponytail: in-memory per-process counter, use Redis/edge limiter if running multiple instances
 const hits = new Map<string, { count: number; resetAt: number }>();
 
 function isRateLimited(request: Request, limit: number | null | undefined) {

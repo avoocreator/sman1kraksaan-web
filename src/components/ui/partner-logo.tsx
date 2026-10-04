@@ -10,12 +10,6 @@ const initialsOf = (name: string) =>
     .map((w) => w[0]?.toUpperCase())
     .join("");
 
-/**
- * Logo mitra: tampilkan gambar logo dari CMS seluas mungkin supaya orang
- * langsung mengenali "oh, sekolah ini kerja sama dengan X" hanya dari logonya.
- * Kalau URL logo rusak/gagal dimuat, otomatis jatuh ke kotak inisial —
- * tidak ada lagi kotak kecil berisi teks alt yang terpotong ("Log…").
- */
 export function PartnerLogo({
   name,
   logo,
@@ -23,7 +17,6 @@ export function PartnerLogo({
 }: {
   name: string;
   logo?: string;
-  /** Ukuran KOTAK pembungkus logo (bukan ukuran gambarnya). */
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);

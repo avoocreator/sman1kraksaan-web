@@ -18,7 +18,7 @@ export interface Alumnus {
   name: string;
   photo: string;
   graduationYear: number;
-  destination: string; // university/company
+  destination: string;
   role: string;
   location: string;
   category: "Pendidikan Tinggi" | "Karier Profesional" | "Wirausaha";
@@ -88,7 +88,6 @@ export interface SchoolRoom {
   category: RoomCategory;
   description: string;
   photo: string;
-  /** URL foto panorama 360° (equirectangular 2:1); undefined = ruangan belum punya. */
   panorama?: string;
   x: number;
   y: number;
@@ -97,10 +96,6 @@ export interface SchoolRoom {
   fontSize?: number;
   vertical?: boolean;
 }
-
-/* ------------------------------------------------------------------ */
-/* Fasilitas & pemesanan (halaman /fasilitas)                          */
-/* ------------------------------------------------------------------ */
 
 export type FacilityCategory =
   | "Aula & Serbaguna"
@@ -120,9 +115,8 @@ export interface Facility {
   capacity: number;
   location: string;
   amenities: string[];
-  /** Jam operasional — pengguna bebas menentukan jam mulai & selesai di dalam rentang ini. */
-  openTime: string; // "07:00"
-  closeTime: string; // "21:00"
+  openTime: string;
+  closeTime: string;
   pic: string;
   note?: string;
 }
@@ -131,19 +125,19 @@ export type BookingStatus = "Menunggu" | "Disetujui" | "Ditolak" | "Selesai";
 export type RequesterType = "Siswa" | "Guru" | "Ekstrakurikuler" | "Organisasi" | "Umum";
 
 export interface FacilityBooking {
-  id: string; // kode pemesanan, contoh: FSV-2026-0001
+  id: string;
   facilitySlug: string;
   facilityName: string;
   requesterName: string;
   requesterType: RequesterType;
   organization: string;
   contact: string;
-  date: string; // ISO yyyy-mm-dd
-  startTime: string; // "13:00" — bebas diatur pengguna
-  endTime: string; // "16:00" — bebas diatur pengguna
+  date: string;
+  startTime: string;
+  endTime: string;
   participants: number;
   purpose: string;
   status: BookingStatus;
   adminNote?: string;
-  createdAt: string; // ISO datetime
+  createdAt: string;
 }

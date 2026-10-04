@@ -3,7 +3,7 @@ import { getPrograms } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = { title: "Program Pendidikan", description: "Program peminatan dan pengembangan minat siswa SMAN 1 Kraksaan." };
 

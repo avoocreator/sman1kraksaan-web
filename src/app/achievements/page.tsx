@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getAchievements } from "@/lib/api";
 import { AchievementsExplorer } from "@/components/achievements/achievements-explorer";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Prestasi",

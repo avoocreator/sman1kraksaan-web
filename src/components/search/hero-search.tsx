@@ -24,7 +24,6 @@ const CATEGORY_ICON: Record<SearchCategory, LucideIcon> = {
   Program: BookOpen,
 };
 
-/** Bold potongan judul yang cocok dengan kueri (case-insensitive). */
 function Highlight({ text, query }: { text: string; query: string }) {
   const tokens = query
     .toLowerCase()
@@ -42,22 +41,11 @@ function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 
-/**
- * Search bar beranda dengan REKOMENDASI.
- *
- * - Fokus (belum mengetik): tampil ±5 konten terkurasi — agenda hari ini,
- *   berita terbaru, prestasi terbaru (diambil dari server, ISR 60 detik).
- * - Saat mengetik: saran langsung terfilter dengan pencocokan longgar
- *   (fuzzy), maksimal 5.
- * - Keyboard: ↑↓ memilih, Enter membuka saran atau ke halaman pencarian,
- *   Esc menutup. Tanpa JS pun form tetap submit ke /search?q=…
- */
 export function HeroSearch({
   suggestions,
   className = "",
 }: {
   suggestions: SearchItem[];
-  /** Kelas ukuran untuk menyelaraskan dengan tombol di sampingnya. */
   className?: string;
 }) {
   const router = useRouter();
@@ -67,7 +55,6 @@ export function HeroSearch({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
 
-  // Tutup dropdown saat klik di luar komponen.
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {

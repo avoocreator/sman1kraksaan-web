@@ -12,7 +12,6 @@ const monthShort = ["JAN","FEB","MAR","APR","MEI","JUN","JUL","AGU","SEP","OKT",
 export function EventsCalendar({ events, today }: { events: SchoolEvent[]; today: string }) {
   const [tab, setTab] = useState<"Akan Datang" | "Selesai">("Akan Datang");
   const filtered = events.filter((e) => e.status === tab).sort((a, b) => {
-    // Tab "Akan Datang": terdekat dulu. Tab "Selesai": yang terakhir lewat dulu.
     return tab === "Akan Datang" ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date);
   });
   const todays = events
@@ -21,7 +20,6 @@ export function EventsCalendar({ events, today }: { events: SchoolEvent[]; today
 
   return (
     <div>
-      {/* Sorotan agenda hari ini — tampil otomatis kalau ada agenda bertanggal hari ini */}
       {todays.length > 0 && (
         <div className="relative mb-8 overflow-hidden rounded-3xl border border-blue/30 bg-gradient-to-br from-blue-soft via-surface to-surface p-5 shadow-lg shadow-blue/10 sm:p-6">
           <div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-blue/10 blur-2xl" />

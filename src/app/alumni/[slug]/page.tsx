@@ -5,7 +5,7 @@ import { ArrowLeft, Briefcase, MapPin, GraduationCap } from "lucide-react";
 import { getAlumnus, getAlumni } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 
-export const revalidate = 120; // refresh data Strapi
+export const revalidate = 120;
 
 export async function generateStaticParams() {
   const alumni = await getAlumni();

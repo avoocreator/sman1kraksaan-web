@@ -3,7 +3,7 @@ import { getAchievements, getAlumni, getNews, getEvents, getPrograms } from "@/l
 import { SearchExplorer } from "@/components/search/search-explorer";
 import type { SearchItem } from "@/types/search";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = { title: "Pencarian", description: "Cari prestasi, alumni, berita, agenda, dan program di satu tempat." };
 
@@ -26,8 +26,6 @@ export default async function SearchPage({
     ...programs.map((p) => ({ title: p.name, category: "Program" as const, href: `/programs`, description: p.focus })),
   ];
 
-  // "Paling dicari" — berita terbaru & unggulan sebagai contoh pencarian,
-  // dipakai saat kolom masih kosong.
   const popular: SearchItem[] = [...news]
     .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || b.publishedAt.localeCompare(a.publishedAt))
     .slice(0, 5)

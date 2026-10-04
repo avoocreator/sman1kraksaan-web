@@ -62,8 +62,6 @@ export function BookingForm() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<FacilityBooking | null>(null);
-  // Pemesanan yang sudah ada (dari Strapi via /api/bookings, tanpa kontak)
-  // — dipakai untuk deteksi bentrokan jadwal secara langsung.
   const [bookings, setBookings] = useState<FacilityBooking[]>([]);
 
   useEffect(() => {
@@ -84,7 +82,6 @@ export function BookingForm() {
     [facilitySlug]
   );
 
-  /** Deteksi bentrokan jadwal secara langsung saat pengguna mengatur waktu. */
   const conflicts = useMemo(() => {
     if (!date || !startTime || !endTime || startTime >= endTime) {
       return { approved: [] as FacilityBooking[], pending: [] as FacilityBooking[] };
@@ -135,8 +132,6 @@ export function BookingForm() {
 
     setSubmitting(true);
     try {
-      // Pengajuan disimpan ke Strapi (via API route) — admin memverifikasi
-      // dari Strapi Content Manager, bukan lagi dari situs.
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -205,8 +200,8 @@ export function BookingForm() {
           <ClipboardCheck className="h-5 w-5 text-orange" /> Formulir Pemesanan
         </h2>
 
-        {/* Bagian 1: Fasilitas & waktu */}
         <div className="mt-7">
+          {/* fasilitas & waktu */}
           <SectionTitle icon={Building2}>Fasilitas &amp; Waktu Pemesanan</SectionTitle>
           <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -258,7 +253,6 @@ export function BookingForm() {
             </div>
           </div>
 
-          {/* Peringatan bentrok */}
           {conflicts.approved.length > 0 && (
             <p className="mt-4 flex items-start gap-2.5 rounded-xl bg-red-50 px-4 py-3 text-xs leading-relaxed text-red-600">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -288,8 +282,8 @@ export function BookingForm() {
 
         <hr className="my-7 border-border/70" />
 
-        {/* Bagian 2: Data pemesan */}
         <div>
+          {/* data pemesan */}
           <SectionTitle icon={ClipboardCheck}>Data Pemesan</SectionTitle>
           <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div>
@@ -338,8 +332,8 @@ export function BookingForm() {
 
         <hr className="my-7 border-border/70" />
 
-        {/* Bagian 3: Keperluan */}
         <div>
+          {/* keperluan */}
           <SectionTitle icon={Clock3}>Keperluan Pemesanan</SectionTitle>
           <div className="mt-4">
             <textarea
@@ -375,7 +369,6 @@ export function BookingForm() {
         </Button>
       </form>
 
-      {/* Ringkasan fasilitas */}
       <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
         <div className="overflow-hidden rounded-3xl border border-border bg-surface">
           <img src={facility.image} alt={facility.name} className="aspect-[16/9] w-full object-cover" />

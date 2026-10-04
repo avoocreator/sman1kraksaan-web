@@ -5,10 +5,6 @@ import { Download, ShieldCheck } from "lucide-react";
 import { accreditation } from "@/data/school-profile";
 import { cn } from "@/lib/utils";
 
-/**
- * Lencana akreditasi ringkas — dipakai di Navbar & Hero.
- * Variant "compact" untuk ruang sempit (navbar), "full" untuk hero/card.
- */
 export function AccreditationBadge({
   variant = "full",
   className,
@@ -57,7 +53,6 @@ export function AccreditationCertificateDownload({
   href,
 }: {
   className?: string;
-  /** URL PDF dari Strapi (single type `acreditation`). Kosong → fallback file statis. */
   href?: string;
 }) {
   return (
@@ -75,17 +70,11 @@ export function AccreditationCertificateDownload({
   );
 }
 
-/**
- * Kartu akreditasi yang sekaligus jadi tombol unduh (dipakai di Hero).
- * Satu klik di mana pun pada kartu → langsung mengunduh PDF sertifikat.
- * Ikon unduh di kanan sebagai penanda, tanpa tombol terpisah.
- */
 export function AccreditationDownloadCard({
   className,
   href,
 }: {
   className?: string;
-  /** URL PDF dari Strapi (single type `acreditation`). Kosong → fallback file statis. */
   href?: string;
 }) {
   return (

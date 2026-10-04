@@ -1,13 +1,5 @@
 import { FacilityBooking } from "@/types";
 
-/**
- * Data awal (seed) pemesanan fasilitas untuk prototype.
- * Pada implementasi produksi, data ini akan digantikan oleh
- * response REST API (mis. Hono + PostgreSQL seperti rencana repo).
- *
- * startTime & endTime bebas diatur pengguna (format HH:mm),
- * selama berada dalam jam operasional fasilitas terkait.
- */
 export const seedBookings: FacilityBooking[] = [
   {
     id: "FSV-2026-0001",

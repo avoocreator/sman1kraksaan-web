@@ -1,22 +1,10 @@
-/**
- * Data contoh (fallback) untuk Pengumuman Portal Siswa (/siswa).
- *
- * Sumber utama kini Strapi — content type `Pengumuman` (endpoint
- * /api/pengumumans, ditarik lewat getAnnouncements() di src/lib/api).
- * Kalau Strapi tidak terjangkau atau content type-nya belum dibuat,
- * data di file ini yang tampil. Urutan tampil: yang penting dulu,
- * lalu terbaru.
- *
- * Tanggal pakai format ISO (yyyy-mm-dd) dan ditampilkan dalam bahasa
- * Indonesia lewat helper di bawah.
- */
 export type Announcement = {
   id: string;
   title: string;
-  date: string; // ISO yyyy-mm-dd
+  date: string;
   category: "Akademik" | "PPDB" | "Kegiatan" | "Umum";
   body: string;
-  important?: boolean; // ditandai khusus kalau butuh perhatian segera
+  important?: boolean;
 };
 
 export const announcements: Announcement[] = [
@@ -80,14 +68,12 @@ export const announcements: Announcement[] = [
 
 const MONTHS_ID = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
-/** "2026-10-05" → "5 Okt 2026" */
 export function formatTanggal(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d) return iso;
   return `${d} ${MONTHS_ID[m - 1]} ${y}`;
 }
 
-/** "2026-10-05" → { day: "5", month: "Okt" } untuk blok tanggal di kartu */
 export function dateParts(iso: string): { day: string; month: string } {
   const [, m, d] = iso.split("-").map(Number);
   return { day: String(d ?? ""), month: MONTHS_ID[(m ?? 1) - 1] ?? "" };

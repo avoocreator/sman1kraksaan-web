@@ -1,28 +1,8 @@
-/**
- * Penghitung kunjungan situs (visitor counter) berbasis IP + interval istirahat.
- *
- * Mekanisme (sesuai keinginan admin):
- *   - Setiap pengunjung dikenali dari alamat IP-nya (di-hash, bukan disimpan
- *     mentah — lebih privat dan tetap bisa membedakan pengunjung).
- *   - Aktivitas apa pun (buka halaman mana pun) dalam rentang istirahat
- *     (60 menit) tetap dihitung SATU kunjungan.
- *   - Setelah tidak ada aktivitas ≥ 60 menit, kunjungan berikutnya dihitung
- *     kunjungan baru.
- *
- * Penyimpanan: Strapi content type `visit-logs` — satu entri = satu sesi
- * kunjungan (visitor = hash IP, startedAt, lastActiveAt). Total kunjungan =
- * jumlah seluruh entri (diambil dari meta.pagination.total — murah, tanpa
- * memuat semua baris). Karena ini butuh TULIS, dipakai STRAPI_WRITE_TOKEN
- * (lihat docs/STRAPI-INTEGRASI.md). Widget footer SELALU tampil; kalau
- * CT/token belum disetel angkanya 0, dan begitu Strapi siap angka berjalan
- * sendiri — situs tidak pernah rusak karena penghitung ini.
- */
 
 import { createHash } from "node:crypto";
 
 import type { StrapiRow } from "@/lib/strapi";
 
-/** Rentang istirahat (menit): aktivitas dalam rentang ini = kunjungan yang sama. */
 export const SESSION_MINUTES = 60;
 
 function strapiBase(): string | undefined {
@@ -37,16 +17,11 @@ function writeToken(): string | undefined {
   return process.env.STRAPI_WRITE_TOKEN?.trim() || process.env.STRAPI_TOKEN?.trim() || undefined;
 }
 
-/**
- * Hash IP agar tidak menyimpan alamat mentah. Garam tetap cukup untuk
- * keperluan ini (bukan data sensitif — hanya untuk membedakan pengunjung).
- */
 export function hashVisitor(ip: string): string {
   const salt = process.env.VISIT_SALT?.trim() || "sman1kraksaan-visit-v1";
   return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
 }
 
-/** IP klien dari header proxy (Vercel/Cloudflare) — IP pertama yang valid. */
 export function clientIpFrom(headers: Headers): string {
   const xff = headers.get("x-forwarded-for");
   if (xff) {
@@ -62,26 +37,12 @@ function minutesBetween(iso: string, now: number): number {
   return (now - t) / 60_000;
 }
 
-/** Jeda minimal antar tulisan ke Strapi per pengunjung (melindungi pool DB CMS). */
 const THROTTLE_MS = 5 * 60_000;
-// ponytail: memori per instance; kalau banyak instance, throttle jadi per-instance saja.
 const lastPing = new Map<string, number>();
-
-/* ------------------------------------------------------------------ */
-/* Adaptasi validasi Strapi (400) — WAJIB: nama field CT bisa beda      */
-/* (contoh nyata: CT user tak punya `startedAt` → 400 "Invalid key      */
-/* startedAt" → payload dibuang field-nya lalu dicoba lagi).            */
-/* ------------------------------------------------------------------ */
 
 type Validation = { invalid: string[]; missing: string[]; message: string };
 
-/**
- * Parsir body error Strapi → daftar field yang ditolak / yang wajib ada.
- * Menangani DUA bentuk error Strapi v5:
- *   1. { error: { details: { errors: [{ path: ["x"], message }] } } }
- *   2. { error: { message: "Invalid key x", details: { key: "x", path: null } } }
- *      (bentuk 2 inilah yang membuat versi lama menyerah — counter 0 selamanya)
- */
+// validasi
 function parseValidation(body: unknown): Validation {
   const invalid: string[] = [];
   const missing: string[] = [];
@@ -114,11 +75,7 @@ function parseValidation(body: unknown): Validation {
   return { invalid: [...new Set(invalid)], missing: [...new Set(missing)], message };
 }
 
-/**
- * POST/PUT dengan adaptasi otomatis: 400 → buang field asing / isi field
- * wajib yang diketahui, lalu coba lagi (maks 2 adaptasi).
- * 401/403 → log jelas soal izin token; gagal lain dicatat ke log server.
- */
+// tulis strapi
 async function mutateVisit(
   method: "POST" | "PUT",
   url: string,
@@ -183,10 +140,7 @@ async function mutateVisit(
   return false;
 }
 
-/**
- * Catat satu aktivitas kunjungan. Dipanggil API route /api/visit (POST).
- * Diam-diam no-op kalau Strapi tidak siap — penghitung bukan fitur kritis.
- */
+// pencatatan
 export async function recordVisit(ip: string | null): Promise<void> {
   const BASE = strapiBase();
   const token = writeToken();
@@ -199,7 +153,6 @@ export async function recordVisit(ip: string | null): Promise<void> {
   const nowIso = new Date(nowMs).toISOString();
 
   try {
-    // 1) Cari sesi aktif milik IP ini (lastActiveAt dalam rentang istirahat).
     const q = new URLSearchParams({
       "filters[visitor][$eq]": visitor,
       "sort[0]": "lastActiveAt:desc",
@@ -215,7 +168,6 @@ export async function recordVisit(ip: string | null): Promise<void> {
       const hit = json.data?.[0];
       const lastActive = txtOf(hit?.lastActiveAt) || txtOf(hit?.startedAt);
       if (hit?.documentId && lastActive && minutesBetween(lastActive, Date.now()) < SESSION_MINUTES) {
-        // 2a) Sesi masih hidup — perbarui denyut aktivitasnya saja.
         await mutateVisit(
           "PUT",
           `${BASE}/api/visit-logs/${hit.documentId}`,
@@ -227,7 +179,6 @@ export async function recordVisit(ip: string | null): Promise<void> {
       }
     }
 
-    // 2b) Belum ada sesi / sudah kedaluwarsa → kunjungan baru.
     await mutateVisit(
       "POST",
       `${BASE}/api/visit-logs`,
@@ -249,22 +200,11 @@ function txtOf(v: unknown): string {
   return typeof v === "string" ? v : "";
 }
 
-/**
- * Total kunjungan (jumlah semua sesi). null = belum tersedia
- * (CT visit-logs belum dibuat / Strapi down) → widget footer tampil 0.
- *
- * Token dicoba berurutan: token baca dulu, lalu token tulis — karena izin
- * Strapi per-aksi, token baca lama mungkin belum punya izin `find` pada CT
- * yang baru dibuat, sedangkan token tulis (yang dibuat bersama CT ini)
- * biasanya punya. Hasil di-cache 5 menit supaya tidak membebani Strapi.
- */
 export async function getTotalVisits(
   opts: { fresh?: boolean } = {},
 ): Promise<number | null> {
   const BASE = strapiBase();
   if (!BASE) return null;
-  // fresh = tanpa cache (dipakai /api/visit-total agar footer selalu terkini);
-  // default = cache 5 menit supaya build/ISR tidak menghantam Strapi.
   const cacheInit: RequestInit = opts.fresh
     ? { cache: "no-store" }
     : { next: { revalidate: 300 } };
@@ -276,7 +216,7 @@ export async function getTotalVisits(
         ...cacheInit,
         signal: AbortSignal.timeout(8000),
       });
-      if (!res.ok) continue; // 403/404 → coba token berikutnya
+      if (!res.ok) continue;
       const json = (await res.json().catch(() => ({}))) as {
         meta?: { pagination?: { total?: number } };
       };

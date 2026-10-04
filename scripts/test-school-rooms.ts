@@ -1,8 +1,3 @@
-/**
- * Tes integrasi getSchoolRooms() ASLI terhadap CMS live.
- * Jalankan: bun --env-file=repo/.env scripts/test-school-rooms.ts
- * Memastikan field "Panorama" (kapital) dari Strapi terbaca → room.panorama terisi.
- */
 import { getSchoolRooms } from "@/lib/api/index";
 
 const { floor1, floor2 } = await getSchoolRooms();

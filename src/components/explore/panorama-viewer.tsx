@@ -8,14 +8,6 @@ import { SchoolRoom } from "@/types";
 
 import "@photo-sphere-viewer/core/index.css";
 
-/**
- * Penampil foto panorama 360° (photo sphere) layar penuh.
- *
- * Renderer: @photo-sphere-viewer/core + three.js (WebGL) — foto equirectangular
- * dipetakan ke bola sehingga bisa diputar 360° seperti bola.
- * Modul renderer dimuat dinamis di dalam useEffect supaya aman dari SSR dan
- * hanya diunduh saat panorama benar-benar dibuka.
- */
 export function PanoramaViewer({
   room,
   onClose,
@@ -41,7 +33,6 @@ export function PanoramaViewer({
 
     (async () => {
       try {
-        // Pra-muat foto: deteksi 404/gagal unduh dengan andal sebelum WebGL jalan.
         await new Promise<void>((resolve, reject) => {
           const probe = new Image();
           probe.onload = () => resolve();
@@ -62,7 +53,6 @@ export function PanoramaViewer({
           caption: panoName,
           navbar: ["zoom", "caption", "fullscreen"],
           defaultZoomLvl: 30,
-          // Putar pelan otomatis; berhenti saat pengguna menyentuh, lanjut lagi saat idle.
           plugins: [
             [AutorotatePlugin, { autostartDelay: 800, autostartOnIdle: true, autorotateSpeed: "0.6rpm" }],
           ],
@@ -90,7 +80,6 @@ export function PanoramaViewer({
     };
   }, [open, panoUrl, panoName, attempt]);
 
-  // Tombol ESC menutup penampil.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -113,10 +102,8 @@ export function PanoramaViewer({
           aria-label={`Foto 360 derajat ${room.name}`}
           className="fixed inset-0 z-[70] overscroll-contain bg-ink"
         >
-          {/* Wadah viewer WebGL — diisi @photo-sphere-viewer */}
           <div ref={boxRef} className="absolute inset-0 [&_canvas]:outline-none" />
 
-          {/* Bilah atas: kembali + nama ruangan + badge 360° */}
           <div className="absolute inset-x-0 top-0 z-10 flex items-center gap-3 bg-gradient-to-b from-black/70 to-transparent p-4">
             <button
               onClick={onClose}
@@ -135,7 +122,6 @@ export function PanoramaViewer({
             </span>
           </div>
 
-          {/* Status memuat */}
           {status === "loading" && (
             <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 text-white/80">
               <Loader2 className="h-9 w-9 animate-spin" aria-hidden />
@@ -143,7 +129,6 @@ export function PanoramaViewer({
             </div>
           )}
 
-          {/* Status gagal (foto tidak ada / WebGL bermasalah) */}
           {status === "error" && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 px-6 text-center">
               <TriangleAlert className="h-10 w-10 text-orange" aria-hidden />

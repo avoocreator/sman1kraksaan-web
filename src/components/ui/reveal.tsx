@@ -9,7 +9,6 @@ type Props = {
   className?: string;
 };
 
-/** Membungkus satu bagian halaman supaya muncul halus saat mulai terlihat di layar. */
 export function Reveal({ children, delay = 0, className }: Props) {
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;

@@ -47,7 +47,6 @@ function BookingResult({ booking }: { booking: FacilityBooking }) {
           <BookingStatusBadge status={booking.status} />
         </div>
 
-        {/* Timeline status */}
         <div className="mt-8">
           <div className="relative flex justify-between">
             <div className="absolute left-0 right-0 top-4 h-0.5 bg-border" />
@@ -95,7 +94,6 @@ function BookingResult({ booking }: { booking: FacilityBooking }) {
         </div>
       </div>
 
-      {/* Detail pemesanan */}
       <div className="rounded-3xl border border-border bg-surface p-6 sm:p-8">
         <h3 className="text-sm font-bold text-ink">Detail Pemesanan</h3>
         <dl className="mt-4 grid grid-cols-1 gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
@@ -164,7 +162,6 @@ export function StatusChecker() {
     }
   }
 
-  // Kode dari URL (link "Lacak Status" dari form) dicek otomatis saat masuk.
   useEffect(() => {
     if (initialCode) void runCheck(initialCode);
   }, [initialCode]);

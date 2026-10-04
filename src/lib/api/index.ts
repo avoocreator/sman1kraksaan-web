@@ -1,18 +1,3 @@
-/**
- * API abstraction layer — sumber data seluruh situs.
- *
- * Urutan pengambilan data untuk setiap konten:
- *   1. Strapi CMS (STRAPI_URL + STRAPI_TOKEN di .env) — sumber utama.
- *   2. Data contoh di `src/data/*` — fallback otomatis kalau Strapi
- *      tidak terjangkau, content type belum dibuat, atau masih kosong.
- *
- * Shape data yang dikembalikan SELALU sama dengan interface di
- * `src/types/index.ts`, jadi komponen tidak perlu tahu dari mana data datang.
- *
- * Mapping field sengaja fleksibel (beberapa alias per field) karena nama
- * field di Strapi ditentukan saat content type dibuat. Alias yang didukung
- * terdokumentasi di `docs/STRAPI-INTEGRASI.md`.
- */
 
 import { getAllAchievements, getAchievementBySlug } from "@/data/achievements";
 import { getAllAlumni, getAlumnusBySlug } from "@/data/alumni";
@@ -36,12 +21,6 @@ export { getScheduleRaw } from "@/lib/schedule-strapi";
 export { getAboutContent, ABOUT_FALLBACK, PRINCIPAL_ROLE } from "@/lib/api/tentang";
 export type { AboutContent } from "@/lib/api/tentang";
 
-/**
- * Kandidat nama endpoint (pluralName di Strapi bisa bervariasi).
- * Urutan mengikuti content type yang benar-benar ada di CMS user:
- *   berita=articles, prestasi=achievements, agenda=events,
- *   jelajahi=school-places, alumni=alumni-profiles, dst.
- */
 const CT = {
   prestasi: ["achievements", "prestasis", "prestasi"],
   alumni: ["alumni-profiles", "alumnis", "alumni"],
@@ -55,7 +34,7 @@ const CT = {
   pengumuman: ["pengumumans", "announcements", "pengumuman"],
 };
 
-const REVALIDATE = 60; // detik sebelum cache Strapi di-refresh
+const REVALIDATE = 60;
 
 function placeholder(kind: "berita" | "agenda" | "prestasi"): string {
   const w = 1200;
@@ -68,10 +47,6 @@ function placeholder(kind: "berita" | "agenda" | "prestasi"): string {
       return `https://images.unsplash.com/photo-1596496181848-3091d4878b24?q=80&w=${w}&auto=format&fit=crop`;
   }
 }
-
-/* ------------------------------------------------------------------ */
-/* PRESTASI (halaman /achievements)                                    */
-/* ------------------------------------------------------------------ */
 
 const LEVELS: AchievementLevel[] = ["Sekolah", "Kabupaten", "Provinsi", "Nasional", "Internasional"];
 const CATEGORIES: AchievementCategory[] = ["Akademik", "Teknologi", "Olahraga", "Seni", "Organisasi"];
@@ -97,18 +72,15 @@ function mapAchievement(r: StrapiRow): Achievement {
     title: title || achieverName || "Prestasi Siswa",
     year,
     category: normEnum(pick(r, "category", "kategori", "bidang"), CATEGORIES, "Akademik"),
-    // Tanpa field level → tebak dari kata kunci di judul (mis. "Nasional").
     level: inferLevel(pick(r, "level", "tingkat", "jenjang"), title),
     image:
       mediaUrl(pick(r, "image", "gambar", "foto", "cover", "dokumentasi", "media")) ??
       placeholder("prestasi"),
     description: blocksToText(pick(r, "description", "deskripsi", "keterangan"), 420),
-    // Di CMS user, field `name` berisi nama peraih (bisa beberapa, dipisah koma).
     participants: achieverName && achieverName !== title ? arr(achieverName) : arr(pick(r, "participants", "peserta", "siswa", "anggota")),
   };
 }
 
-/** Tebak tingkat prestasi dari isi judul kalau field level tidak ada. */
 function inferLevel(v: unknown, title: string): AchievementLevel {
   const explicit = txt(v);
   if (explicit) return normEnum(explicit.replace(/kab\/kota|kota/i, "Kabupaten"), LEVELS, "Sekolah");
@@ -122,10 +94,7 @@ function inferLevel(v: unknown, title: string): AchievementLevel {
 
 export async function getAchievements(): Promise<Achievement[]> {
   const rows = await strapiList(CT.prestasi, REVALIDATE);
-  // null  = Strapi tidak terjangkau / endpoint belum ada → data contoh.
-  // []    = CMS ada tapi belum diisi → halaman tampil kosong (jujur).
   if (rows === null) return getAllAchievements();
-  // Tanggal penuh terbaru dulu; sort tahun berikutnya stabil, jadi urutan tanggal terjaga.
   const day = (r: StrapiRow) => dateOnly(pick(r, "date", "tanggal", "tanggalPrestasi"), "");
   return [...rows].sort((a, b) => day(b).localeCompare(day(a))).map(mapAchievement).sort((a, b) => b.year - a.year);
 }
@@ -137,10 +106,6 @@ export async function getAchievement(slug: string): Promise<Achievement | undefi
     getAchievementBySlug(slug)
   );
 }
-
-/* ------------------------------------------------------------------ */
-/* ALUMNI (halaman /alumni — Strapi: alumni-profiles)                  */
-/* ------------------------------------------------------------------ */
 
 function parseTimeline(v: unknown): { year: number; label: string }[] {
   if (!Array.isArray(v)) return [];
@@ -212,10 +177,6 @@ export async function getAlumnus(slug: string): Promise<Alumnus | undefined> {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* PARTNER / MITRA (halaman /partners)                                 */
-/* ------------------------------------------------------------------ */
-
 function mapPartner(r: StrapiRow): Partner {
   const name = txt(pick(r, "name", "nama", "title", "judul")) || "Mitra";
   const sinceGuess = num(pick(r, "since", "tahunMulai", "sejak", "tahun"), 0);
@@ -251,10 +212,6 @@ export async function getPartner(slug: string): Promise<Partner | undefined> {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* BERITA (halaman /news)                                              */
-/* ------------------------------------------------------------------ */
-
 function mapNews(r: StrapiRow): NewsArticle {
   const contentBlocks = pick(r, "content", "isi", "konten", "body");
   const paragraphs = blocksToParagraphs(contentBlocks);
@@ -288,10 +245,6 @@ export async function getNewsArticle(slug: string): Promise<NewsArticle | undefi
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* AGENDA (halaman /events)                                            */
-/* ------------------------------------------------------------------ */
-
 function mapEvent(r: StrapiRow): SchoolEvent {
   const date = dateOnly(pick(r, "date", "tanggal", "tanggalMulai", "startDate", "waktu", "createdAt"));
   return {
@@ -302,8 +255,6 @@ function mapEvent(r: StrapiRow): SchoolEvent {
     description: blocksToText(pick(r, "description", "deskripsi", "keterangan"), 420),
     image:
       mediaUrl(pick(r, "image", "gambar", "foto", "poster", "media")) ?? placeholder("agenda"),
-    // Hari ini mengikuti WIB, bukan UTC server, supaya agenda hari ini
-    // tidak salah masuk kelompok "Selesai" sebelum jam 07:00.
     status: date >= todayJakarta() ? "Akan Datang" : "Selesai",
   };
 }
@@ -311,7 +262,6 @@ function mapEvent(r: StrapiRow): SchoolEvent {
 export async function getEvents(): Promise<SchoolEvent[]> {
   const rows = await strapiList(CT.agenda, REVALIDATE);
   if (rows === null) return getAllEvents();
-  // Urut dari tanggal terdekat (untuk "kegiatan mendatang" di beranda).
   return rows.map(mapEvent).sort((a, b) => a.date.localeCompare(b.date));
 }
 
@@ -322,10 +272,6 @@ export async function getEvent(slug: string): Promise<SchoolEvent | undefined> {
     getEventBySlug(slug)
   );
 }
-
-/* ------------------------------------------------------------------ */
-/* PROGRAM (halaman /programs)                                         */
-/* ------------------------------------------------------------------ */
 
 function mapProgram(r: StrapiRow): Program {
   return {
@@ -353,19 +299,6 @@ export async function getProgram(slug: string): Promise<Program | undefined> {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* JELAJAHI — ruang peta sekolah (halaman /jelajahi)                   */
-/* ------------------------------------------------------------------ */
-
-/**
- * Ruangan per lantai: [lantai1, lantai2].
- *
- * Peta denah (posisi x/y/w/h) selalu memakai layout statis repo karena
- * di Strapi tidak ada field posisi. Konten ruangan (foto + deskripsi)
- * AMBIL dari Strapi content type `school-places` — dicocokkan ke denah
- * lewat nama (mis. "LAB FISIKA" → ruang "Lab. Fisika"). Ruangan yang
- * tidak ada padanannya tetap memakai konten bawaan.
- */
 const PLACE_ALIASES: Record<string, string> = {
   "RUANG SINEMATURA": "r-sinematura",
   "LAB FISIKA": "lab-fisika",
@@ -389,7 +322,6 @@ const PLACE_ALIASES: Record<string, string> = {
   "RUANG SILAT": "r-silat",
 };
 
-/** Normalisasi nama ruangan untuk pencocokan longgar. */
 function normRoomName(s: string): string {
   return s
     .toUpperCase()
@@ -399,16 +331,10 @@ function normRoomName(s: string): string {
     .trim();
 }
 
-/**
- * SEMUA ruangan denah yang cocok dengan nama entri CMS — bukan cuma yang pertama.
- * Perlu karena denah punya nama ganda (Taman ×2, Mushola Putri ×2, Toilet Putri ×2);
- * dengan pencocokan tunggal, kembar kedua tidak pernah mendapat konten CMS.
- */
 function matchRoomIds(name: string, rooms: SchoolRoom[]): string[] {
   const target = normRoomName(name);
   const alias = PLACE_ALIASES[target];
   if (alias) return [alias];
-  // Buang awalan generik "RUANG "/"R "/"LAB " di kedua sisi lalu bandingkan.
   const strip = (s: string) => s.replace(/^(RUANG|R|LAB)\s+/, "");
   return rooms
     .filter((room) => strip(normRoomName(room.name)) === strip(target))
@@ -429,9 +355,6 @@ export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: 
     const name = txt(pick(r, "name", "nama", "title", "judul"));
     if (!name) continue;
     const photo = mediaUrl(pick(r, "photo", "foto", "gambar", "image", "media"));
-    // Foto panorama 360° (equirectangular) — field Media "Panorama" di School Place.
-    // Nama field CMS tidak peduli huruf besar/kecil (pick longgar), jadi
-    // "Panorama", "PANORAMA", maupun "panorama" semuanya terbaca.
     const panorama = mediaUrl(
       pick(
         r,
@@ -442,44 +365,30 @@ export async function getSchoolRooms(): Promise<{ floor1: SchoolRoom[]; floor2: 
       ),
     );
     const desc = blocksToText(pick(r, "description", "deskripsi", "keterangan"), 300);
-    // Terapkan ke SEMUA ruangan denah yang cocok (nama ganda ikut terlayani).
     const matched = matchRoomIds(name, [...floor1, ...floor2]);
     for (const id of matched) {
       const room = byId.get(id);
       if (!room) continue;
-      // Konten dari CMS menimpa bawaan; posisi (x/y/w/h) tetap dari denah.
       if (photo) room.photo = photo;
       if (panorama) room.panorama = panorama;
       if (desc) room.description = desc;
     }
-    // Ruangan CMS tanpa padanan di denah: tampilkan sebagai kartu ekstra
-    // di bawah peta tidak memungkinkan (peta statis) — lewati saja.
     continue;
   }
   return { floor1, floor2 };
 }
 
-/* ------------------------------------------------------------------ */
-/* AKREDITASI (single type `acreditation` — PDF sertifikat)            */
-/* ------------------------------------------------------------------ */
-
-/** URL PDF sertifikat akreditasi dari Strapi; undefined kalau belum ada. */
 export async function getAccreditationPdf(): Promise<string | undefined> {
   const row = await strapiSingle<StrapiRow>(CT.akreditasi, 300);
   if (!row) return undefined;
   return mediaUrl(pick(row, "media", "file", "certificate", "sertifikat"));
 }
 
-/* ------------------------------------------------------------------ */
-/* PENGUMUMAN (Portal Siswa /siswa)                                    */
-/* ------------------------------------------------------------------ */
-
 const ANNOUNCEMENT_CATEGORIES: Announcement["category"][] = [
   "Akademik", "PPDB", "Kegiatan", "Umum",
 ];
 
 function mapAnnouncement(r: StrapiRow): Announcement {
-  // Field isi bisa Text biasa atau Rich text (blocks) — dua-duanya ditangani.
   const bodyRaw = pick(r, "body", "isi", "description", "deskripsi", "keterangan");
   return {
     id: rowSlug(r) || `ann-${txt(r.id) || "x"}`,
@@ -491,21 +400,11 @@ function mapAnnouncement(r: StrapiRow): Announcement {
   };
 }
 
-/**
- * Pengumuman Portal Siswa. Strapi dulu (content type `Pengumuman`, endpoint
- * /api/pengumumans) — kalau Strapi tidak terjangkau atau content type-nya
- * belum dibuat, jatuh ke data contoh di src/data/announcements.ts.
- * Collection ada tapi masih kosong → array kosong (empty state jujur).
- */
 export async function getAnnouncements(): Promise<Announcement[]> {
   const rows = await strapiList<StrapiRow>(CT.pengumuman, REVALIDATE);
   if (!rows) return announcements.map((a) => ({ ...a }));
   return rows.map(mapAnnouncement);
 }
-
-/* ------------------------------------------------------------------ */
-/* STATISTIK (dashboard)                                               */
-/* ------------------------------------------------------------------ */
 
 export async function getStatistics(): Promise<Statistics> {
   const [prestasi, alumni, partners, programs] = await Promise.all([

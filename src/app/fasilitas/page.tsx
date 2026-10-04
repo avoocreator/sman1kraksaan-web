@@ -5,7 +5,7 @@ import { getFacilities } from "@/lib/api/fasilitas";
 import { LinkButton } from "@/components/ui/button";
 import { FacilityExplorer } from "@/components/fasilitas/facility-explorer";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Pesan Fasilitas",
@@ -31,7 +31,6 @@ const steps = [
 ];
 
 export default async function FasilitasPage() {
-  // Strapi dulu (content type `facilities`), fallback data statis bawaan.
   const facilities = await getFacilities();
 
   return (
@@ -59,7 +58,6 @@ export default async function FasilitasPage() {
         </div>
       </div>
 
-      {/* Alur pemesanan */}
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {steps.map((step) => {
           const Icon = step.icon;

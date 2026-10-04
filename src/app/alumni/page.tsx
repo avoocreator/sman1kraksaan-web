@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getAlumni } from "@/lib/api";
 import { AlumniExplorer } from "@/components/alumni/alumni-explorer";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Alumni",

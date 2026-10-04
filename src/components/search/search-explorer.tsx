@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 
 const categories = ["Semua", "Prestasi", "Alumni", "Berita", "Agenda", "Program"] as const;
 
-/** Bold potongan judul yang cocok dengan kueri (case-insensitive). */
 function Highlight({ text, query }: { text: string; query: string }) {
   const lower = text.toLowerCase();
   const token = query
@@ -30,14 +29,6 @@ function Highlight({ text, query }: { text: string; query: string }) {
   );
 }
 
-/**
- * Halaman Pencarian dengan pencocokan LONGGAR (fuzzy):
- *   - cocok sebagian kata ("batik" → "Hari Batik Nasional"),
- *   - multi-kata tak berurutan ("lomba agustus" → "Liputan Lomba 17 Agustus"),
- *   - toleransi typo ringan ("osiss" → "OSIS").
- * Kalau benar-benar tidak ada yang cocok, tampil saran
- * "Mungkin yang Anda cari…" berisi konten paling mirip.
- */
 export function SearchExplorer({
   items,
   initialQuery = "",
@@ -64,7 +55,6 @@ export function SearchExplorer({
       .map((x) => x.item);
   }, [items, query, category]);
 
-  // Tidak ada hasil sama sekali → tampilkan 3 konten paling mirip.
   const nearest = useMemo(() => {
     const q = query.trim();
     if (!q || filtered.length > 0) return [];

@@ -2,10 +2,6 @@ import { SearchX } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-/**
- * Kartu "tidak ada data". Props `icon` & `action` bersifat opsional —
- * dipakai halaman fasilitas untuk menampilkan ikon spesifik + tombol aksi.
- */
 export function EmptyState({
   title = "Tidak ada data ditemukan.",
   description = "Coba ubah filter atau kata kunci pencarian.",

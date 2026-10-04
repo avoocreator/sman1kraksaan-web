@@ -1,18 +1,3 @@
-/**
- * Lapisan API Fasilitas & Pemesanan.
- *
- * Urutan sumber data (pola sama dengan konten lain):
- *   1. Strapi CMS — content type `facilities` + `facility-bookings`
- *      (kalau sudah dibuat user).
- *   2. Data contoh statis di `src/data/facilities.ts` / `src/data/bookings.ts`
- *      — fallback otomatis HANYA untuk pembacaan, kalau CMS tidak terjangkau.
- *
- * Pemesanan kini BENAR-BENAR tersimpan di Strapi (bukan lagi localStorage):
- *   - Pengajuan dari form → POST /api/bookings → createBooking() di sini.
- *   - Admin menyetujui/menolak lewat Strapi Content Manager (edit field
- *     `status` pada entri). Tidak ada lagi dashboard admin di situs.
- *   - Situs membaca ulang status (revalidate 60 detik).
- */
 
 import { randomBytes } from "node:crypto";
 import { strapiList, txt, num, pick, mediaUrl, arr, blocksToText, rowSlug, dateOnly } from "@/lib/strapi";
@@ -40,7 +25,6 @@ function normCategory(v: unknown, name: string): FacilityCategory {
     const found = CATEGORIES.find((c) => s === c.toLowerCase() || s.includes(c.toLowerCase().split(" ")[0]));
     if (found) return found;
   }
-  // Tebak dari nama kalau field kategori tidak ada (mis. "Lab Komputer").
   const n = name.toLowerCase();
   if (n.includes("lab")) return "Laboratorium";
   if (n.includes("aula") || n.includes("serbaguna") || n.includes("lapangan")) return "Aula & Serbaguna";
@@ -70,24 +54,17 @@ function mapFacility(r: StrapiRow): Facility {
   };
 }
 
-/** Semua fasilitas: Strapi dulu, fallback data statis bawaan. */
 export async function getFacilities(): Promise<Facility[]> {
   const rows = await strapiList(CT_FASILITAS, REVALIDATE);
   if (rows === null || rows.length === 0) return getAllFacilities();
   return rows.map(mapFacility);
 }
 
-/** Satu fasilitas berdasarkan slug (atau documentId Strapi). */
 export async function getFacility(slug: string): Promise<Facility | undefined> {
   const all = await getFacilities();
   return all.find((f) => f.slug === slug) ?? getFacilityBySlug(slug);
 }
 
-/* ------------------------------------------------------------------ */
-/* PEMESANAN FASILITAS (Strapi content type `facility-bookings`)       */
-/* ------------------------------------------------------------------ */
-
-/** Kandidat plural endpoint CT pemesanan (label admin bisa "Fasility-booking"). */
 const CT_BOOKING = [
   "facility-bookings", "fasility-bookings", "fasilitas-bookings",
   "bookings", "pesanan-fasilitas", "pesan-fasilitas",
@@ -95,7 +72,6 @@ const CT_BOOKING = [
 
 const REQUESTER_TYPES: RequesterType[] = ["Siswa", "Guru", "Ekstrakurikuler", "Organisasi", "Umum"];
 
-/** Normalisasi status dari Strapi (enum/text bebas) → BookingStatus. */
 function normBookingStatus(v: unknown): BookingStatus {
   const s = txt(v).toLowerCase();
   if (!s) return "Menunggu";
@@ -110,7 +86,6 @@ function normRequesterType(v: unknown): RequesterType {
   return REQUESTER_TYPES.find((t) => s === t.toLowerCase() || s.includes(t.toLowerCase())) ?? "Umum";
 }
 
-/** Baris Strapi → FacilityBooking. `withContact` untuk lookup per-kode (pemilik kode). */
 function mapBooking(r: StrapiRow, withContact: boolean): FacilityBooking {
   const facilityName =
     txt(pick(r, "facility", "facilityName", "facility_name", "namaFasilitas", "nama_fasilitas", "fasilitas")) || "-";
@@ -140,49 +115,34 @@ function mapBooking(r: StrapiRow, withContact: boolean): FacilityBooking {
   return booking;
 }
 
-/** ISO "YYYY-MM-DD" hari ini mengikuti WIB (UTC+7), bukan zona server. */
 function todayIsoJakarta(): string {
   return new Date(Date.now() + 7 * 3600_000).toISOString().slice(0, 10);
 }
 
-/** Proyeksi publik: sembunyikan kontak pemesan (hanya admin yang perlu). */
 export function toPublicBooking(b: FacilityBooking): FacilityBooking {
   return { ...b, contact: "" };
 }
 
-/**
- * Semua pemesanan dari Strapi (termasuk kontak — JANGAN dikirim mentah ke
- * komponen publik; pakai toPublicBooking). null → CMS tidak terjangkau.
- */
 export async function getBookingsRaw(fresh = false): Promise<FacilityBooking[] | null> {
-  // Baca biasa di-cache 15 dtk (melindungi pool DB Strapi); fresh = tanpa cache,
-  // dipakai saat keputusan bentrok & cek kode. Terbaru dulu: kalau data > batas halaman,
-  // yang terpotong adalah yang paling lama.
   const rows = await strapiList(CT_BOOKING, fresh ? 0 : 15, "&sort=createdAt:desc");
   if (rows === null) return null;
   return rows.map((r) => mapBooking(r, true)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-/** Pemesanan untuk tampilan publik/jadwal: CMS dulu, data contoh saat CMS down. */
 export async function getBookings(fresh = false): Promise<FacilityBooking[]> {
   const raw = await getBookingsRaw(fresh);
   return raw ?? seedBookings.map((b) => ({ ...b }));
 }
 
-/** Cari satu pemesanan berdasarkan kode (untuk halaman cek status). */
 export async function getBookingByCode(code: string): Promise<FacilityBooking | undefined> {
   const target = code.trim().toLowerCase();
   const find = (l: FacilityBooking[]) => l.find((b) => b.id.toLowerCase() === target);
-  // Cache dulu; kalau tak ketemu (pengajuan baru < 15 dtk) baru baca segar.
   const cached = find((await getBookingsRaw()) ?? seedBookings);
   if (cached) return cached;
   const raw = await getBookingsRaw(true);
   return raw ? find(raw) : undefined;
 }
 
-/* --- pengajuan baru (dipanggil API route /api/bookings) ------------- */
-
-/** 6 karakter acak (tanpa 0/O/1/I) — kode tidak bisa ditebak dan tidak bentrok antar entri. */
 function randomCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   return Array.from(randomBytes(6), (b) => chars[b % chars.length]).join("");
@@ -196,7 +156,6 @@ export class BookingError extends Error {
   }
 }
 
-/** Token dengan izin TULIS; opsional — tanpa ini pengajuan gagal jelas, bukan diam-diam. */
 function writeToken(): string | undefined {
   return process.env.STRAPI_WRITE_TOKEN?.trim() || process.env.STRAPI_TOKEN?.trim() || undefined;
 }
@@ -251,10 +210,6 @@ export interface BookingInput {
   purpose?: string;
 }
 
-/**
- * Validasi + simpan pengajuan pemesanan ke Strapi.
- * Melempar BookingError dengan pesan siap-tampilkan kalau data tidak valid.
- */
 export async function createBooking(input: BookingInput): Promise<FacilityBooking> {
   const facility = getAllFacilities().find((f) => f.slug === input.facilitySlug);
   const name = txt(input.requesterName);
@@ -282,9 +237,7 @@ export async function createBooking(input: BookingInput): Promise<FacilityBookin
     throw new BookingError(`Kapasitas maksimal ${facility.name} adalah ${facility.capacity} orang.`);
   if (!purpose) throw new BookingError("Tuliskan keperluan pemesanan.");
 
-  // Bentrokan dengan pemesanan yang SUDAH DISETUJUI ditolak di sisi server —
-  // jangan bergantung pada pemeriksaan di browser saja.
-  const existing = await getBookings(true); // segar: jangan lolos bentrok karena data basi
+  const existing = await getBookings(true);
   const clash = existing.find(
     (b) =>
       b.facilitySlug === facility.slug &&
@@ -319,9 +272,6 @@ export async function createBooking(input: BookingInput): Promise<FacilityBookin
       purpose,
       adminNote: "",
     };
-    // Percobaan bertingkat: (1) lengkap + status + publish, (2) tanpa
-    // publish, (3) field inti saja — supaya tetap jalan di CT dengan
-    // Draft&Publish aktif maupun tanpa field status.
     const attempts: Record<string, unknown>[] = [
       { ...fields, bookingStatus: "Menunggu", publishedAt: new Date().toISOString() },
       { ...fields, bookingStatus: "Menunggu" },
@@ -347,7 +297,6 @@ export async function createBooking(input: BookingInput): Promise<FacilityBookin
       };
     } catch (e) {
       lastError = e;
-      // Konflik jadwal / validasi input tidak perlu dicoba ulang.
       if (e instanceof BookingError && (e.status === 409 || e.status < 400)) throw e;
     }
   }

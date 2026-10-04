@@ -26,7 +26,6 @@ const moreLinks = [
   { label: "PPDB", href: "/ppdb" },
 ];
 
-/** Halaman aktif = path sama persis atau di dalam section-nya (mis. /news/slug → Berita). */
 function isActive(pathname: string | null, href: string): boolean {
   if (!pathname) return false;
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -51,7 +50,6 @@ export default function Navbar() {
     setMoreOpen(false);
   }, [pathname]);
 
-  // Mode portal siswa: saat berada di /siswa, tombol berubah jadi pintu keluar.
   const inPortal = pathname === "/siswa";
   const portalHref = inPortal ? "/" : "/siswa";
   const portalLabel = inPortal ? "Keluar Portal" : "Portal Siswa";
@@ -60,7 +58,6 @@ export default function Navbar() {
     if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setMoreOpen(false);
   };
 
-  // Kalau salah satu isi dropdown yang aktif, tombol "Lainnya" ikut ditandai.
   const moreActive = moreLinks.some((link) => isActive(pathname, link.href));
 
   return (
@@ -146,6 +143,7 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* menu desktop */}
         <div className="hidden items-center gap-2 lg:flex">
           <Link
             href="/search"
@@ -154,8 +152,6 @@ export default function Navbar() {
           >
             <Search className="h-4.5 w-4.5" />
           </Link>
-          {/* Tombol mode: biru (warna PPDB) biar beda dari aksen oranye lainnya.
-              Jelajahi Sekolah tetap tersedia via menu Lainnya di layar sempit. */}
           <LinkButton href={portalHref} size="sm" variant={inPortal ? "outline" : "secondary"}>
             {portalLabel}
           </LinkButton>
@@ -164,6 +160,7 @@ export default function Navbar() {
           </LinkButton>
         </div>
 
+        {/* menu mobile */}
         <button
           onClick={() => setOpen((v) => !v)}
           className="flex h-9 w-9 items-center justify-center rounded-full text-ink lg:hidden"

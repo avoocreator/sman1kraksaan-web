@@ -10,7 +10,7 @@ export type ProgramItem = {
   title: string;
   level: string;
   desc: string;
-  icon: string; // cpu, sigma, languages, book, leaf
+  icon: string;
 };
 
 const ICONS: Record<string, LucideIcon> = {
@@ -21,8 +21,6 @@ const ICONS: Record<string, LucideIcon> = {
   leaf: Leaf,
 };
 
-// Data contoh, dipakai kalau Strapi belum terisi. Diambil dari jadwal KBM
-// 9 Juli 2026, jadi cek ke sekolah sebelum dipakai.
 const sample: ProgramItem[] = [
   { title: "Koding dan Kecerdasan Artifisial", level: "Kelas X", icon: "cpu", desc: "Dasar pemrograman dan AI sebagai pelajaran tetap di kelas X." },
   { title: "Mata pelajaran Tingkat Lanjut", level: "Kelas XI dan XII", icon: "sigma", desc: "Matematika, Bahasa Inggris, dan Sejarah dengan materi yang lebih dalam." },
@@ -46,17 +44,6 @@ const rise: Variants = {
   },
 };
 
-/**
- * Section "kenapa sekolah di sini" di beranda — GRID SERAGAM.
- *
- * Framing-nya bukan "daftar program" melainkan alasan memilih sekolah ini:
- * kartu tetap diisi data program (CMS dulu, fallback contoh), tapi judul
- * & pembuka section menjawab pertanyaan ortu/siswa sebelum mendaftar.
- * Bahasanya sengaja dibuat wajar seperti bicara, bukan gaya brosur AI.
- *
- * Layout: semua kartu ukurannya sama — 3 per baris di desktop, 2 di tablet,
- * 1 di HP — konsisten berapa pun jumlah programnya.
- */
 export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
   const reduce = useReducedMotion();
 
@@ -120,7 +107,6 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
                     </span>
                   </div>
 
-                  {/* Tinggi judul dikunci 2 baris supaya deskripsi sejajar antar kartu */}
                   <h3 className="relative mt-6 line-clamp-2 min-h-[3.4rem] text-lg font-bold leading-snug tracking-tight text-ink sm:text-xl">
                     {title}
                   </h3>

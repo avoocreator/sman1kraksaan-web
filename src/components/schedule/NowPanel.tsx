@@ -4,7 +4,7 @@ import { liveState, type LessonEntry } from "./shared";
 
 type Props = {
   entries: Entry[];
-  nowMin: number | null; // null = bukan hari ini
+  nowMin: number | null;
   show: "class" | "teacher";
 };
 

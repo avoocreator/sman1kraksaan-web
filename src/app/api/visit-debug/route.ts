@@ -1,19 +1,3 @@
-/**
- * Alat diagnosis penghitung kunjungan — buka di browser:
- *
- *   /api/visit-debug        → diagnosis aman (tanpa menulis apa pun)
- *   /api/visit-debug?do=1   → diagnosis + SATU percobaan tulis nyata
- *                             (kalau berhasil, total +1 dan entri "diag-…"
- *                             bisa dihapus manual di Strapi)
- *
- * Menjawab pertanyaan-pertanyaan ini secara langsung:
- *   1. Token baca/tulis sudah terbaca server? (ditampilkan ter-mask)
- *   2. Find visit-logs jalan? (tes query persis seperti kode produksi)
- *   3. POST create diterima Strapi? (status + pesan error mentahnya)
- *
- * Tidak ada rahasia yang bocor: token hanya tampil 6 karakter pertama.
- * Route ini aman dibiarkan di produksi — GET biasa tidak menulis apa pun.
- */
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +29,6 @@ async function totalVisitLogs(token: string): Promise<number | null> {
   }
 }
 
-/** Tes find persis seperti findActiveSession() di src/lib/visits.ts. */
 async function tesFind(field: string, token: string) {
   const q = new URLSearchParams({
     [`filters[${field}][$eq]`]: "diag-probe",
@@ -66,7 +49,6 @@ async function tesFind(field: string, token: string) {
   }
 }
 
-/** SATU percobaan POST create nyata, dengan payload seperti kode produksi. */
 async function tesPost(token: string) {
   const now = new Date().toISOString();
   const visitor = `diag-${Date.now()}`;
@@ -110,7 +92,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const token = wt || rt; // kode produksi memakai token tulis dulu untuk create
+  const token = wt || rt;
   const catatan: string[] = [];
 
   if (!wt) {

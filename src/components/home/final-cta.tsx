@@ -4,18 +4,12 @@ import { motion } from "framer-motion";
 import { ArrowRight, CalendarCheck, Sparkles } from "lucide-react";
 import { LinkButton } from "@/components/ui/button";
 
-// Ringkasan jadwal PPDB — selaras dengan halaman /ppdb.
 const jadwal = [
   { label: "Pendaftaran online dibuka", date: "1 Juni 2026" },
   { label: "Pengumuman hasil seleksi", date: "20 Juni 2026" },
   { label: "Daftar ulang", date: "21–25 Juni 2026" },
 ];
 
-/**
- * Kartu penutup beranda: PPDB. "Jelajahi sekolah" sudah ada di bagian atas
- * beranda, jadi slot ini dipakai untuk mengajak pendaftaran PPDB —
- * dengan jadwal penting yang langsung terlihat.
- */
 export function FinalCta() {
   return (
     <section className="container-page pb-20 md:pb-28">
@@ -28,7 +22,6 @@ export function FinalCta() {
       >
         <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-orange/25 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
-        {/* Watermark angkatan */}
         <span
           aria-hidden
           className="pointer-events-none absolute -bottom-7 right-4 select-none text-[7rem] font-extrabold leading-none tracking-tighter text-white/[0.06] sm:text-[9rem]"
@@ -66,7 +59,6 @@ export function FinalCta() {
             </div>
           </div>
 
-          {/* Kartu jadwal penting — memberi gambaran PPDB sebelum diklik */}
           <div className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur-sm sm:p-6">
             <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-white/75">
               <CalendarCheck className="h-4 w-4 text-orange" aria-hidden />

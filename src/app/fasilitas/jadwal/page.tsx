@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ScheduleExplorer } from "@/components/fasilitas/schedule-explorer";
 import { getBookings, toPublicBooking } from "@/lib/api/fasilitas";
 
-export const revalidate = 60; // refresh status pemesanan dari Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Jadwal Pemesanan Fasilitas",
@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function JadwalFasilitasPage() {
-  // Data pemesanan dari Strapi (proyeksi publik — tanpa kontak pemesan).
   const bookings = (await getBookings()).map(toPublicBooking);
 
   return (

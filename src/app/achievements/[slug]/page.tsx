@@ -6,7 +6,7 @@ import { getAchievement, getAchievements } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { AchievementCard } from "@/components/achievements/achievement-card";
 
-export const revalidate = 120; // refresh data Strapi
+export const revalidate = 120;
 
 export async function generateStaticParams() {
   const achievements = await getAchievements();

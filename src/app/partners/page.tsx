@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { PartnerLogo } from "@/components/ui/partner-logo";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export const revalidate = 60; // refresh data Strapi
+export const revalidate = 60;
 
 export const metadata: Metadata = { title: "Mitra Industri", description: "Kolaborasi SMAN 1 Kraksaan dengan dunia industri dan perguruan tinggi." };
 
@@ -48,7 +48,6 @@ export default async function PartnersPage() {
               href={`/partners/${p.slug}`}
               className="group overflow-hidden rounded-2xl border border-border bg-surface transition-shadow hover:shadow-lg hover:shadow-ink/5"
             >
-              {/* Logo tampil besar di panggung putih — dikenali tanpa baca teks */}
               <div className="flex h-32 items-center justify-center border-b border-border/70 bg-white px-8">
                 <PartnerLogo name={p.name} logo={p.logoImage} className="h-24 w-full" />
               </div>
