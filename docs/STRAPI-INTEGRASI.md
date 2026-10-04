@@ -115,6 +115,18 @@ Komponen tidak perlu diubah — shape data selalu sama dengan interface di
 - Unggah PDF sertifikat di field `media` → tombol "Unduh Sertifikat Akreditasi
   (PDF)" di beranda & halaman Tentang otomatis memakai file dari CMS.
 
+### Fasilitas — `facilities`
+- Katalog, detail, dan **form pemesanan** kini sama-sama memakai daftar
+  fasilitas dari CMS ini (fallback: data bawaan bila CMS kosong/gagal).
+- Field `category`/`kategori` **boleh dikosongkan** — kalau kosong (atau isinya
+  hanya mengulang nama fasilitas), kategori ditebak otomatis dari namanya:
+  Mushola → "Fasilitas Ibadah", Lapangan → "Olahraga & Lapangan",
+  Lab* → "Laboratorium", Ruang Pertemuan → "Ruang Rapat",
+  Ruang Tataboga → "Ruang Penunjang", Aula → "Aula & Serbaguna", dst.
+- Kategori tersedia: Aula & Serbaguna, Laboratorium, Olahraga & Lapangan,
+  Seni & Ekstrakurikuler, Perpustakaan, Ruang Rapat, Fasilitas Ibadah,
+  Ruang Penunjang. Nilai `category` yang cocok selalu menang di atas tebakan.
+
 ### Pemesanan Fasilitas — `facility-bookings` (label admin: "Fasility-booking")
 
 Pengajuan dari form `/fasilitas/pesan` **tersimpan langsung ke content type

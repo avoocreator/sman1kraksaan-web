@@ -5,21 +5,20 @@ import { Search } from "lucide-react";
 import { Facility } from "@/types";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FacilityCard } from "@/components/fasilitas/facility-card";
+import { FACILITY_CATEGORIES } from "@/lib/facility-categories";
 import { cn } from "@/lib/utils";
-
-const categories = [
-  "Semua",
-  "Aula & Serbaguna",
-  "Laboratorium",
-  "Olahraga & Lapangan",
-  "Seni & Ekstrakurikuler",
-  "Perpustakaan",
-  "Ruang Rapat",
-] as const;
 
 export function FacilityExplorer({ facilities }: { facilities: Facility[] }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<(typeof categories)[number]>("Semua");
+  const [category, setCategory] = useState<string>("Semua");
+
+  // urutan tab
+  const categories = useMemo(() => {
+    const extra = Array.from(new Set(facilities.map((f) => f.category))).filter(
+      (c) => !FACILITY_CATEGORIES.includes(c)
+    );
+    return ["Semua", ...FACILITY_CATEGORIES, ...extra];
+  }, [facilities]);
 
   const filtered = useMemo(() => {
     return facilities.filter((f) => {

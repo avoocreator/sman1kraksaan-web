@@ -13,6 +13,8 @@ const categoryTone: Record<Facility["category"], "orange" | "blue" | "neutral"> 
   "Seni & Ekstrakurikuler": "blue",
   Perpustakaan: "blue",
   "Ruang Rapat": "neutral",
+  "Fasilitas Ibadah": "neutral",
+  "Ruang Penunjang": "neutral",
 };
 
 export function FacilityCard({ facility, index = 0 }: { facility: Facility; index?: number }) {

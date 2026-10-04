@@ -2,36 +2,14 @@
 import { randomBytes } from "node:crypto";
 import { strapiList, txt, num, pick, mediaUrl, arr, blocksToText, rowSlug, dateOnly } from "@/lib/strapi";
 import type { StrapiRow } from "@/lib/strapi";
-import type { Facility, FacilityCategory, FacilityBooking, BookingStatus, RequesterType } from "@/types";
+import type { Facility, FacilityBooking, BookingStatus, RequesterType } from "@/types";
 import { getAllFacilities, getFacilityBySlug } from "@/data/facilities";
 import { seedBookings } from "@/data/bookings";
 import { timeOverlaps } from "@/lib/utils";
+import { normCategory } from "@/lib/facility-categories";
 
 const CT_FASILITAS = ["facilities", "fasilitas", "facility"];
 const REVALIDATE = 60;
-
-const CATEGORIES: FacilityCategory[] = [
-  "Aula & Serbaguna",
-  "Laboratorium",
-  "Olahraga & Lapangan",
-  "Seni & Ekstrakurikuler",
-  "Perpustakaan",
-  "Ruang Rapat",
-];
-
-function normCategory(v: unknown, name: string): FacilityCategory {
-  const s = txt(v).toLowerCase();
-  if (s) {
-    const found = CATEGORIES.find((c) => s === c.toLowerCase() || s.includes(c.toLowerCase().split(" ")[0]));
-    if (found) return found;
-  }
-  const n = name.toLowerCase();
-  if (n.includes("lab")) return "Laboratorium";
-  if (n.includes("aula") || n.includes("serbaguna") || n.includes("lapangan")) return "Aula & Serbaguna";
-  if (n.includes("perpustakaan")) return "Perpustakaan";
-  if (n.includes("ruang") && (n.includes("rapat") || n.includes("meeting"))) return "Ruang Rapat";
-  return "Seni & Ekstrakurikuler";
-}
 
 function mapFacility(r: StrapiRow): Facility {
   const name = txt(pick(r, "name", "nama", "title", "judul")) || "Fasilitas";
@@ -211,7 +189,7 @@ export interface BookingInput {
 }
 
 export async function createBooking(input: BookingInput): Promise<FacilityBooking> {
-  const facility = getAllFacilities().find((f) => f.slug === input.facilitySlug);
+  const facility = (await getFacility(txt(input.facilitySlug))) ?? getAllFacilities().find((f) => f.slug === input.facilitySlug);
   const name = txt(input.requesterName);
   const organization = txt(input.organization);
   const contact = txt(input.contact);

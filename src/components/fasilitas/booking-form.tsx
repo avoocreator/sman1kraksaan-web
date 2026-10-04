@@ -42,12 +42,14 @@ function SectionTitle({ icon: Icon, children }: { icon: React.ElementType; child
   );
 }
 
-export function BookingForm() {
+export function BookingForm({ facilities }: { facilities?: Facility[] }) {
   const params = useSearchParams();
   const preselected = params.get("fasilitas");
 
+  const list = facilities && facilities.length > 0 ? facilities : allFacilities;
+
   const [facilitySlug, setFacilitySlug] = useState(
-    allFacilities.some((f) => f.slug === preselected) ? (preselected as string) : allFacilities[0].slug
+    list.some((f) => f.slug === preselected) ? (preselected as string) : list[0].slug
   );
   const [name, setName] = useState("");
   const [type, setType] = useState<RequesterType>("Siswa");
@@ -78,8 +80,8 @@ export function BookingForm() {
   }, []);
 
   const facility: Facility = useMemo(
-    () => allFacilities.find((f) => f.slug === facilitySlug) ?? allFacilities[0],
-    [facilitySlug]
+    () => list.find((f) => f.slug === facilitySlug) ?? list[0],
+    [list, facilitySlug]
   );
 
   const conflicts = useMemo(() => {
@@ -212,7 +214,7 @@ export function BookingForm() {
                 onChange={(e) => setFacilitySlug(e.target.value)}
                 className={cn(inputClass, "appearance-none")}
               >
-                {allFacilities.map((f) => (
+                {list.map((f) => (
                   <option key={f.slug} value={f.slug}>{f.name} — {f.category}</option>
                 ))}
               </select>

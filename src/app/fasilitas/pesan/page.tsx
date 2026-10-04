@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { BookingForm } from "@/components/fasilitas/booking-form";
+import { getFacilities } from "@/lib/api/fasilitas";
 
 export const metadata: Metadata = {
   title: "Ajukan Pemesanan Fasilitas",
   description: "Formulir pengajuan pemesanan fasilitas SMAN 1 Kraksaan.",
 };
 
-export default function PesanFasilitasPage() {
+export default async function PesanFasilitasPage() {
+  const facilities = await getFacilities();
   return (
     <div className="container-page py-14 md:py-20">
       <div className="max-w-2xl">
@@ -21,7 +23,7 @@ export default function PesanFasilitasPage() {
 
       <div className="mt-10">
         <Suspense fallback={<div className="h-96 animate-pulse rounded-3xl border border-border bg-surface" />}>
-          <BookingForm />
+          <BookingForm facilities={facilities} />
         </Suspense>
       </div>
     </div>

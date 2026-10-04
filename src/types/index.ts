@@ -103,7 +103,9 @@ export type FacilityCategory =
   | "Olahraga & Lapangan"
   | "Seni & Ekstrakurikuler"
   | "Perpustakaan"
-  | "Ruang Rapat";
+  | "Ruang Rapat"
+  | "Fasilitas Ibadah"
+  | "Ruang Penunjang";
 
 export interface Facility {
   slug: string;
