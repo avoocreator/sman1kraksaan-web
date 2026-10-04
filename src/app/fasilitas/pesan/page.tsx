@@ -4,8 +4,8 @@ import { BookingForm } from "@/components/fasilitas/booking-form";
 import { getFacilities } from "@/lib/api/fasilitas";
 
 export const metadata: Metadata = {
-  title: "Ajukan Pemesanan Fasilitas",
-  description: "Formulir pengajuan pemesanan fasilitas SMAN 1 Kraksaan.",
+  title: "Ajukan Reservasi Fasilitas",
+  description: "Formulir pengajuan reservaso fasilitas SMAN 1 Kraksaan.",
 };
 
 export default async function PesanFasilitasPage() {
@@ -13,7 +13,7 @@ export default async function PesanFasilitasPage() {
   return (
     <div className="container-page py-14 md:py-20">
       <div className="max-w-2xl">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange">Pemesanan Fasilitas</p>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange">Reservasi Fasilitas</p>
         <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">Ajukan Pemesanan</h1>
         <p className="mt-4 text-base leading-relaxed text-ink-soft">
           Lengkapi formulir di bawah. Setelah pengajuan terkirim, Anda akan menerima kode pemesanan

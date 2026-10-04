@@ -38,7 +38,7 @@ export default async function FasilitasPage() {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange">Fasilitas Sekolah</p>
-          <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">Pemesanan Fasilitas</h1>
+          <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">Reservasi Fasilitas</h1>
           <p className="mt-4 text-base leading-relaxed text-ink-soft">
             Aula, laboratorium, lapangan, hingga ruang pertemuan kini bisa dipesan secara online.
             Atur tanggal dan jam mulai–selesai secara bebas sesuai kebutuhan, lalu pantau jadwal

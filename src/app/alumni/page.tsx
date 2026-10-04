@@ -15,7 +15,7 @@ export default async function AlumniPage() {
     <div className="container-page py-14 md:py-20">
       <div className="max-w-2xl">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-orange">Alumni</p>
-        <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">From Here, To Everywhere.</h1>
+        <h1 className="text-4xl font-extrabold text-ink sm:text-5xl">Jejak Prestasi dan Karir Alumni</h1>
         <p className="mt-3 text-base leading-relaxed text-ink-soft">
           Temukan lulusan SMAN 1 Kraksaan yang kini berkarya di berbagai penjuru.
         </p>

@@ -21,7 +21,7 @@ export function PartnersPreview({ items = [] }: { items?: PartnerItem[] }) {
               id="mitra-beranda"
               className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              Bekerja sama dengan siapa saja
+              BERKOLABORASI UNTUK MEMBUKA LEBIH BANYAK PELUANG
             </h2>
             <p className="mt-3 max-w-xl text-ink-soft">
               Kampus, lembaga, dan komunitas yang ikut membuka wawasan siswa di luar kelas.

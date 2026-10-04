@@ -58,12 +58,12 @@ export function ProgramsPreview({ items = sample }: { items?: ProgramItem[] }) {
       >
         <motion.div variants={rise} className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-muted">Kenapa di sini</p>
+            <p className="text-sm font-semibold uppercase tracking-wider text-muted">Program Unggulan </p>
             <h2
               id="program-beranda"
               className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl"
             >
-              Kenapa sekolah di sini?
+              PROGRAM UNGGULAN KAMI
             </h2>
             <p className="mt-3 max-w-xl text-ink-soft">
               Ini alasan yang paling sering disebut siswa dan orang tua kami —
