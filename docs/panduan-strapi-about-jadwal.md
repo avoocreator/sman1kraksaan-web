@@ -11,8 +11,8 @@ konten lama (hardcode) otomatis dipakai sehingga situs tidak pernah rusak.
 
 Single type dipakai karena isinya hanya ada satu set (satu sekolah = satu
 sejarah, satu visi-misi, satu sambutan kepala sekolah). Kamu sudah membuat
-single type **About** dengan field `title`, `decription`, `media` — dua field
-terakhir itu justru sudah tepat dan akan langsung terpakai.
+single type **About** dan mengisi semua fieldnya — termasuk `schoolPhoto`
+(foto sekolah) dan `principalPhoto` (foto kepala sekolah).
 
 ### Langkah 1 — Tambahkan field di Content-Type Builder
 
@@ -28,6 +28,10 @@ Buka **Content-Type Builder → Single Types → About → Add another field**, 
 | 6 | `principalName`   | Text → Short text    | Nama kepala sekolah                                   |
 | 7 | `principalMessage`| Rich text (Blocks)   | Isi sambutan kepala sekolah                           |
 | 8 | `principalPhoto`  | Media → Single media | Foto kepala sekolah                                   |
+| 9 | `schoolPhoto`     | Media → Single media | Foto gedung sekolah (di samping "Sejarah Singkat")    |
+
+> `title` dan `decription` boleh dihapus/kosong — kalau tidak ada, web pakai
+> judul & paragraf pengantar bawaan.
 
 > **Penting penamaan**: tulis nama field persis seperti di tabel (huruf kecil,
 > tanpa spasi). Kode sudah toleran terhadap beda huruf besar/kecil, tapi
@@ -43,8 +47,9 @@ Buka **Content Manager → About** (single type ini hanya punya satu entri):
   "Mengenal SMAN 1 Kraksaan".
 - `decription` — paragraf pengantar bagian atas (field yang sudah kamu buat;
   ejaannya typo tapi tetap terbaca oleh web, tidak perlu diubah).
-- `media` — sudah terisi "Foto depan matura.webp" → ini yang sekarang tampil
-  sebagai foto gedung di halaman Tentang.
+- `schoolPhoto` — foto gedung/depan sekolah yang tampil di samping
+  "Sejarah Singkat" (sudah terisi "Foto depan matura.webp"; ganti kapan pun
+  lewat Content Manager → About → schoolPhoto, lalu Save + Publish).
 - `history`, `vision`, `mission` — isi sesuai teks yang dulu hardcode
   (teksnya masih ada sebagai cadangan, bisa disalin dari situs).
 - `extracurriculars` — satu ekskul per baris, misalnya:
@@ -178,7 +183,7 @@ JSON di single type Jadwal  →  entri collection schedules  →  schedule.json 
 | Gejala | Penyebab umum | Solusi |
 |---|---|---|
 | Konten Tentang tidak berubah | Entri belum **Publish** | Content Manager → About → Publish |
-| Foto tidak muncul | Field Media kosong / salah nama field | Cek `media` dan `principalPhoto` terisi |
+| Foto gedung tidak muncul | Field Media kosong / salah nama field | Cek `schoolPhoto` dan `principalPhoto` terisi |
 | Jadwal web tidak berubah | JSON tidak valid (ada koma menggantung, dll.) | Tempel ulang; cek valid di jsonlint.com |
 | Jadwal kembali ke data lama | Field `data` kosong / ST belum publish | Isi & publish single type Jadwal |
 | 401/403 di log Vercel | Token `STRAPI_TOKEN` belum punya izin baca CT baru | Settings → API Tokens → beri akses `about` & `jadwal` |

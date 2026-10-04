@@ -9,7 +9,9 @@
  *   title             Text        — judul H1 (opsional)
  *   decription        Rich text   — paragraf pengantar "Mengenal sekolah"
  *                                 (mengikuti nama field yang sudah ada, typo tetap dibaca)
- *   media             Media       — foto gedung sekolah
+ *   schoolPhoto       Media       — foto gedung sekolah di samping "Sejarah Singkat"
+ *                                 (nama field yang dibuat user; alias lama tetap dibaca:
+ *                                 media / heroImage / gambar / fotoSekolah / fotoGedung)
  *   history           Rich text   — sejarah singkat
  *   vision            Text        — visi
  *   mission           Text        — misi, SATU MISI PER BARIS
@@ -141,7 +143,9 @@ export async function getAboutContent(revalidate = 120): Promise<AboutContent> {
   if (facilities.length === 0) facilities = FALLBACK_FACILITIES;
 
   const extracurriculars = textItems(pick(about ?? {}, "extracurriculars", "ekstrakurikuler", "extracurricular"));
-  const heroImage = mediaUrl(pick(about ?? {}, "media", "heroImage", "gambar"));
+  const heroImage = mediaUrl(
+    pick(about ?? {}, "schoolPhoto", "schoolImage", "fotoSekolah", "fotoGedung", "media", "heroImage", "gambar"),
+  );
   const principalPhoto = mediaUrl(pick(about ?? {}, "principalPhoto", "fotoKepsek"));
 
   const intro = paragraphs(pick(about ?? {}, "decription", "description", "intro"));
